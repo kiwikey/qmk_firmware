@@ -195,7 +195,7 @@ void draw_default() {
     oled_write(get_time(), false);
 
 /* Matrix display is 12 x 12 pixels */
-#define MATRIX_DISPLAY_X 0
+#define MATRIX_DISPLAY_X 5
 #define MATRIX_DISPLAY_Y 18
 
     // matrix
