@@ -3,7 +3,7 @@
 
 #include QMK_KEYBOARD_H
 #include "raw_hid.h"
-//#include "oled-bongocat.c"
+#include "oled-bongocat.c"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT(
