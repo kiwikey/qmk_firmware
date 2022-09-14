@@ -7,9 +7,6 @@
  * Feature disable options
  *  These options are also useful to firmware size reduction.
  */
- 
-#define BOOTMAGIC_LITE_ROW 0
-#define BOOTMAGIC_LITE_COLUMN 0
 
 /* disable debug print */
 //#define NO_DEBUG
