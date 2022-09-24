@@ -1,9 +1,7 @@
 {
-    "keyboard_name": "salice",
+    "keyboard_name": "Salice",
     "url": "",
     "maintainer": "KiwiKey",
-    "width": 3,
-    "height": 2,
     "layouts": {
         "LAYOUT": {
             "layout": [
