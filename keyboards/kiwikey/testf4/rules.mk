@@ -12,8 +12,11 @@ CONSOLE_ENABLE = no         # Console for debug
 COMMAND_ENABLE = no         # Commands for debug and configuration
 NKRO_ENABLE = no            # Enable N-Key Rollover
 BACKLIGHT_ENABLE = no       # Enable keyboard backlight functionality
-RGBLIGHT_ENABLE = yes        # Enable keyboard RGB underglow
+RGBLIGHT_ENABLE = yes       # Enable keyboard RGB underglow
 AUDIO_ENABLE = no           # Audio output
-ENCODER_ENABLE = yes        # Encoder Enabled
+ENCODER_ENABLE = no         # Encoder Enabled
+
+QUANTUM_PAINTER_ENABLE = yes
+QUANTUM_PAINTER_DRIVERS = st7789_spi
 
 DEFAULT_FOLDER = kiwikey/testf4/f401
