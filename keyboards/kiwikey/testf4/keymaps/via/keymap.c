@@ -16,6 +16,8 @@
  
 #include QMK_KEYBOARD_H
 //#include "oled.c"
+#include "print.h"
+#include <qp.h>
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Base */
@@ -40,3 +42,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, _______, _______
     )
 };
+
+//static painter_device_t display;
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+
+    return true;
+}
+
+void housekeeping_task_user(void) {
+    static bool was_sent = false;
+    if (!was_sent && timer_read32() > 3000) {
+        uprintf("...3s!\n");
+        was_sent = true;
+    }
+}
+
+void keyboard_post_init_user(void) {
+    uprintf("Post init user");
+    SEND_STRING("Post init user");
+}

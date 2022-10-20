@@ -51,11 +51,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPI_SCK_PIN  B13 // SCK
 #define SPI_MOSI_PIN B15 // MOSI
 #define SPI_MISO_PIN B14 // MISO
-//#define SPI_SCK_PAL_MODE  5
-//#define SPI_MOSI_PAL_MODE 5
-//#define SPI_MISO_PAL_MODE 5
+#define SPI_SCK_PAL_MODE  5
+#define SPI_MOSI_PAL_MODE 5
+#define SPI_MISO_PAL_MODE 5
 
-#define DISPLAY_SPI_DIVISOR 1
+//#define DISPLAY_SPI_DIVISOR 3
 #define DISPLAY_CS_PIN B9
 #define DISPLAY_DC_PIN B8
 #define DISPLAY_RST_PIN B7
