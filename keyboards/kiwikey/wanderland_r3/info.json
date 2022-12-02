@@ -1,0 +1,11 @@
+{
+    "keyboard_name": "Wanderland R3",
+    "manufacturer": "KiwiKey",
+    "url": "http://kiwikey.vn/wanderland",
+    "maintainer": "KiwiKey",
+    "usb": {
+        "vid": "0x4B57",
+        "pid": "0x5703",
+        "device_version": "3.0.1"
+    }
+}

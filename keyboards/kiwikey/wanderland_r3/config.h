@@ -1,20 +1,27 @@
-// Copyright 2022 KiwiKey (@KiwiKey)
-// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+Copyright 2021 KiwiKey
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #pragma once
 
 #include "config_common.h"
 
-/* USB Device descriptor parameter */
-#define VENDOR_ID    0x4B57    // KW - KiwiKey
-#define PRODUCT_ID   0x0101    // 101
-#define DEVICE_VER   0x0001
-#define MANUFACTURER KiwiKey
-#define PRODUCT      Kiwi101
-
 /* key matrix size */
-#define MATRIX_ROWS 12
-#define MATRIX_COLS 10
+#define MATRIX_ROWS 6
+#define MATRIX_COLS 12
 
 /*
  * Keyboard Matrix Assignments
@@ -26,26 +33,26 @@
  *                  ROW2COL = ROW = Anode (+), COL = Cathode (-, marked on diode)
  *
  */
-#define MATRIX_ROW_PINS { B0, C6, C7, E2, F7, F6, B7, B5, D4, D6, D7, B4 }
-#define MATRIX_COL_PINS { B1, D5, D3, E6, F0, F1, B3, B2, F4, B6 }
+#define MATRIX_ROW_PINS { F4, F1, E6, E2, C7, D4 }
+#define MATRIX_COL_PINS { F5, F6, B4, D7, D6, D5, D2, D3, B0, F0, B1, B2 }
 
 /* COL2ROW, ROW2COL */
 #define DIODE_DIRECTION COL2ROW
 
-#define DYNAMIC_KEYMAP_LAYER_COUNT 3
+/* Indicator LEDs Assignments */
+#define LED_NUM_LOCK_PIN B3
+#define LED_CAPS_LOCK_PIN C6
+#define LED_SCROLL_LOCK_PIN B6
 
-#define LED_NUM_LOCK_PIN D0
-#define LED_CAPS_LOCK_PIN D2
-#define LED_SCROLL_LOCK_PIN D1
-
-#define RGB_DI_PIN F5
-#ifdef RGB_DI_PIN
-#define RGBLED_NUM 24
+#define RGB_DI_PIN F7
+//#ifdef RGB_DI_PIN
+#define RGBLED_NUM 21
 #define RGBLIGHT_HUE_STEP 8
 #define RGBLIGHT_SAT_STEP 8
 #define RGBLIGHT_VAL_STEP 8
-//#    define RGBLIGHT_LIMIT_VAL 255 /* The maximum brightness level */
-//#    define RGBLIGHT_SLEEP  /* If defined, the RGB lighting will be switched off when the host goes to sleep */
+#define RGBLIGHT_LIMIT_VAL 200 /* The maximum brightness level */
+#define RGBLIGHT_SLEEP  /* If defined, the RGB lighting will be switched off when the host goes to sleep */
+/*== choose animations ==*/
 #define RGBLIGHT_EFFECT_BREATHING
 #define RGBLIGHT_EFFECT_RAINBOW_MOOD
 #define RGBLIGHT_EFFECT_RAINBOW_SWIRL
@@ -62,7 +69,7 @@
 /*==== use exp() and sin() ====*/
 //#    define RGBLIGHT_EFFECT_BREATHE_CENTER 1.85  // 1 to 2.7
 //#    define RGBLIGHT_EFFECT_BREATHE_MAX    255   // 0 to 255
-#endif
+//#endif
 
 /* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */
 #define DEBOUNCE 5
@@ -107,10 +114,10 @@
  */
 
 /* disable debug print */
-//#define NO_DEBUG
+#define NO_DEBUG
 
 /* disable print */
-//#define NO_PRINT
+#define NO_PRINT
 
 /* disable action features */
 //#define NO_ACTION_LAYER
