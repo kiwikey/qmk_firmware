@@ -1,9 +1,49 @@
 {
-    "keyboard_name": "ts60v2",
-    "url": "",
+    "manufacturer": "KiwiKey",
+    "keyboard_name": "TS60v2",
     "maintainer": "KiwiKey",
-    "width": 3,
-    "height": 2,
+	"url": "???",
+    "processor": "atmega32u4",
+    "bootloader": "atmel-dfu",
+    "usb": {
+        "pid": "0x6002",
+        "vid": "0x4B57",
+        "device_version": "1.0.0"
+    },
+    "features": {
+		"bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+		"rgblight": true,
+        "nkro": true
+    },
+    "diode_direction": "COL2ROW",
+    "matrix_pins": {
+        "cols": [ "B6", "C6", "C7", "F7", "F6", "F5", "F4", "F1", "B4", "D7", "D6", "D4", "B2", "B1" ],
+		"rows": [ "F0", "D3", "B5", "D5", "B3" ]
+    },
+    "rgblight": {
+        "led_count": 16,
+        "pin": "B7",
+        "hue_steps": 10,
+        "saturation_steps": 17,
+        "brightness_steps": 17,
+        "animations": {
+            "all": true
+        }
+    },
+    "indicators": {
+        "num_lock": "D2",
+        "caps_lock": "D1",
+        "scroll_lock": "D0"
+    },
+    "encoder": {
+        "rotary": [
+            { "pin_a": "B0", "pin_b": "E6", "resolution": 4 }
+        ]
+    },
     "layouts": {
         "LAYOUT": {
             "layout": [

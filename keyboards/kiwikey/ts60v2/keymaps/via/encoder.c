@@ -17,7 +17,7 @@
 
 //Setting up what encoder rotation does. If your encoder can be pressed as a button, that function can be set in Via.
 
-#ifdef ENCODER_ENABLE
+//#ifdef ENCODER_ENABLE
 bool encoder_update_user(uint8_t index, bool clockwise) {
 	if (clockwise) {
 		tap_code(KC_VOLD);
@@ -26,4 +26,4 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 	}
     return true;	
 }
-#endif
+//#endif

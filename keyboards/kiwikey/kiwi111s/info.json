@@ -1,7 +1,12 @@
 {
-    "keyboard_name": "kiwi111s",
-    "url": "",
+    "keyboard_name": "Kiwi111S",
+    "manufacturer": "KiwiKey",
     "maintainer": "KiwiKey",
+	"usb": {
+        "vid": "0x4B57",
+        "pid": "0x1110",
+        "device_version": "0.0.1"
+    },
     "layouts": {
         "LAYOUT": {
             "layout": [
