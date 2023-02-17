@@ -21,8 +21,8 @@
     },
     "diode_direction": "COL2ROW",
     "matrix_pins": {
-        "cols": [ "C7", "C6", "B6", "B5", "B4", "D7", "D1", "B3", "F0", "E6", "D4", "D6" ],
-        "rows": [ "F1", "F4", "F5", "F6", "F7", "D0", "D5", "D3", "D2" ]
+        "rows": [ "C7", "C6", "B6", "B5", "B4", "D7", "D1", "B3", "F0", "E6", "D4", "D6" ],
+        "cols": [ "F1", "F4", "F5", "F6", "F7", "D0", "D5", "D3", "D2" ]
     },
     "rgblight": {
         "led_count": 22,
@@ -35,9 +35,9 @@
         }
     },
     "indicators": {
-        "num_lock": "D3",
-        "caps_lock": "D2",
-        "scroll_lock": "D1"
+        "num_lock": "B0",
+        "caps_lock": "B1",
+        "scroll_lock": "B2"
     },
     "layouts": {
         "LAYOUT_1800": {
@@ -75,7 +75,8 @@
 { "matrix": [7, 1], "label": ")", "x": 10, "y": 1.25},
 { "matrix": [7, 2], "label": "_", "x": 11, "y": 1.25},
 { "matrix": [7, 3], "label": "+", "x": 12, "y": 1.25},
-{ "matrix": [7, 4], "label": "Backspace", "x": 13, "y": 1.25, "w": 2},
+{ "matrix": [7, 4], "label": "Backspace", "x": 13, "y": 1.25},
+{ "matrix": [9, 4], "label": "Delete", "x": 14, "y": 1.25},
 { "matrix": [7, 5], "label": "Num Lock", "x": 15.5, "y": 1.25},
 { "matrix": [7, 6], "label": "/", "x": 16.5, "y": 1.25},
 { "matrix": [7, 7], "label": "*", "x": 17.5, "y": 1.25},
@@ -110,7 +111,7 @@
 { "matrix": [3, 7], "label": "J", "x": 7.75, "y": 3.25},
 { "matrix": [3, 8], "label": "K", "x": 8.75, "y": 3.25},
 { "matrix": [9, 0], "label": "L", "x": 9.75, "y": 3.25},
-{ "matrix": [9, 1], "label": "fix here", "x": 10.75, "y": 3.25},
+{ "matrix": [9, 1], "label": "fix this", "x": 10.75, "y": 3.25},
 { "matrix": [9, 2], "label": "\"", "x": 11.75, "y": 3.25},
 { "matrix": [9, 3], "label": "Enter", "x": 12.75, "y": 3.25, "w": 2.25},
 { "matrix": [9, 5], "label": "4", "x": 15.5, "y": 3.25},
@@ -138,8 +139,9 @@
 { "matrix": [5, 0], "label": "Ctrl", "x": 0, "y": 5.25, "w": 1.25},
 { "matrix": [5, 1], "label": "Win", "x": 1.25, "y": 5.25},
 { "matrix": [5, 2], "label": "Alt", "x": 2.25, "y": 5.25, "w": 1.25},
-{ "matrix": [5, 6], "label": "Space", "x": 3.5, "y": 5.25, "w": 7},
-{ "matrix": [11, 1], "label": "Alt", "x": 10.5, "y": 5.25, "w": 1.25},
+{ "matrix": [5, 6], "label": "Space", "x": 3.5, "y": 5.25, "w": 6.25},
+{ "matrix": [11, 0], "label": "Alt", "x": 9.75, "y": 5.25},
+{ "matrix": [11, 1], "label": "Fn", "x": 10.75, "y": 5.25, "w": 1.25},
 { "matrix": [11, 2], "label": "Ctrl", "x": 11.75, "y": 5.25, "w": 1.25},
 { "matrix": [11, 3], "label": "Left", "x": 13.25, "y": 5.5},
 { "matrix": [11, 4], "label": "Down", "x": 14.25, "y": 5.5},
