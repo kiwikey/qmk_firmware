@@ -1,0 +1,2 @@
+#define RGB_DI_PIN B7
+#define RGB_MATRIX_LED_COUNT 13

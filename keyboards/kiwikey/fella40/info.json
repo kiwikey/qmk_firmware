@@ -1,0 +1,93 @@
+{
+    "manufacturer": "KiwiKey",
+    "keyboard_name": "FeLLa40",
+    "maintainer": "KiwiKey",
+    "bootloader": "atmel-dfu",
+    "processor": "atmega32u4",
+    "url": "",
+    "usb": {
+        "device_version": "1.0.0",
+        "pid": "0xFE40",
+        "vid": "0x4B57"
+    },
+    "diode_direction": "COL2ROW",
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+        "rgblight": true,
+        "nkro": true
+    },
+    "matrix_pins": {
+        "cols": [ "F6", "F7", "C7", "C6", "B6", "F5", "B0", "B7", "D6", "D4", "D5", "D3", "D2" ],
+        "rows": [ "B2", "B4", "D7", "B5" ]
+    },
+    "rgblight": {
+        "led_count": 14,
+        "pin": "F0",
+        "hue_steps": 10,
+        "saturation_steps": 17,
+        "brightness_steps": 17,
+        "animations": {
+            "all": true
+        }
+    },
+    "layouts": {
+        "LAYOUT_40_alice": {
+            "layout": [
+                { "matrix": [0, 0], "x": 0.4, "y": 0 },
+                { "matrix": [0, 1], "x": 1.55, "y": 0.1 },
+                { "matrix": [0, 2], "x": 2.55, "y": 0.1 },
+                { "matrix": [0, 3], "x": 3.55, "y": 0 },
+                { "matrix": [0, 4], "x": 4.55, "y": 0.1 },
+                { "matrix": [0, 5], "x": 5.55, "y": 0.1 },
+                { "matrix": [0, 6], "x": 6.55, "y": 0.1 },
+                { "matrix": [0, 7], "x": 7.55, "y": 0.1 },
+				{ "matrix": [0, 8], "x": 8.55, "y": 0.1 },
+                { "matrix": [0, 9], "x": 9.75, "y": 0.1 },
+                { "matrix": [0, 10], "x": 10.75, "y": 0.1 },
+                { "matrix": [0, 11], "x": 11.75, "y": 0.1 },
+                { "matrix": [0, 12], "x": 12.75, "y": 0.1 },
+				
+                { "matrix": [1, 0], "x": 0.2, "y": 1.0 },
+                { "matrix": [1, 1], "w": 1.5, "x": 1.35, "y": 1.1 },
+                { "matrix": [1, 2], "x": 2.85, "y": 1.1 },
+                { "matrix": [1, 3], "x": 3.85, "y": 1.1 },
+                { "matrix": [1, 4], "x": 4.85, "y": 1.1 },
+                { "matrix": [1, 5], "x": 5.85, "y": 1.1 },
+                { "matrix": [1, 6], "x": 6.85, "y": 1.1 },
+				{ "matrix": [1, 7], "x": 7.85, "y": 1.1 },
+				{ "matrix": [1, 8], "x": 8.85, "y": 1.1 },
+                { "matrix": [1, 9], "x": 9.45, "y": 1.1 },
+                { "matrix": [1, 10], "x": 10.45, "y": 1.1 },
+                { "matrix": [1, 12], "x": 12.45, "y": 1.1 },
+				
+                { "matrix": [2, 0], "x": 0, "y": 2.0 },
+                { "matrix": [2, 1], "w": 1.75, "x": 1.15, "y": 2.1 },
+                { "matrix": [2, 2], "x": 2.9, "y": 2.1 },
+                { "matrix": [2, 3], "x": 3.9, "y": 2.1 },
+                { "matrix": [2, 4], "x": 4.9, "y": 2.1 },
+                { "matrix": [2, 5], "x": 5.9, "y": 2.1 },
+                { "matrix": [2, 6], "x": 6.9, "y": 2.1 },
+				{ "matrix": [2, 7], "x": 7.9, "y": 2.1 },
+				{ "matrix": [2, 8], "x": 8.9, "y": 2.1 },
+                { "matrix": [2, 9], "x": 9.9, "y": 2.1 },
+                { "matrix": [2, 10], "x": 10.9, "y": 2.1 },
+                { "matrix": [2, 11], "x": 11.9, "y": 2.1 },
+                { "matrix": [2, 12], "x": 12.9, "y": 2.1 },
+				
+                { "matrix": [3, 0], "w": 1.5, "x": 0.95, "y": 4.1 },
+                { "matrix": [3, 1], "w": 1.5, "x": 3.85, "y": 4.1 },
+                { "matrix": [3, 3], "w": 2, "x": 5.35, "y": 4.1 },
+                { "matrix": [3, 4], "w": 1.25, "x": 7.35, "y": 4.1 },
+                { "matrix": [3, 6], "w": 2.75, "x": 9.6, "y": 4.1 },
+                { "matrix": [3, 8], "w": 1.5, "x": 12.35, "y": 4.1 },
+                { "matrix": [3, 10], "x": 16.65, "y": 4.1 },
+				{ "matrix": [3, 11], "x": 17.65, "y": 4.1 },
+				{ "matrix": [3, 12], "x": 18.65, "y": 4.1 }
+            ]
+        }
+    }
+}
