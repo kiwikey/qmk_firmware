@@ -10,7 +10,6 @@
         "pid": "0xFE40",
         "vid": "0x4B57"
     },
-    "diode_direction": "COL2ROW",
     "features": {
         "bootmagic": true,
         "command": false,
@@ -20,6 +19,7 @@
         "rgblight": true,
         "nkro": true
     },
+	"diode_direction": "COL2ROW",
     "matrix_pins": {
         "cols": [ "F6", "F7", "C7", "C6", "B6", "F5", "B0", "B7", "D6", "D4", "D5", "D3", "D2" ],
         "rows": [ "B2", "B4", "D7", "B5" ]
@@ -33,6 +33,13 @@
         "animations": {
             "all": true
         }
+    },
+	"encoder": {
+        "enabled": true,
+        "rotary": [
+            { "pin_a": "F1", "pin_b": "F4", "resolution": 4 },
+			{ "pin_a": "B3", "pin_b": "B1", "resolution": 4 }
+        ]
     },
     "layouts": {
         "LAYOUT_40_alice": {
