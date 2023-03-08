@@ -14,17 +14,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include QMK_KEYBOARD_H
 
-#include_next <mcuconf.h>
-
-#undef STM32_I2C_USE_I2C1
-#define STM32_I2C_USE_I2C1 TRUE
-
-#undef STM32_SPI_USE_SPI2
-#define STM32_SPI_USE_SPI2 TRUE
-
-#undef STM32_PWM_USE_TIM1
-#define STM32_PWM_USE_TIM1                  TRUE
-#undef STM32_GPT_USE_TIM4
-#define STM32_GPT_USE_TIM4                  TRUE
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+    /* Base */
+    [0] = LAYOUT(
+		KC_1,    KC_2,    KC_3,
+		KC_4,    KC_5,    KC_6,    
+		KC_7,    KC_8,    KC_9
+    ),
+    [1] = LAYOUT(
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+    ),
+    [2] = LAYOUT(
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+    ),
+    [3] = LAYOUT(
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+    )
+};

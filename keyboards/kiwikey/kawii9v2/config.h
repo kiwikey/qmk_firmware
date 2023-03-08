@@ -3,12 +3,9 @@
 
 #pragma once
 
-#include "config_common.h"
-
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
 #define NO_ACTION_ONESHOT
-
 
 #define RGB_DI_PIN B7
 #define RGB_MATRIX_LED_COUNT 13

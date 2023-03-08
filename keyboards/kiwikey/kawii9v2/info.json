@@ -27,8 +27,8 @@
     "debounce": 5,
     "diode_direction": "COL2ROW",
     "matrix_pins": {
-        "cols": ["F4", "F5", "F6" ],
-        "rows": ["B6", "B5", "B4" ]
+        "cols": [ "F4", "F5", "F6", "D4", "B0" ],
+        "rows": [ "B6", "B5", "B4", "D7", "B1" ]
     },
     "rgb_matrix": {
         "driver": "WS2812",
@@ -67,7 +67,10 @@
                 { "matrix": [1, 2], "x": 2, "y": 1 },
                 { "matrix": [2, 0], "x": 0, "y": 2 },
                 { "matrix": [2, 1], "x": 1, "y": 2 },
-                { "matrix": [2, 2], "x": 2, "y": 2 }
+                { "matrix": [2, 2], "x": 2, "y": 2 },
+				
+				{ "matrix": [3, 3], "x": 3, "y": 3 },
+				{ "matrix": [4, 4], "x": 4, "y": 4 }
             ]
         }
     }

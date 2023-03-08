@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Kyle McCreery
+Copyright 2022 Kyle McCreery
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,8 +16,3 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
-
-#define AUDIO_PIN B5
-#define AUDIO_PWM_DRIVER PWMD1
-#define AUDIO_PWM_CHANNEL 1
-#define AUDIO_STATE_TIMER GPTD4
