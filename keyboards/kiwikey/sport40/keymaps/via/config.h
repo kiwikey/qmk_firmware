@@ -1,4 +1,0 @@
-#pragma once
-
-#define DYNAMIC_KEYMAP_LAYER_COUNT 4
-#define ENCODER_MAP_KEY_DELAY 10
