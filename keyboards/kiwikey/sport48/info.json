@@ -1,0 +1,113 @@
+{
+    "keyboard_name": "SpOrt48",
+    "manufacturer": "KiwiKey",
+    "url": "kiwikey.vn",
+    "maintainer": "KiwiKey",
+    "usb": {
+        "vid": "0x4B57",
+        "pid": "0x5348",
+        "device_version": "1.0.1"
+    },
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+		"rgblight": true,
+        "nkro": false,
+		"quantum_painter": true
+    },
+	"rgblight": {
+        "led_count": 14,
+        "pin": "A2",
+		"max_brightness": 255,
+        "brightness_steps": 17,
+		"sleep": true,
+        "animations": {
+			"alternating": true,
+			"breathing": true,
+			"christmas": true,
+			"knight": true,
+			"rainbow_mood": true,
+			"rainbow_swirl": true,
+			"rgb_test": true,
+			"snake": true,
+			"static_gradient": true,
+			"twinkle": true
+        }
+    },
+	"matrix_pins": {
+        "cols": [ "C14", "C15", "B8", "B7", "B4", "B3", "B0" ],
+        "rows": [ "A15",  "A8", "A3", "B1" ]
+    },
+	"diode_direction": "COL2ROW",
+    "encoder": {
+		"enabled": true,
+        "rotary": [
+            {"pin_a": "A0", "pin_b": "B5"}
+        ]
+    },
+    "split": {
+        "soft_serial_pin": "B6"
+    },
+    "layouts": {
+        "LAYOUT_ortho_4x12": {
+            "layout": [
+				{"x":0, "y":0},
+				{"x":1, "y":0},
+				{"x":2, "y":0},
+				{"x":3, "y":0},
+				{"x":4, "y":0},
+				{"x":5, "y":0},
+				{"x":8, "y":0},
+				{"x":9, "y":0},
+				{"x":10, "y":0},
+				{"x":11, "y":0},
+				{"x":12, "y":0},
+				{"x":13, "y":0},
+
+				{"x":0, "y":1},
+				{"x":1, "y":1},
+				{"x":2, "y":1},
+				{"x":3, "y":1},
+				{"x":4, "y":1},
+				{"x":5, "y":1},
+				{"x":8, "y":1},
+				{"x":9, "y":1},
+				{"x":10, "y":1},
+				{"x":11, "y":1},
+				{"x":12, "y":1},
+				{"x":13, "y":1},
+
+				{"x":0, "y":2},
+				{"x":1, "y":2},
+				{"x":2, "y":2},
+				{"x":3, "y":2},
+				{"x":4, "y":2},
+				{"x":5, "y":2},
+				{"x":8, "y":2},
+				{"x":9, "y":2},
+				{"x":10, "y":2},
+				{"x":11, "y":2},
+				{"x":12, "y":2},
+				{"x":13, "y":2},
+
+				{"x":0, "y":3},
+				{"x":1, "y":3},
+				{"x":2, "y":3},
+				{"x":3, "y":3},
+				{"x":4, "y":3},
+				{"x":5, "y":3},
+				{"x":6, "y":3},
+				{"x":7, "y":3},
+				{"x":8, "y":3},
+				{"x":9, "y":3},
+				{"x":10, "y":3},
+				{"x":11, "y":3},
+				{"x":12, "y":3},
+				{"x":13, "y":3}
+			]
+        }
+    }
+}
