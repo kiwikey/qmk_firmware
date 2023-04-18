@@ -11,7 +11,6 @@
 #include "anya01.qgf.h"
 #include "pusheen_240px.qgf.h"
 
-
 static painter_image_handle_t img_pikachu;
 static painter_image_handle_t img_anya01;
 static painter_image_handle_t gif_pusheen;
@@ -33,8 +32,8 @@ void draw_right_display(void) {
 
 	qp_drawimage(my_display, 0, 0, img_anya01);	
 	static const char *text = "SLAVE (right)";
-
-	qp_drawtext(my_display, 0, arial30->line_height, arial30, text);
+	int16_t width = qp_textwidth(arial30, text);
+	qp_drawtext(my_display, (239 - width), (239 - arial30->line_height), arial30, text);
 }
 
 void keyboard_post_init_display(void) {
@@ -53,4 +52,3 @@ void keyboard_post_init_display(void) {
         draw_right_display();
     }
 }
-

@@ -8,7 +8,7 @@
 #define NO_ACTION_ONESHOT
 
 #define RGB_DI_PIN B7
-#define RGB_MATRIX_LED_COUNT 13
+#define RGB_MATRIX_LED_COUNT 18
 #define RGB_MATRIX_FRAMEBUFFER_EFFECTS
 #define RGB_MATRIX_KEYPRESSES // reacts to keypresses
 #define RGB_DISABLE_WHEN_USB_SUSPENDED // turn off effects when suspended

@@ -1,6 +1,5 @@
 #include "sport48.h"
 
-
 #include "qp.h"
 #include "quantum.h"
 #include "print.h"

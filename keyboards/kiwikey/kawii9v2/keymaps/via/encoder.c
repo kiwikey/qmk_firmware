@@ -1,8 +1,0 @@
-#if defined(ENCODER_MAP_ENABLE)
-const uint16_t PROGMEM encoder_map[][2][2] = {
-    [0] = { ENCODER_CCW_CW( KC_VOLU,  KC_VOLD ), ENCODER_CCW_CW( KC_VOLU,  KC_VOLD ) },
-    [1] = { ENCODER_CCW_CW( KC_PGUP,  KC_PGDN ), ENCODER_CCW_CW( KC_PGUP,  KC_PGDN ) },
-    [2] = { ENCODER_CCW_CW( RGB_VAI,  RGB_VAD ), ENCODER_CCW_CW( RGB_VAI,  RGB_VAD ) },
-    [3] = { ENCODER_CCW_CW( KC_TRNS,  KC_TRNS ), ENCODER_CCW_CW( KC_TRNS,  KC_TRNS ) }
-};
-#endif

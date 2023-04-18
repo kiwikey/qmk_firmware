@@ -3,24 +3,38 @@
     "manufacturer": "KiwiKey",
     "url": "kiwikey.vn",
     "maintainer": "KiwiKey",
+	"bootloader_instructions": "Hold the top-left or top-right key (depends on which half) and plug in the board. Can also use QK_BOOT if mapped anywhere",
     "usb": {
         "vid": "0x4B57",
         "pid": "0x5348",
         "device_version": "1.0.1"
     },
     "features": {
-        "bootmagic": true,
         "command": false,
         "console": false,
         "extrakey": true,
         "mousekey": true,
+		"backlight": true,
 		"rgblight": true,
-        "nkro": false,
+        "nkro": true,
 		"quantum_painter": true
     },
+    "bootmagic": {
+        "enabled": true,
+        "matrix": [0, 0]
+    },
+    "backlight": {
+		"pin": "A1",
+		"driver": "pwm",
+        "breathing": false,
+		"max_brightness": 255,
+        "levels": 10
+    }
 	"rgblight": {
         "led_count": 14,
         "pin": "A2",
+		"split": true,
+		"split_count": [7, 7],
 		"max_brightness": 255,
         "brightness_steps": 17,
 		"sleep": true,
@@ -49,7 +63,11 @@
         ]
     },
     "split": {
-        "soft_serial_pin": "B6"
+		"soft_serial_pin": "B6",
+		"soft_serial_speed": 1,
+		"bootmagic": {
+			"matrix": [5, 0]
+		},
     },
     "layouts": {
         "LAYOUT_ortho_4x12": {
