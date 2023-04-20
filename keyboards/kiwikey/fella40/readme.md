@@ -2,7 +2,7 @@
 
 ![FeLLa40](https://kiwikey.vn/media/fella40/fella40.jpg)
 
-A 40% Alice-layout keyboard. With an 128*32 OLED screen and 2 rotary encoders.
+FeLLa40 is a 40% Alice-layout keyboard, with an 128*32px OLED screen and 2 rotary encoders.
 
 * Keyboard Maintainer: [KiwiKey](https://github.com/kiwikey)
 * Hardware Supported: FeLLa40 Hotswap PCB
@@ -22,6 +22,6 @@ See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_to
 
 Enter the bootloader in 3 ways:
 
-* **Bootmagic reset**: Hold down the key at (0,0) in the matrix (usually the top left key or Escape) and plug in the keyboard
-* **Physical reset button**: Briefly press the button on the back of the PCB
-* **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available
+* **Bootmagic reset**: Hold down the top-left key and plug in the keyboard.
+* **Physical reset button**: Briefly press the button on the back of the PCB.
+* **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available.
