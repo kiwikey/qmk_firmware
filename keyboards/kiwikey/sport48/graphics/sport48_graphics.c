@@ -46,7 +46,7 @@ void keyboard_post_init_display(void) {
 	//int16_t width = qp_textwidth(arial30, text);
 	//qp_drawtext(my_display, (239 - width), (239 - arial30->line_height), arial30, text);
 	
-	if (is_keyboard_master()) {
+	if (is_keyboard_left()) {
         draw_ui_user();
     } else {
         draw_right_display();
