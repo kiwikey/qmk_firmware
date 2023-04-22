@@ -14,10 +14,12 @@
         "bootmagic": true,
         "command": false,
         "console": false,
+        "rgblight": true,
+        "encoder": true,
         "extrakey": true,
         "mousekey": true,
-        "rgblight": true,
-        "nkro": true
+        "nkro": true,
+        "lto": true
     },
     "diode_direction": "COL2ROW",
     "matrix_pins": {
@@ -30,6 +32,7 @@
         "hue_steps": 10,
         "saturation_steps": 10,
         "brightness_steps": 20,
+		"sleep": true,
         "animations": {
             "alternating": true,
             "breathing": true,
@@ -44,7 +47,6 @@
         }
     },
     "encoder": {
-        "enabled": true,
         "rotary": [
             { "pin_a": "F1", "pin_b": "F4", "resolution": 4 },
             { "pin_a": "B3", "pin_b": "B1", "resolution": 4 }
