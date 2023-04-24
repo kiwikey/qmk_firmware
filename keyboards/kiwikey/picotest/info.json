@@ -1,0 +1,61 @@
+{
+    "manufacturer": "KiwiKey",
+    "keyboard_name": "picotest",
+    "maintainer": "KiwiKey",
+    "processor": "RP2040",
+	"bootloader": "rp2040",
+    "url": "",
+    "usb": {
+        "device_version": "1.0.0",
+        "vid": "0x4B57",
+        "pid": "0x5049",
+    },
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+		"rgblight": true,
+        "nkro": true
+    },
+    "diode_direction": "COL2ROW",
+    "matrix_pins": {
+        "cols": ["GP6", "GP7", "GP8"],
+        "rows": ["GP3", "GP4", "GP5"]
+    },
+	"rgblight": {
+        "led_count": 1,
+        "pin": "GP23",
+		"max_brightness": 255,
+        "brightness_steps": 17,
+		"sleep": true,
+        "animations": {
+			"alternating": true,
+			"breathing": true,
+			"christmas": true,
+			"knight": true,
+			"rainbow_mood": true,
+			"rainbow_swirl": true,
+			"rgb_test": true,
+			"snake": true,
+			"static_gradient": true,
+			"twinkle": true
+        }
+    },
+    "layouts": {
+        "LAYOUT_ortho_3x3": {
+            "layout": [
+                { "matrix": [0, 0], "x": 0, "y": 0 },
+                { "matrix": [0, 1], "x": 1, "y": 0 },
+                { "matrix": [0, 2], "x": 2, "y": 0 },
+                { "matrix": [1, 0], "x": 0, "y": 1 },
+                { "matrix": [1, 1], "x": 1, "y": 1 },
+                { "matrix": [1, 2], "x": 2, "y": 1 },
+                { "matrix": [2, 0], "x": 0, "y": 2 },
+                { "matrix": [2, 1], "x": 1, "y": 2 },
+                { "matrix": [2, 2], "x": 2, "y": 2 }
+            ]
+        }
+    }
+}
