@@ -1,6 +1,6 @@
 # Kiwi65S
 
-![Kiwi65S](https://kiwikey.vn/media/kiwi65s.jpg/kiwi65s.jpg)
+![Kiwi65S](https://kiwikey.vn/media/kiwi65s/kiwi65s.jpg)
 
 Kiwi65S is a split 65% keyboard, with an extra column on left side.
 A 128*32px OLED screen and 2 rotary encoders are also supported.
