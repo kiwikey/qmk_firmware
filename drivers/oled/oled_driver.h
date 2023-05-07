@@ -233,6 +233,7 @@ void oled_write_ln(const char *data, bool invert);
 // Pans the buffer to the right (or left by passing true) by moving contents of the buffer
 // Useful for moving the screen in preparation for new drawing
 void oled_pan(bool left);
+void oled_pan_area(char start_x, char end_x, char start_y, char end_y, bool left);
 
 // Returns a pointer to the requested start index in the buffer plus remaining
 // buffer length as struct
