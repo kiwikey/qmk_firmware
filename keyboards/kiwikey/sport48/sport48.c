@@ -1,4 +1,5 @@
 #include "sport48.h"
+#include "ui/lvgl_ui.c"
 
 #include "qp.h"
 #include "quantum.h"
@@ -6,7 +7,7 @@
 #include "spi_master.h"
 #include "color.h"
 
-painter_device_t       my_display;
+painter_device_t my_display;
 
 void st7789_init(void) {
 	// Create my_display
@@ -23,15 +24,14 @@ void st7789_init(void) {
 	qp_power(my_display, true);
 	qp_clear(my_display);
 	qp_rect(my_display, 0, 0, 239, 239, HSV_BLACK, true);
+	if (qp_lvgl_attach(my_display)) {
+		// lv_example_get_started_1();
+		lv_example_arc_2();
+	}
 }
 
 void keyboard_post_init_kb(void) {
-	backlight_level(10);
     st7789_init();
+	backlight_level(10);
     keyboard_post_init_user();
 }
-
-//----------------------------------------------------------
-// UI Placeholder, implemented in themes
-
-//__attribute__((weak)) void draw_ui_user(bool force_redraw) {}
