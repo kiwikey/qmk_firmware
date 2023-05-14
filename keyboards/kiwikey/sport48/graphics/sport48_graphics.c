@@ -23,9 +23,21 @@ static painter_font_handle_t  arial30;
 void draw_ui_user(void) {
 	qp_drawimage(my_display, 0, 0, img_pikachu);
 	
-	static const char *text = "MASTER (left)";
-    int16_t width = qp_textwidth(arial30, text);
-	qp_drawtext(my_display, (239 - width), (239 - arial30->line_height), arial30, text);
+	// static const char *text = "MASTER (left)";
+    // int16_t width = qp_textwidth(arial30, text);
+	// qp_drawtext(my_display, (239 - width), (239 - arial30->line_height), arial30, text);
+
+	static const char *text = "Le Tri Thong";
+   // int16_t width = qp_textwidth(arial30, text);
+	qp_drawtext(my_display, 0, 0, arial30, text);
+	
+	static const char *text2 = " 13.05.2023 ";
+    //int16_t width2 = qp_textwidth(arial30, text2);
+	qp_drawtext(my_display, 0, arial30->line_height, arial30, text2);
+	
+		static const char *text3 = "#VNMK";
+    //int16_t width2 = qp_textwidth(arial30, text2);
+	qp_drawtext(my_display, 0, (arial30->line_height)*2, arial30, text3);
 }
 void draw_right_display(void) {
 	//my_anim = qp_animate(my_display, 0, 0, gif_pusheen);

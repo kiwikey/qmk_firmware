@@ -26,6 +26,7 @@ void st7789_init(void) {
 }
 
 void keyboard_post_init_kb(void) {
+	backlight_level(10);
     st7789_init();
     keyboard_post_init_user();
 }

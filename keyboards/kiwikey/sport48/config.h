@@ -28,9 +28,10 @@
 
 /*** PWM DRIVER DEFINITIONS ***/
 // There is no official API for PWM, so PWM Backlight is used
-#define BACKLIGHT_PWM_DRIVER  PWMD5  // Use TIM5_CH2 of pin PA1 for dimming TFT's brightness
-#define BACKLIGHT_PWM_CHANNEL 2
-#define BACKLIGHT_PAL_MODE    2      // PA1's alternate function 2 is TIM5_CH2
+#define BACKLIGHT_PWM_DRIVER    PWMD5  // Use TIM5_CH2 of pin PA1 for dimming TFT's brightness
+#define BACKLIGHT_PWM_CHANNEL   2
+#define BACKLIGHT_PAL_MODE      2      // PA1's alternate function 2 is TIM5_CH2
+#define BACKLIGHT_DEFAULT_LEVEL 10
 
 /*** SPLIT DEFINITIONS ***/
 #define SPLIT_HAND_PIN B10
