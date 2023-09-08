@@ -121,7 +121,7 @@ bool oled_task_kb(void) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-	if (keycode == KC_F9) {
+	if (keycode == KC_F15) {
 		oled_clear();
 		oled_status_flag = (oled_status_flag == 2 ? 0 : oled_status_flag + 1);
 		eeprom_write_byte((uint8_t*)EEPROM_OLED_MODE, oled_status_flag);
