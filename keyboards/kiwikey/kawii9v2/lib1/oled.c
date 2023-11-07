@@ -207,9 +207,6 @@ bool oled_task_kb(void) {
         sub_ui_mode = 0;
         ui_clear();
     }
-    // if (timer_elapsed32(key_timer) > ANIM_FRAME_DURATION) {
-        // anim_state = 0;
-    // }
     if (timer_elapsed32(key_timer) > OLED_TIMEOUT) {
         oled_off();
     }
@@ -217,29 +214,28 @@ bool oled_task_kb(void) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-    oled_on();
-	
-	if (record->event.pressed) {
-		extern uint32_t oled_tap_timer;
-		oled_tap_timer = timer_read32();
-	}
+    // oled_on();
 	
     switch (keycode) {
         case QK_LIGHTING ... QK_LIGHTING_MAX:
             sub_ui_mode = 1;
             ui_clear();
             break;
-        /** TODO 
-        case KC_AUDIO_MUTE ... KC_MEDIA_EJECT:
-            sub_ui_mode = 2;
-            ui_clear();
-            break;
-        ***/
+        // case QK_BOOT: // when activating RESET mode for flashing
+            // if (record->event.pressed) {
+				// oled_clear();
+				// oled_write_P(PSTR("Bootloader Mode"), false);
+            // }
+            // return true;
         default:
             break;
     }
+	
+	if (record->event.pressed) {
+		extern uint32_t oled_tap_timer;
+		oled_tap_timer = timer_read32();
+	}
     render_matrix();
-    // anim_state = (anim_state + 1) % ANIM_STATES;
     key_timer = timer_read32();
     return true;
 }
