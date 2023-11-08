@@ -41,7 +41,7 @@
 
 #define OLEDSCREEN_WIDTH  128
 //#define OLEDSCREEN_HEIGHT 64
-#define ANIM_POS_LINE     4 // from 0 to 5 on OLED 1.3"
+#define ANIM_POS_LINE     4 // from 0 to 4 on OLED 1.3"
 
 #define IDLE_FRAMES 4
 #define TAP_FRAMES  2

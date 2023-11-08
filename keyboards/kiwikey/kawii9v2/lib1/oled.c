@@ -15,6 +15,7 @@ static uint8_t rgb_val = 0;
 // sub_ui_mode = 0 : WPM graph
 //               1 : RGB control
 //               2 : Media control (to do)
+#define SUB_UI_DISPLAY_ROW 4
 #define SUB_UI_TIMEOUT 2000 // ms
 static char sub_ui_mode = 0;
 
@@ -140,7 +141,7 @@ void render_ui_frame(void) {
 }
 
 void render_ui_rgbcontrol(void) {
-    oled_set_cursor(0, 4);
+    oled_set_cursor(0, SUB_UI_DISPLAY_ROW);
 	oled_advance_page(true);
     oled_write_P(PSTR("----< Lighting >-----"), false);
     // RGB mode
@@ -182,8 +183,11 @@ void render_stats(void) {
     else {
         oled_write_P(PSTR("-----"), false);
     }
+	// uint32_t via_layout = via_get_layout_options();
+	// oled_set_cursor(0,0);
+	// oled_write_P(PSTR("VIA Layout: "), false);
+	// oled_write(get_u8_str(via_layout, ''), false);	
 }
-
 
 void keyboard_post_init_kb(void) {
     oled_on();
