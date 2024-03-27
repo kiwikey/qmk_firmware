@@ -1,0 +1,5 @@
+This is the lib which was PRed to qmk_firmware. Just original functions:
+- Layer, WPM, RGB
+- Interactive Matrix
+- Mario animation (with WMP)
+- WPM graph

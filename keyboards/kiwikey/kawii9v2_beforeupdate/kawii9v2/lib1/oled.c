@@ -1,24 +1,12 @@
 // Copyright 2023 KiwiKey
 // SPDX-License-Identifier: GPL-2.0-or-later
  
-#include "quantum.h"
-#include "oled_custom_api.h"
+#include QMK_KEYBOARD_H
+#include "oled_custom_api.c"
+//#include "anim_mario.c"
+#include "oled_bongocat_rle.c"
 
 #ifdef OLED_ENABLE
-
-#define LOGO_WIDTH  24
-#define LOGO_HEIGHT 24
-static const char PROGMEM qmk_logo[LOGO_HEIGHT/8][LOGO_WIDTH] = {
-    { 0x81,0x82,0x83,0x84 },
-    { 0xa1,0xa2,0xa3,0xa4 },
-    { 0xc1,0xc2,0xc3,0xc4 }
-};
-static void render_qmk_logo(uint8_t col, uint8_t row) {
-    for (uint8_t i = 0; i < LOGO_HEIGHT/8; i++) {
-        oled_set_cursor(col, row++);
-        oled_write_P(qmk_logo[i], false);
-    }
-}
 
 static uint32_t key_timer = 0;
 static uint8_t rgb_val = 0;
@@ -27,25 +15,35 @@ static uint8_t rgb_val = 0;
 // sub_ui_mode = 0 : WPM graph
 //               1 : RGB control
 //               2 : Media control (to do)
+#define SUB_UI_DISPLAY_ROW 4
 #define SUB_UI_TIMEOUT 2000 // ms
 static char sub_ui_mode = 0;
 
-// Configuration for Key Matrix
+// Configuration for Stats (by COL/ROW count, not by pixel)
+#define STATS_DISPLAY_COL 0
+#define STATS_DISPLAY_ROW 1 // Be careful setting this to 0 (zero)
+/*** Example of Stats ***
+    LAYER 0  WPM 123
+    
+    RGB #03  * 55%
+************************/
+
+// Configuration for Interactive Key Matrix (by pixel)
 #define MATRIX_DISPLAY_X    107
-#define MATRIX_DISPLAY_Y    11
+#define MATRIX_DISPLAY_Y    STATS_DISPLAY_ROW * 8 + 2 // The Matrix follows the Stats (same height)
 #define MATRIX_DISPLAY_SIZE 22
 #define KEY_SIZE            4
 #define KEY_SPACING         3
 
 // Configuration for WPM Graph
-#define GRAPH_ZERO_X           25  // This is zero origin
-#define GRAPH_ZERO_Y           63  // of the WPM graph
-#define GRAPH_WIDTH            100
-#define GRAPH_HEIGHT           28
-#define GRAPH_REFRESH_INTERVAL 100 // ms
-#define GRAPH_LINE_THICKNESS   1
-float max_wpm = 100.0;
-uint16_t graph_timer = 0;
+// #define GRAPH_ZERO_X           20  // This is zero origin
+// #define GRAPH_ZERO_Y           63  // of the WPM graph
+// #define GRAPH_WIDTH            105
+// #define GRAPH_HEIGHT           28
+// #define GRAPH_REFRESH_INTERVAL 100 // ms
+// #define GRAPH_LINE_THICKNESS   1
+// float max_wpm = 100.0;
+// uint16_t graph_timer = 0;
 
 // RGB Matrix naming, copy from @tzarc
 #if defined(RGB_MATRIX_ENABLE)
@@ -102,25 +100,6 @@ void render_matrix(void) {
     }
 }
 
-void render_wpm_graph(void) {
-    uint8_t curr_wpm = (get_current_wpm() < max_wpm ? get_current_wpm() : max_wpm);
-    if (timer_elapsed(graph_timer) > GRAPH_REFRESH_INTERVAL) {
-        uint8_t graph_pointer = (curr_wpm / max_wpm) * GRAPH_HEIGHT;
-        draw_line_h(GRAPH_ZERO_X + 1, GRAPH_ZERO_Y - graph_pointer, GRAPH_LINE_THICKNESS, true);
-        for (char i = 0; i < graph_pointer; i++) {
-            draw_line_h(GRAPH_ZERO_X + 1, GRAPH_ZERO_Y - i, GRAPH_LINE_THICKNESS, true);
-        }
-        for (char i = 0; i < GRAPH_LINE_THICKNESS; i++) {
-            oled_pan_area(GRAPH_ZERO_X,
-                          GRAPH_ZERO_X + GRAPH_WIDTH,
-                          (GRAPH_ZERO_Y + 1 - GRAPH_HEIGHT) / 8,
-                          (GRAPH_ZERO_Y + 1) / 8 - 1,
-                          false);
-        }
-        graph_timer = timer_read();
-    }
-}
-
 void ui_clear(void) {
     oled_set_cursor(0, 4);
     oled_advance_page(true);
@@ -131,23 +110,29 @@ void ui_clear(void) {
 
 void render_ui_frame(void) {
     oled_clear();
-    oled_advance_page(false);
-    oled_write_ln_P(PSTR("LAYER    WPM"), false);
-    oled_advance_page(false);
-    oled_write_ln_P(PSTR("RGB"), false);
-    oled_advance_page(false);
-    oled_advance_page(false);
-    oled_advance_page(false);
+    oled_set_cursor(STATS_DISPLAY_COL, STATS_DISPLAY_ROW);
+    oled_write_P(PSTR("LAYER    WPM"), false);
+    oled_set_cursor(STATS_DISPLAY_COL, STATS_DISPLAY_ROW+2);
+    oled_write_P(PSTR("RGB"), false);
     // Outline for layer number
-    draw_line_h(35, 7, 7, true);
-    draw_line_v(34, 8, 7, true);
-    draw_line_v(35, 8, 8, true);
-    draw_line_v(42, 8, 7, true);
+    // draw_line_h(35, 7, 7, true);
+    // draw_line_v(34, 8, 7, true);
+    // draw_line_v(35, 8, 8, true);
+    // draw_line_v(42, 8, 7, true);
+	if (STATS_DISPLAY_ROW) // If STATS_DISPLAY_ROW = 0, the horizontal line is out of screen, better remove it to avoid unexpected bug
+		draw_line_h((STATS_DISPLAY_COL+6)*6-1, STATS_DISPLAY_ROW*8-1, 7, true);
+	draw_line_v((STATS_DISPLAY_COL+6)*6-2, STATS_DISPLAY_ROW*8,   7, true);
+    draw_line_v((STATS_DISPLAY_COL+6)*6-1, STATS_DISPLAY_ROW*8,   8, true);
+    draw_line_v((STATS_DISPLAY_COL+6)*6+6, STATS_DISPLAY_ROW*8,   7, true);
     // Outline for RGB mode number
-    draw_line_h(23, 23, 19, true);
-    draw_line_v(22, 24, 7, true);
-    draw_line_v(23, 24, 8, true);
-    draw_line_v(42, 24, 7, true);
+    // draw_line_h(23, 23, 19, true);
+    // draw_line_v(22, 24, 7, true);
+    // draw_line_v(23, 24, 8, true);
+    // draw_line_v(42, 24, 7, true);
+    draw_line_h((STATS_DISPLAY_COL+4)*6-1, (STATS_DISPLAY_ROW+2)*8-1, 19, true);
+	draw_line_v((STATS_DISPLAY_COL+4)*6-2, (STATS_DISPLAY_ROW+2)*8,   7, true);
+    draw_line_v((STATS_DISPLAY_COL+4)*6-1, (STATS_DISPLAY_ROW+2)*8,   8, true);
+    draw_line_v((STATS_DISPLAY_COL+6)*6+6, (STATS_DISPLAY_ROW+2)*8,   7, true);
     // Outline for Key Matrix
     draw_line_h(MATRIX_DISPLAY_X -2, MATRIX_DISPLAY_Y -3, MATRIX_DISPLAY_SIZE, true);
     draw_line_h(MATRIX_DISPLAY_X -2, MATRIX_DISPLAY_Y -2 + MATRIX_DISPLAY_SIZE, MATRIX_DISPLAY_SIZE, true);
@@ -156,7 +141,8 @@ void render_ui_frame(void) {
 }
 
 void render_ui_rgbcontrol(void) {
-    oled_set_cursor(0, 5);
+    oled_set_cursor(0, SUB_UI_DISPLAY_ROW);
+	oled_advance_page(true);
     oled_write_P(PSTR("----< Lighting >-----"), false);
     // RGB mode
     oled_set_cursor(0, 6);
@@ -171,13 +157,13 @@ void render_ui_rgbcontrol(void) {
 
 void render_stats(void) {
     // Current layer
-    oled_set_cursor(6, 1);
+    oled_set_cursor(STATS_DISPLAY_COL+6, STATS_DISPLAY_ROW);
     oled_write_char(get_highest_layer(layer_state) + 0x30, true);
     // Current WPM
-    oled_set_cursor(13, 1);
+    oled_set_cursor(STATS_DISPLAY_COL+13, STATS_DISPLAY_ROW);
     oled_write(get_u8_str(get_current_wpm(), '0'), false);
     // Show current RGB mode (#__)
-    oled_set_cursor(4,3);
+    oled_set_cursor(STATS_DISPLAY_COL+4, STATS_DISPLAY_ROW+2);
     if (rgb_matrix_is_enabled()) {
         oled_write_P(PSTR("#"), true);
         oled_write_char(rgb_matrix_get_mode()/10 + 0x30, true);
@@ -187,7 +173,7 @@ void render_stats(void) {
         oled_write_P(PSTR("OFF"), true);
     }
     // RGB brightness (percentage %)
-    oled_set_cursor(9, 3);
+    oled_set_cursor(STATS_DISPLAY_COL+9, STATS_DISPLAY_ROW+2);
     rgb_val = (rgb_matrix_is_enabled() ? rgb_matrix_get_val()*100/RGB_MATRIX_MAXIMUM_BRIGHTNESS : 0);
     if (rgb_matrix_is_enabled()) {
         oled_write_char((rgb_val == 0) ? 0x07 : 0x9D, false);
@@ -197,22 +183,25 @@ void render_stats(void) {
     else {
         oled_write_P(PSTR("-----"), false);
     }
+	// uint32_t via_layout = via_get_layout_options();
+	// oled_set_cursor(0,0);
+	// oled_write_P(PSTR("VIA Layout: "), false);
+	// oled_write(get_u8_str(via_layout, ''), false);	
 }
 
 void keyboard_post_init_kb(void) {
+    oled_on();
+    oled_init(OLED_ROTATION_0);
     render_ui_frame();
-    keyboard_post_init_user();
 }
 
 bool oled_task_kb(void) {
-    if (!oled_task_user()) {
-        return false;
-    }
     render_stats();
+	render_bongocat();
     switch (sub_ui_mode) {
         case 0:
-            render_wpm_graph();
-            render_qmk_logo(0, 5);
+            //render_wpm_graph();
+            //render_anim();
             break;
         case 1:
             render_ui_rgbcontrol();
@@ -229,20 +218,27 @@ bool oled_task_kb(void) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    // oled_on();
+	
     switch (keycode) {
         case QK_LIGHTING ... QK_LIGHTING_MAX:
             sub_ui_mode = 1;
             ui_clear();
             break;
-        /** TODO 
-        case KC_AUDIO_MUTE ... KC_MEDIA_EJECT:
-            sub_ui_mode = 2;
-            ui_clear();
-            break;
-        ***/
+        // case QK_BOOT: // when activating RESET mode for flashing
+            // if (record->event.pressed) {
+				// oled_clear();
+				// oled_write_P(PSTR("Bootloader Mode"), false);
+            // }
+            // return true;
         default:
             break;
     }
+	
+	if (record->event.pressed) {
+		extern uint32_t oled_tap_timer;
+		oled_tap_timer = timer_read32();
+	}
     render_matrix();
     key_timer = timer_read32();
     return true;
