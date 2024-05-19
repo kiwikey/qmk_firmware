@@ -1,0 +1,22 @@
+>>> oled.c
+Default OLED screen
+This is the lib which was PRed to qmk_firmware. Just original functions:
+- Layer, WPM, RGB
+- Interactive Matrix
+- Mario animation
+- WPM graph
+
+>>> oled0.c
+Just trying to improve RGB Modes' name in OLED screen.
+
+>>> oled1.c
+Basic OLED with Mario
+This is the lib which was PRed to qmk_firmware. Just original functions:
+- Layer, WPM, RGB
+- Interactive Matrix
+- Mario animation (with WMP)
+- WPM graph
+
+
+>>> oled2.c
+Bongocat
