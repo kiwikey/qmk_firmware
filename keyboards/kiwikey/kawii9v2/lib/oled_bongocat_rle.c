@@ -41,7 +41,7 @@
 
 #define OLEDSCREEN_WIDTH  128
 //#define OLEDSCREEN_HEIGHT 64
-#define ANIM_POS_LINE     4 // from 0 to 4 on OLED 1.3"
+#define ANIM_POS_LINE     4 // starting line (count from 0), the animation takes up 4 lines
 
 #define IDLE_FRAMES 4
 #define TAP_FRAMES  2
@@ -122,6 +122,7 @@ static void render_bongocat(void) {
     // Timer duration between animation frames
     static uint16_t anim_timer = 0;
 
+/**********
 #ifdef WPM_ENABLE
     static uint8_t prev_wpm = 0;
     // Update oled_tap_timer with sustained WPM
@@ -130,6 +131,7 @@ static void render_bongocat(void) {
     }
     prev_wpm = get_current_wpm();
 #endif
+*********/
 
     void animate_cat(void) {
         if (timer_elapsed32(oled_tap_timer) < TAP_INTERVAL) {
@@ -142,7 +144,7 @@ static void render_bongocat(void) {
     }
 
     if (timer_elapsed32(oled_tap_timer) > OLED_TIMEOUT) {
-        oled_off();
+        oled_off(); // no need, oled_task_kb() handles this
     } else if (timer_elapsed(anim_timer) > FRAME_DURATION) {
         anim_timer = timer_read();
         animate_cat();
