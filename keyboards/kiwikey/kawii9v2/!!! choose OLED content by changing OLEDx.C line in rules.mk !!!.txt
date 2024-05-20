@@ -6,8 +6,6 @@ This is the lib which was PRed to qmk_firmware. Just original functions:
 - Mario animation
 - WPM graph
 
->>> oled0.c
-Just trying to improve RGB Modes' name in OLED screen.
 
 >>> oled1.c
 Basic OLED with Mario
