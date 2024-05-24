@@ -1,12 +1,7 @@
-// Configuration for WPM Graph
-#define GRAPH_ZERO_X           25  // This is zero origin
-#define GRAPH_ZERO_Y           63  // of the WPM graph
-#define GRAPH_WIDTH            100
-#define GRAPH_HEIGHT           28
-#define GRAPH_REFRESH_INTERVAL 100 // ms
-#define GRAPH_LINE_THICKNESS   1
+#include "oled_wpm_graph.h"
+
 float max_wpm = 100.0;
-uint16_t graph_timer = 0;
+static uint16_t graph_timer = 0;
 
 void render_wpm_graph(void) {
     uint8_t curr_wpm = (get_current_wpm() < max_wpm ? get_current_wpm() : max_wpm);

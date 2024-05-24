@@ -1,9 +1,5 @@
-// Configuration for Key Matrix
-#define MATRIX_DISPLAY_X    107
-#define MATRIX_DISPLAY_Y    11
-#define MATRIX_DISPLAY_SIZE 22
-#define KEY_SIZE            4
-#define KEY_SPACING         3
+#include "oled_key_matrix.h"
+#include "oled_custom_api.h"
 
 void render_matrix(void) {
     for (uint8_t x = 0; x < MATRIX_ROWS-2; x++) {
