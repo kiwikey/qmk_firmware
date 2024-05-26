@@ -39,4 +39,16 @@ bool oled_task_kb(void) {
     return false;
 }
 
+bool shutdown_kb(bool jump_to_bootloader) {
+    oled_clear();
+	oled_set_cursor(4, 3);
+	if (jump_to_bootloader) {
+		oled_write_P(PSTR("> DFU Mode <"), false);
+	} else {
+		// oled_write_P(PSTR("Rebooting "), false);
+	}
+    oled_render_dirty(true);
+	return true;
+}
+
 #endif // defined(OLED_ENABLE)

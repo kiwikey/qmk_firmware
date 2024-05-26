@@ -32,12 +32,18 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             break;
         ***/
         case MENU_ENABLE_KEYCODE:
-            menu_is_enabled = true;
-            menu_init();
+            if (!menu_is_enabled) {
+				menu_is_enabled = true;
+				menu_init();
+			}
         default:
             break;
     }
+	
+#ifdef OLED_KEY_MATRIX
     render_matrix();
+#endif // OLED_KEY_MATRIX
+
     key_timer = timer_read32();
     return process_record_user(keycode, record);
 }

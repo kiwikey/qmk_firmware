@@ -9,14 +9,14 @@ static uint8_t sub_menu = 0; // 0 means not in submenu
 static uint8_t menu_cursor = MENU_START_POS;
 
 void menu_init(void) {
-	menu_cursor = MENU_START_POS;
     oled_clear();
     oled_write_P(PSTR(MENU_TOP_LINE), false);
     oled_write_ln_P(PSTR(MENU_TITLE_01), false);
     oled_write_ln_P(PSTR(MENU_TITLE_02), false);
     oled_write_ln_P(PSTR(MENU_TITLE_03), false);
-    oled_write_P(PSTR(MENU_TITLE_04), false);
-    // oled_write_P(PSTR(FW_VERSION), false);
+    oled_write_ln_P(PSTR(MENU_TITLE_04), false);
+	oled_write_ln_P(PSTR(MENU_TITLE_05), false);
+	menu_cursor = MENU_START_POS;
     menu_set_cursor(menu_cursor);
 }
 
@@ -48,11 +48,42 @@ void process_record_menu(uint16_t keycode, keyrecord_t *record) {
         default:
             break;
     }
+	if (sub_menu) {
+		menu_action();
+	}
     if (menu_is_enabled) {
         if (menu_cursor > MENU_NUMOFLINES) menu_cursor = MENU_START_POS;
         if (menu_cursor == 0) menu_cursor = MENU_NUMOFLINES;
         menu_set_cursor(menu_cursor);
     }
+}
+
+void menu_action(void) {
+    switch (sub_menu) {
+        case 1:
+			//
+            break;
+        case 2:
+			//
+            break;
+        case 3:
+			//
+			break;
+        case 4:
+			action_factoryreset();
+			break;
+        case 5:
+			reset_keyboard();
+			break;
+        default:
+            break;
+    }
+	sub_menu = 0;
+}
+
+void action_factoryreset(void) {
+	eeconfig_disable();
+	soft_reset_keyboard();
 }
 
 bool rgb_matrix_indicators_kb(void) { // showing Menu control keys in RGB Matrix
