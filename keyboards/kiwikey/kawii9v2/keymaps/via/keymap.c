@@ -23,7 +23,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,   _______
     ),
     [3] = LAYOUT(
-        QK_BOOT,   KC_F20,    _______,
+        QK_BOOT,   KC_F19,    _______,
         _______,   _______,   _______,
         _______,   _______,   _______,
         _______,   _______

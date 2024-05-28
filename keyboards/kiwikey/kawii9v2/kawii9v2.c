@@ -16,16 +16,21 @@ void keyboard_post_init_kb(void) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-    if (menu_is_enabled && record->event.pressed) {
-        process_record_menu(keycode, record);
-        return false;
+    if (menu_is_enabled) {
+		process_record_menu(keycode, record);
+		return false;
     }
+
+#ifdef OLED_KEY_MATRIX
+	render_matrix();
+#endif // OLED_KEY_MATRIX
+
     switch (keycode) {
         case QK_LIGHTING ... QK_LIGHTING_MAX:
             sub_ui_mode = 1;
             sub_ui_clear();
             break;
-        /** TODO 
+        /*** TODO
         case KC_AUDIO_MUTE ... KC_MEDIA_EJECT:
             sub_ui_mode = 2;
             sub_ui_clear();
@@ -34,16 +39,14 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         case MENU_ENABLE_KEYCODE:
             if (!menu_is_enabled) {
 				menu_is_enabled = true;
+				layer_clear(); // to avoid weird behavior of current_layer when turn on MENU 
 				menu_init();
 			}
+			return false; // no need to process this keycode
+            break;
         default:
             break;
     }
-	
-#ifdef OLED_KEY_MATRIX
-    render_matrix();
-#endif // OLED_KEY_MATRIX
-
     key_timer = timer_read32();
     return process_record_user(keycode, record);
 }

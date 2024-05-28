@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "oled_menu.h"
+#include "oled_custom_api.h"
 #include "oled_ui.h"
 
 bool menu_is_enabled = false;
@@ -10,7 +11,11 @@ static uint8_t menu_cursor = MENU_START_POS;
 
 void menu_init(void) {
     oled_clear();
-    oled_write_P(PSTR(MENU_TOP_LINE), false);
+    draw_line_h(0,  2, 126, true);
+	draw_line_h(0, 52, 126, true);
+	oled_set_cursor(6, 0);
+	oled_write_P(PSTR(" SETTING "), false);
+	oled_set_cursor(0, MENU_START_POS);
     oled_write_ln_P(PSTR(MENU_TITLE_01), false);
     oled_write_ln_P(PSTR(MENU_TITLE_02), false);
     oled_write_ln_P(PSTR(MENU_TITLE_03), false);
@@ -29,7 +34,9 @@ void menu_set_cursor(uint8_t cursor_pos) {
     }
 }
 
-void process_record_menu(uint16_t keycode, keyrecord_t *record) {
+bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
+	if (!(record->event.pressed)) // no need to check when the key is released
+		return true;
     switch (record->event.key.row * 10 + record->event.key.col) {
         case MENU_KEY_UP:
             menu_cursor--;
@@ -56,6 +63,7 @@ void process_record_menu(uint16_t keycode, keyrecord_t *record) {
         if (menu_cursor == 0) menu_cursor = MENU_NUMOFLINES;
         menu_set_cursor(menu_cursor);
     }
+	return true;
 }
 
 void menu_action(void) {

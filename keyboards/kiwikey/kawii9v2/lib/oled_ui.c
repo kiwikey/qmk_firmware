@@ -12,6 +12,8 @@ void sub_ui_clear(void) {
     oled_advance_page(true);
     oled_advance_page(true);
     oled_advance_page(true);
+	if (sub_ui_mode) // If a sub UI is activated, draw the horizontal line for its title
+		draw_line_h(0, 43, 126, true);
 }
 
 void render_ui_frame(void) { // Sometimes while coding, magical things happen, just copy do not ask <(")
@@ -39,9 +41,13 @@ void render_ui_frame(void) { // Sometimes while coding, magical things happen, j
 }
 
 void render_ui_rgbcontrol(void) {
-    oled_set_cursor(0, SUB_UI_DISPLAY_ROW);
-	oled_advance_page(true);
-    oled_write_P(PSTR("----< Lighting >-----"), false);
+    oled_set_cursor(6, SUB_UI_DISPLAY_ROW +1);
+    oled_write_P(PSTR(" Lighting "), false);
+
+	// sub_ui_clear();
+	// draw_line_h(0, 43,128, true);
+	// oled_set_cursor(6, SUB_UI_DISPLAY_ROW +1);
+    // oled_write_P(PSTR(" Lighting "), false);
     // RGB mode
     oled_set_cursor(0, SUB_UI_DISPLAY_ROW +2);
 	oled_write_ln(rgb_matrix_is_enabled() ? rgb_matrix_name(rgb_matrix_get_mode()) : "RGB_OFF", false);
@@ -58,7 +64,7 @@ void render_ui_rgbcontrol(void) {
 void render_stats(void) {
     // Current layer
     oled_set_cursor(STATS_DISPLAY_COL +6, STATS_DISPLAY_ROW);
-    oled_write_char(get_highest_layer(layer_state) + 0x30, true);
+	oled_write_char(get_highest_layer(layer_state) + 0x30, true);
     // Current WPM
     oled_set_cursor(STATS_DISPLAY_COL +13, STATS_DISPLAY_ROW);
     oled_write(get_u8_str(get_current_wpm(), '0'), false);

@@ -3,14 +3,14 @@
 
 #include "quantum.h"
 
-#define MENU_ENABLE_KEYCODE    KC_F20
+#define MENU_ENABLE_KEYCODE    KC_F19
 
-#define MENU_START_POS  1 // from 0 to (7 - max line)
+#define MENU_START_POS  1 // from 0 to 7
 #define MENU_NUMOFLINES 5
 
 #define MENU_TOP_LINE   "---------------------"
 #define MENU_TITLE_01   " Layout"
-#define MENU_TITLE_02   " OS"
+#define MENU_TITLE_02   " OLED Timeout"
 #define MENU_TITLE_03   " Keyboard info"
 #define MENU_TITLE_04   " Factory Reset"
 #define MENU_TITLE_05   " Reset to DFU"
@@ -44,7 +44,7 @@ extern bool menu_is_enabled;
 void menu_init(void);
 void menu_rgbmatrix_init(void);
 void menu_set_cursor(uint8_t cursor_pos);
-void process_record_menu(uint16_t keycode, keyrecord_t *record);
+bool process_record_menu(uint16_t keycode, keyrecord_t *record);
 bool rgb_matrix_indicators_kb(void);
 
 void menu_action(void);
