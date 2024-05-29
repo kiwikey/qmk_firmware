@@ -1,0 +1,38 @@
+{
+    "keyboard_name": "Sofle mod RGB",
+    "features": {
+        "bootmagic": true,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": true,
+        "encoder": true,
+        "oled": true
+    },
+    "build": {
+        "lto": true
+    },
+    "usb": {
+        "vid": "0xFC32"
+    },
+    "diode_direction": "COL2ROW",
+    "qmk": {
+        "tap_keycode_delay": 10
+    },
+    "split": {
+        "enabled": true,
+        "soft_serial_pin": "D2",
+        "transport": {
+            "sync": {
+                "matrix_state": true
+            }
+        }
+    },
+    "ws2812": {
+        "pin": "D3"
+    },
+    "rgblight": {
+        "led_count": 72,
+        "split_count": [36, 36],
+        "sleep": true
+    }
+}
