@@ -1,0 +1,4 @@
+#define ENCODERS_PAD_A { B5 }
+#define ENCODERS_PAD_B { B7 }
+#define ENCODER_RESOLUTION 2
+#define TAP_CODE_DELAY 10

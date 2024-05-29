@@ -1,0 +1,6 @@
+'rules.mk'
++ NO_USB_STARTUP_CHECK was changed from YES to NO, so that keyboard can wake up computer during sleep.
++ Added WAIT_FOR_USB = yes
+
+'config.h'
++ Added #define USB_SUSPEND_WAKEUP_DELAY 400

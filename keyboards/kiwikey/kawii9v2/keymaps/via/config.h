@@ -1,0 +1,8 @@
+#pragma once
+
+#define DYNAMIC_KEYMAP_LAYER_COUNT 4
+#define ENCODER_MAP_KEY_DELAY 10
+
+#define OLED_TIMEOUT 0
+#define OLED_DISPLAY_128X64
+#define OLED_IC OLED_IC_SSD1306

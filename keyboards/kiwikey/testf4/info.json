@@ -1,0 +1,45 @@
+{
+    "keyboard_name": "testf4",
+    "manufacturer": "KiwiKey",
+    "url": "kiwikey.vn",
+    "maintainer": "KiwiKey",
+    "usb": {
+        "vid": "0x4B57",
+        "pid": "0x1111",
+        "device_version": "1.0.1"
+    },
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": false
+    },
+    "matrix_pins": {
+        "cols": [ "B10", "B1", "B0" ],
+        "rows": [ "B8",  "B4", "B3" ]
+    },
+    "diode_direction": "COL2ROW",
+    "encoder": {
+		"enabled": true,
+        "rotary": [
+            {"pin_a": "A3", "pin_b": "A2"}
+        ]
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                { "matrix": [0, 0], "x": 0, "y": 0 },
+                { "matrix": [0, 1], "x": 1, "y": 0 },
+                { "matrix": [0, 2], "x": 2, "y": 0 },
+                { "matrix": [1, 0], "x": 0, "y": 1 },
+                { "matrix": [1, 1], "x": 1, "y": 1 },
+                { "matrix": [1, 2], "x": 2, "y": 1 },
+                { "matrix": [2, 0], "x": 0, "y": 2 },
+                { "matrix": [2, 1], "x": 1, "y": 2 },
+                { "matrix": [2, 2], "x": 2, "y": 2 }
+            ]
+        }
+    }
+}

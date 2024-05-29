@@ -1,0 +1,8 @@
+BACKLIGHT_ENABLE = no
+OLED_ENABLE = yes
+WPM_ENABLE = yes
+ENCODER_ENABLE = yes
+
+EXTRAFLAGS += -flto
+UNICODE_ENABLE   = no # Unicode
+MOUSEKEY_ENABLE  = no # Mouse keys(+4700)

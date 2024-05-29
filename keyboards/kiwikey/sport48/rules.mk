@@ -1,0 +1,5 @@
+QUANTUM_PAINTER_DRIVERS += st7789_spi
+
+SERIAL_DRIVER = usart
+
+DEFAULT_FOLDER = kiwikey/sport48/f401
