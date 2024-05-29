@@ -16,7 +16,7 @@ bool oled_task_kb(void) {
     if (!oled_task_user()) {
         return false;
     }
-    if (menu_is_enabled) { // while in Menu, skip all other OLED processes
+    if (current_menu != NOT_IN_MENU) { // while in Menu, skip all other OLED processes
         return false;
     }
     render_stats();
@@ -37,18 +37,6 @@ bool oled_task_kb(void) {
         oled_off();
     }
     return false;
-}
-
-bool shutdown_kb(bool jump_to_bootloader) {
-    oled_clear();
-	oled_set_cursor(4, 3);
-	if (jump_to_bootloader) {
-		oled_write_P(PSTR("> DFU Mode <"), false);
-	} else {
-		// oled_write_P(PSTR("Rebooting "), false);
-	}
-    oled_render_dirty(true);
-	return true;
 }
 
 #endif // defined(OLED_ENABLE)

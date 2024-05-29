@@ -16,7 +16,7 @@ void keyboard_post_init_kb(void) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-    if (menu_is_enabled) {
+    if (current_menu != NOT_IN_MENU) { // in MENU all keys are for controlling, no keycode is sent
 		process_record_menu(keycode, record);
 		return false;
     }
@@ -37,8 +37,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             break;
         ***/
         case MENU_ENABLE_KEYCODE:
-            if (!menu_is_enabled) {
-				menu_is_enabled = true;
+            if (current_menu == NOT_IN_MENU) {
+				current_menu = MAIN_MENU;
 				layer_clear(); // to avoid weird behavior of current_layer when turn on MENU 
 				menu_init();
 			}
