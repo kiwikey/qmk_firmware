@@ -1,3 +1,5 @@
+#if defined(OLED_ENABLE) && defined(WPM_ENABLE)
+
 #include "oled_wpm_graph.h"
 
 float max_wpm = 100.0;
@@ -21,3 +23,5 @@ void render_wpm_graph(void) {
         graph_timer = timer_read();
     }
 }
+
+#endif

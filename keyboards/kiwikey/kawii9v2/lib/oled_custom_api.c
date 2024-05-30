@@ -1,6 +1,8 @@
 // Copyright 2023 KiwiKey
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#if defined(OLED_ENABLE)
+
 #include "oled_custom_api.h"
 
 extern uint8_t oled_buffer[OLED_MATRIX_SIZE];
@@ -44,3 +46,5 @@ void draw_rect(uint8_t x, uint8_t y, uint8_t sizex, uint8_t sizey, bool on) {
         draw_line_h(x, y+i, sizex, on);
     }
 }
+
+#endif

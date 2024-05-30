@@ -8,7 +8,7 @@
 #include "oled_ui.h"
 #include "oled_menu.h"
 
-#ifdef OLED_ENABLE
+#if defined(OLED_ENABLE)
 
 extern uint32_t key_timer;
 
@@ -22,7 +22,9 @@ bool oled_task_kb(void) {
     render_stats();
     switch (sub_ui_mode) {
         case 0:
+#ifdef WPM_ENABLE
             render_wpm_graph();
+#endif
             render_qmk_logo(0, 5);
             break;
         case 1:

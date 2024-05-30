@@ -1,6 +1,8 @@
 // Copyright 2023 KiwiKey
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#if defined(OLED_ENABLE)
+
 #include "progmem.h"
 
 static const unsigned char PROGMEM font[] = {
@@ -229,3 +231,5 @@ static const unsigned char PROGMEM font[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
+
+#endif

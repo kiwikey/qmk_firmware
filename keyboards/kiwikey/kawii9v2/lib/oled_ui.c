@@ -1,3 +1,5 @@
+#if defined(OLED_ENABLE)
+
 #include "oled_ui.h"
 #include "oled_custom_api.h"
 #include "rgb_matrix_name.h"
@@ -65,9 +67,13 @@ void render_stats(void) {
     // Current layer
     oled_set_cursor(STATS_DISPLAY_COL +6, STATS_DISPLAY_ROW);
 	oled_write_char(get_highest_layer(layer_state) + 0x30, true);
+	
+#ifdef WPM_ENABLE
     // Current WPM
     oled_set_cursor(STATS_DISPLAY_COL +13, STATS_DISPLAY_ROW);
     oled_write(get_u8_str(get_current_wpm(), '0'), false);
+#endif	
+	
     // Show current RGB mode (#__)
     oled_set_cursor(STATS_DISPLAY_COL +4,STATS_DISPLAY_ROW +2);
     if (rgb_matrix_is_enabled()) {
@@ -91,3 +97,5 @@ void render_stats(void) {
         oled_write_P(PSTR("  0%"), false);
     }
 }
+
+#endif

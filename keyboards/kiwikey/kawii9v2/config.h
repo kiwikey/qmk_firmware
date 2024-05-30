@@ -7,6 +7,4 @@
 #define OLED_TIMEOUT 30000
 #define OLED_FONT_H "lib/glcdfont.c"
 
-#define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_CYCLE_UP_DOWN
-
-#define FW_VERSION "2.0.240529"
+#define FW_VERSION "2.0.240530"

@@ -1,3 +1,5 @@
+#if defined(OLED_ENABLE)
+
 #include "oled_qmk_logo.h"
 
 static const char PROGMEM qmk_logo[LOGO_HEIGHT/8][LOGO_WIDTH] = {
@@ -12,3 +14,5 @@ void render_qmk_logo(uint8_t col, uint8_t row) {
         oled_write_P(qmk_logo[i], false);
     }
 }
+
+#endif

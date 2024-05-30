@@ -1,6 +1,8 @@
 // Copyright 2023 KiwiKey
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#if defined(OLED_ENABLE)
+
 #include "oled_menu.h"
 #include "oled_custom_api.h"
 #include "oled_ui.h"
@@ -209,3 +211,5 @@ bool rgb_matrix_indicators_kb(void) { // showing Menu control keys in RGB Matrix
 	}
     return true;
 }
+
+#endif

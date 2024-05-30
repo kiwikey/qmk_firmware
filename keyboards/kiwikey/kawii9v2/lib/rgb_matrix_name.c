@@ -1,7 +1,6 @@
-#include "rgb_matrix_name.h"
-
 // RGB Matrix naming, copy from @tzarc
 #if defined(RGB_MATRIX_ENABLE)
+#include "rgb_matrix_name.h"
 #include <rgb_matrix.h>
 
 #if defined(RGB_MATRIX_EFFECT)

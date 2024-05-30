@@ -1,4 +1,5 @@
 VPATH += keyboards/kiwikey/kawii9v2/lib
+
 SRC += \
     oled_custom_api.c \
     rgb_matrix_name.c \

@@ -49,6 +49,9 @@
             "solid_reactive": true,
             "solid_reactive_cross": true
         },
+		"default": {
+			"animation": "cycle_up_down"
+		}
         "layout": [
             { "flags": 2, "x": 96,  "y": 19 },
             { "flags": 2, "x": 128, "y": 19 },

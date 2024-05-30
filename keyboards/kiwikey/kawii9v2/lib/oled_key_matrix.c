@@ -1,3 +1,5 @@
+#if defined(OLED_ENABLE)
+
 #include "oled_key_matrix.h"
 #include "oled_custom_api.h"
 
@@ -13,3 +15,5 @@ void render_matrix(void) {
         }
     }
 }
+
+#endif
