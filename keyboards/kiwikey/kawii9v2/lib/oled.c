@@ -60,10 +60,3 @@ bool oled_task_kb(void) {
 }
 
 #endif // defined(OLED_ENABLE)
-
-// #if defined(VIA_ENABLE) // debugging custom EEPROM values
-    // oled_set_cursor(0,0);
-    // oled_write_char(eepdata_active_layer + 0x30, false);
-    // oled_write_char(eepdata_oled_anim + 0x30, false);
-    // oled_write_char(eepdata_oled_timeout + 0x30, false);
-// #endif // defined(VIA_ENABLE)

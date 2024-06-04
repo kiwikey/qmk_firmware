@@ -39,7 +39,8 @@ void keyboard_post_init_kb(void) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-	
+	if (record->event.pressed)
+		key_timer = timer_read32();
 #if defined(OLED_ENABLE)
     if (current_menu != NOT_IN_MENU) { // in MENU all keys are for controlling, no keycode is sent
 		process_record_menu(keycode, record);
@@ -74,10 +75,14 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     }
 #endif // OLED_ENABLE
 
-    if (record->event.pressed)
-		key_timer = timer_read32();
     return process_record_user(keycode, record);
 }
+
+// void housekeeping_task_kb(void) {
+	// oled_set_cursor(0,0);
+	// oled_write_char(temp1+0x30,false);
+	// oled_write_char(temp2+0x30,false);
+// }
 
 // Try to save some bytes...
 #ifndef MAGIC_ENABLE

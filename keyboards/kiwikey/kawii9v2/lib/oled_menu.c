@@ -61,8 +61,18 @@ void menu_set_cursor(uint8_t cursor_pos) {
 bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 	if (!(record->event.pressed)) // no need to check when the key is released
 		return true;
+	// Scrolling between Menu/Submenu items can be performed with keypad's keys, or rotary encoder
+	// THE USE OF 2 ENCODERS IS NOT TESTED!
+	uint8_t tmpMenu_Key = record->event.key.row * 10 + record->event.key.col;
+	if(record->event.type == ENCODER_CCW_EVENT) { // Encoder rotation CCW = key Up or Left
+		tmpMenu_Key = (current_menu == MAIN_MENU) ? MENU_KEY_UP : MENU_KEY_LEFT;
+	}
+	if(record->event.type == ENCODER_CW_EVENT) {  // Encoder rotation CW = key Down or Right
+		tmpMenu_Key = (current_menu == MAIN_MENU) ? MENU_KEY_DOWN : MENU_KEY_RIGHT;
+	}
+	
 	if (current_menu == MAIN_MENU) {
-		switch (record->event.key.row * 10 + record->event.key.col) {
+		switch (tmpMenu_Key) {
 			case MENU_KEY_UP:
 				menu_cursor--;
 				if (menu_cursor == MAINMENU_LINESPERPAGE)
@@ -105,7 +115,7 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 		}
 	}
 	else if (current_menu == SUB_MENU) {
-		switch (record->event.key.row * 10 + record->event.key.col) {
+		switch (tmpMenu_Key) {
 			// case MENU_KEY_UP:
 				// break;
 			// case MENU_KEY_DOWN:
@@ -164,35 +174,38 @@ void menu_quick_view(uint8_t menu_line) {
 	oled_set_cursor(0,7);
 	oled_advance_page(true);
 	// Render the quick-view
-	oled_set_cursor(2,7);
+	oled_set_cursor(0,7);
 	switch (menu_line) {
 		case 1:
+			oled_set_cursor(5,7);
+			oled_write_char(0x28, false);
 			oled_write_char(eepdata_active_layer + 0x30, false);
-			oled_write_char(0x5F, false);
+			oled_write_char(0x29, false);
 			oled_write(layer_name[eepdata_active_layer], false);
 			break;
 		case 2:
-			oled_write(anim_list[eepdata_oled_anim], false);
+			oled_write_align(anim_list[eepdata_oled_anim], ALIGN_CENTER, false);
 			break;
 		case 3:
 			if (eepdata_oled_timeout == OLED_TIMEOUT_NEVER) {
-				oled_write_P(PSTR("   Always ON"), false);
+				oled_write_align_P(PSTR("Always ON"), ALIGN_CENTER, false);
 				break;
 			}
+			oled_set_cursor(5,7);
 			oled_write(get_u8_str(eepdata_oled_timeout, ' '), false);
 			oled_write_P(PSTR(" seconds"), false);
 			break;
 		case 6:
-			oled_write_P(PSTR(FW_VERSION), false);
+			oled_write_align_P(PSTR(FW_VERSION), ALIGN_CENTER, false);
 			break;
 		case 7:
 			// oled_write_P(PSTR("..."), false);
 			break;
 		case 8:
-			oled_write_P(PSTR("reset all settings"), false);
+			oled_write_align_P(PSTR("reset all settings"), ALIGN_CENTER, false);
 			break;
 		case 9:
-			oled_write_P(PSTR("FW & memory update"), false);
+			oled_write_align_P(PSTR("FW & memory update"), ALIGN_CENTER, false);
 			break;
         default:
             break;
@@ -251,9 +264,6 @@ void action_aboutkawii9(void) {
 	oled_advance_page(true);
 	oled_write_ln_P(PSTR("More infos:"), false);
 	oled_write_ln_P(PSTR("www.kiwikey.vn/kawii9"), false);
-	oled_advance_page(true);
-	oled_write_P(PSTR("FW "), false);
-	oled_write_ln_P(PSTR(FW_VERSION), false);
 }
 
 void action_factoryreset(void) {
@@ -304,16 +314,14 @@ bool rgb_matrix_indicators_kb(void) { // showing Menu control keys in RGB Matrix
 	}
 	if (current_menu == SUB_MENU) {
 		rgb_matrix_set_color_all(RGB_BLACK);
-		rgb_matrix_set_color(7,  RGB_WHITE);	// LEFT
-		rgb_matrix_set_color(9,  RGB_WHITE);	// RIGHT
+		if (menu_execute != 7) // About Kawii9
+		{
+			rgb_matrix_set_color(7,  RGB_WHITE);	// LEFT
+			rgb_matrix_set_color(9,  RGB_WHITE);	// RIGHT
+		}
 		rgb_matrix_set_color(10, RGB_RED);		// EXIT
 	}
     return true;
 }
 
 #endif // defined(OLED_ENABLE)
-
-// void keyboard_post_init_kb(void) {
-	// oled_set_cursor(0,0);
-	// oled_write_char(0x5F, false);
-// }

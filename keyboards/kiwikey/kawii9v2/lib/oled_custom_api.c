@@ -47,4 +47,48 @@ void draw_rect(uint8_t x, uint8_t y, uint8_t sizex, uint8_t sizey, bool on) {
     }
 }
 
+void oled_write_align(const char *data, uint8_t align, bool invert) {
+    const char *end = data + strlen(data);
+	switch (align) {
+		case ALIGN_LEFT:
+			break;
+		case ALIGN_CENTER:
+			for (uint8_t i = 0; i < (oled_max_chars() - strlen(data)) / 2; i++) {
+				oled_advance_char();
+			}
+			break;
+		case ALIGN_RIGHT:
+			for (uint8_t i = 0; i < (oled_max_chars() - strlen(data)); i++) {
+				oled_advance_char();
+			}
+			break;
+	}
+    while (data < end) {
+        oled_write_char(*data, invert);
+        data++;
+    }
+}
+
+void oled_write_align_P(const char *data, uint8_t align, bool invert) {
+    uint8_t c = pgm_read_byte(data);
+	switch (align) {
+		case ALIGN_LEFT:
+			break;
+		case ALIGN_CENTER:
+			for (uint8_t i = 0; i < (oled_max_chars() - strlen_P(data)) / 2; i++) {
+				oled_advance_char();
+			}
+			break;
+		case ALIGN_RIGHT:
+			for (uint8_t i = 0; i < (oled_max_chars() - strlen_P(data)); i++) {
+				oled_advance_char();
+			}
+			break;
+	}
+    while (c != 0) {
+        oled_write_char(c, invert);
+        c = pgm_read_byte(++data);
+    }
+}
+
 #endif // defined(OLED_ENABLE)

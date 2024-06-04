@@ -7,8 +7,8 @@
 #define EEPROM_OLED_ANIM    (VIA_EEPROM_CUSTOM_CONFIG_ADDR+1)
 #define EEPROM_OLED_TIMEOUT (VIA_EEPROM_CUSTOM_CONFIG_ADDR+2)
 
-#define OLED_TIMEOUT_MIN    10	// seconds
-#define OLED_TIMEOUT_STEP   10
+#define OLED_TIMEOUT_MIN    30	// seconds
+#define OLED_TIMEOUT_STEP   30
 #define OLED_TIMEOUT_MAX    180
 #define OLED_TIMEOUT_NEVER  OLED_TIMEOUT_MAX + OLED_TIMEOUT_STEP
 
@@ -65,10 +65,10 @@ extern uint8_t current_menu;
 #define OLED_ANIM_QTY    3  // QMK logo, Mario, Bongo Cat
 
 static const char * const anim_list[OLED_ANIM_QTY+1] = {
-	"      none",
-	"    QMK Logo",
-	"      Mario",
-	"    Bongo Cat"
+	"none",
+	"QMK Logo",
+	"Mario",
+	"Bongo Cat"
 };
 
 
