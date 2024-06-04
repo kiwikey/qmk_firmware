@@ -10,11 +10,14 @@
 #ifndef OLED_ANIM_MARIO
 #define OLED_ANIM_MARIO
 
-#define ANIM_POS_X  0
-#define ANIM_POS_Y  4
-#define ANIM_FRAME_DURATION 200 // delay between frames in ms, at 42ms the animation will be 24fps
 #define ANIM_WIDTH  16
 #define ANIM_HEIGHT 32
+
+#define ANIM_POS_X  0
+#define ANIM_POS_Y  4
+
+#define ANIM_FRAME_DURATION 200 // delay between frames in ms, at 42ms the animation will be 24fps
+
 #define ANIM_STATES 2 // Running, Jumping
 #define IDLE_FRAMES 4 // Total frames of "idle state"
 #define TAP_FRAMES  2 // Total frames of "tap state"
@@ -63,7 +66,7 @@ static void render_anim(void) {
 
     void animation_phase(void) {
         // Idle (running Mario)
-        if (anim_state == 0) {
+        if (timer_elapsed32(key_timer) > 500) {
             anim_idle_frame = (anim_idle_frame + 1) % IDLE_FRAMES;
             switch (anim_idle_frame) {
                 case 0:
@@ -81,7 +84,7 @@ static void render_anim(void) {
             }
         }
         // Tap (jumping Mario)
-        if (anim_state == 1) {
+        if (timer_elapsed32(key_timer) < 500) {
             anim_tap_frame = (anim_tap_frame + 1) % TAP_FRAMES;
             switch (anim_tap_frame) {
                 case 0:
@@ -92,7 +95,7 @@ static void render_anim(void) {
                     break;
             }
         }
-    }
+    }	
     if (timer_elapsed(anim_timer) > ANIM_FRAME_DURATION) {
         anim_timer = timer_read();
         animation_phase(); // next frame

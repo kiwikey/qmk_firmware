@@ -47,4 +47,4 @@ void draw_rect(uint8_t x, uint8_t y, uint8_t sizex, uint8_t sizey, bool on) {
     }
 }
 
-#endif
+#endif // defined(OLED_ENABLE)

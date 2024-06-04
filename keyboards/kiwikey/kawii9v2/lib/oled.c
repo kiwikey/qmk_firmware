@@ -2,15 +2,21 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
  
 #include "quantum.h"
-#include "oled_key_matrix.h"
-#include "oled_qmk_logo.h"
-#include "oled_wpm_graph.h"
-#include "oled_ui.h"
-#include "oled_menu.h"
 
 #if defined(OLED_ENABLE)
 
+#include "oled_key_matrix.h"
+#include "oled_wpm_graph.h"
+#include "oled_ui.h"
+#include "oled_menu.h"
+#include "anim_qmk_logo.c"
+#include "anim_bongocat_rle.c"
+#include "anim_mario.c"
+
 extern uint32_t key_timer;
+extern uint8_t  eepdata_active_layer,
+                eepdata_oled_anim,
+                eepdata_oled_timeout;
 
 bool oled_task_kb(void) {
     if (!oled_task_user()) {
@@ -22,10 +28,22 @@ bool oled_task_kb(void) {
     render_stats();
     switch (sub_ui_mode) {
         case 0:
-#ifdef WPM_ENABLE
+#if defined(WPM_ENABLE)
             render_wpm_graph();
-#endif
-            render_qmk_logo(0, 5);
+#endif // defined(WPM_ENABLE)
+            switch (eepdata_oled_anim) {
+                case 0:
+                    break;
+                case 1:
+                    render_qmk_logofull(1, 5);
+                    break;
+                case 2:
+                    render_anim();
+                    break;
+                case 3:
+                    render_bongocat();
+                    break;
+            }
             break;
         case 1:
             render_ui_rgbcontrol();
@@ -35,10 +53,17 @@ bool oled_task_kb(void) {
         sub_ui_mode = 0;
         sub_ui_clear();
     }
-    if (timer_elapsed32(key_timer) > OLED_TIMEOUT) {
+    if ((eepdata_oled_timeout != OLED_TIMEOUT_NEVER) && ((timer_elapsed32(key_timer)/1000) > eepdata_oled_timeout)) {
         oled_off();
     }
     return false;
 }
 
 #endif // defined(OLED_ENABLE)
+
+// #if defined(VIA_ENABLE) // debugging custom EEPROM values
+    // oled_set_cursor(0,0);
+    // oled_write_char(eepdata_active_layer + 0x30, false);
+    // oled_write_char(eepdata_oled_anim + 0x30, false);
+    // oled_write_char(eepdata_oled_timeout + 0x30, false);
+// #endif // defined(VIA_ENABLE)

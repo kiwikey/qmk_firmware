@@ -18,13 +18,7 @@
         "bootmagic": true,
         "command": false,
         "console": false,
-        "extrakey": true,
-        "mousekey": false,
         "nkro": false,
-        "oled": true,
-        "wpm": true,
-        "rgb_matrix": true,
-        "encoder": true
     },
     "diode_direction": "COL2ROW",
     "matrix_pins": {
@@ -39,19 +33,6 @@
         "max_brightness": 240,
         "val_steps": 12,
         "sleep": true,
-        "animations": {
-            "breathing": true,
-            "cycle_all": true,
-            "cycle_left_right": true,
-            "cycle_up_down": true,
-            "typing_heatmap": true,
-            "solid_reactive_simple": true,
-            "solid_reactive": true,
-            "solid_reactive_cross": true
-        },
-		"default": {
-			"animation": "cycle_up_down"
-		}
         "layout": [
             { "flags": 2, "x": 96,  "y": 19 },
             { "flags": 2, "x": 128, "y": 19 },

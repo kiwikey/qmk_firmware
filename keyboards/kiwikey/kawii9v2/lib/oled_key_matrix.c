@@ -16,4 +16,4 @@ void render_matrix(void) {
     }
 }
 
-#endif
+#endif // defined(OLED_ENABLE)

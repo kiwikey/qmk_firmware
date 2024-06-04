@@ -39,6 +39,11 @@
 
 #include QMK_KEYBOARD_H
 
+#if defined(OLED_ENABLE)
+
+#ifndef OLED_ANIM_BONGOCAT
+#define OLED_ANIM_BONGOCAT
+
 #define OLEDSCREEN_WIDTH  128
 //#define OLEDSCREEN_HEIGHT 64
 #define ANIM_POS_LINE     4 // starting line (count from 0), the animation takes up 4 lines
@@ -49,8 +54,7 @@
 #define TAP_INTERVAL  FRAME_DURATION
 #define PAWS_INTERVAL FRAME_DURATION*3
 
-// Timer duration between key presses
-uint32_t oled_tap_timer = 0;
+extern uint32_t key_timer;
 
 // Run-length encoded animation frames
 // With a small change by KiwiKey
@@ -134,19 +138,21 @@ static void render_bongocat(void) {
 *********/
 
     void animate_cat(void) {
-        if (timer_elapsed32(oled_tap_timer) < TAP_INTERVAL) {
+        if (timer_elapsed32(key_timer) < TAP_INTERVAL) {
             render_cat_tap();
-        } else if (timer_elapsed32(oled_tap_timer) < PAWS_INTERVAL) {
+        } else if (timer_elapsed32(key_timer) < PAWS_INTERVAL) {
             render_cat_paws();
         } else {
             render_cat_idle();
         }
     }
 
-    if (timer_elapsed32(oled_tap_timer) > OLED_TIMEOUT) {
-        oled_off(); // no need, oled_task_kb() handles this
-    } else if (timer_elapsed(anim_timer) > FRAME_DURATION) {
+	if (timer_elapsed(anim_timer) > FRAME_DURATION) {
         anim_timer = timer_read();
         animate_cat();
     }
 }
+
+#endif /* OLED_ANIM_BONGOCAT */
+
+#endif // defined(OLED_ENABLE)

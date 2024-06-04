@@ -7,9 +7,13 @@
 #include "oled_custom_api.h"
 #include "oled_ui.h"
 
+extern uint8_t  eepdata_active_layer,
+				eepdata_oled_anim,
+				eepdata_oled_timeout;
+
 uint8_t current_menu = NOT_IN_MENU;
 static uint8_t menu_execute = 0; // 0 means no "menu line" is activated/chosen
-static uint8_t menu_cursor = MENU_1STLINE_POS;
+static uint8_t menu_cursor = MAINMENU_1STLINE_POS;
 
 void menu_init(void) {
     oled_clear();
@@ -19,20 +23,34 @@ void menu_init(void) {
 	// Menu Title "SETTING"
 	oled_set_cursor(6, 0);
 	oled_write_P(PSTR(" SETTING "), false);
-	// Print the menu list, total MENU_NUMOFLINES lines
-	oled_set_cursor(0, MENU_1STLINE_POS);
-	for (uint8_t i = 0; i < MENU_NUMOFLINES; i++) {
-		oled_write_ln(menu_list[i], false);	
+	menu_printlist();               // Print the menu list
+	menu_set_cursor(menu_cursor);   // Print the cursor
+	menu_quick_view(menu_cursor);   // Print the default quick view
+}
+
+void menu_printlist(void) { // Print the menu list, total MAINMENU_LINESPERPAGE lines
+	// Clear the old list
+	oled_set_cursor(0, MAINMENU_1STLINE_POS);
+	for (uint8_t i = 0; i < MAINMENU_LINESPERPAGE; i++) oled_advance_page(true);
+	// Print the list based on menu_cursor
+	oled_set_cursor(0, MAINMENU_1STLINE_POS);
+	if (menu_cursor <= MAINMENU_LINESPERPAGE) {
+		for (uint8_t i = 0; i < MAINMENU_LINESPERPAGE; i++) {
+			oled_write_ln(menu_list[i], false);
+		}
 	}
-	// Print the default cursor (position 0)
-	menu_cursor = MENU_1STLINE_POS;
-    menu_set_cursor(menu_cursor);
-	// Print the default quick view
-	menu_quick_view(menu_cursor);
+	else if (menu_cursor > MAINMENU_LINESPERPAGE) {
+		for (uint8_t i = MAINMENU_LINESPERPAGE; i < 9; i++) {
+			oled_write_ln(menu_list[i], false);
+		}
+	}
 }
 
 void menu_set_cursor(uint8_t cursor_pos) {
-    for (uint8_t i = MENU_1STLINE_POS; i < MENU_NUMOFLINES+1; i++) {
+	while (cursor_pos > MAINMENU_LINESPERPAGE) {
+		cursor_pos -= MAINMENU_LINESPERPAGE;
+	}
+    for (uint8_t i = MAINMENU_1STLINE_POS; i <= MAINMENU_LINESPERPAGE; i++) {
         oled_set_cursor(0,i);
         if (i == cursor_pos)
             oled_write_char(0x10, false);  // space
@@ -47,21 +65,25 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 		switch (record->event.key.row * 10 + record->event.key.col) {
 			case MENU_KEY_UP:
 				menu_cursor--;
+				if (menu_cursor == MAINMENU_LINESPERPAGE)
+					menu_printlist();
 				break;
 			case MENU_KEY_DOWN:
 				menu_cursor++;
+				if (menu_cursor == MAINMENU_LINESPERPAGE+1)
+					menu_printlist();
 				break;
-			case MENU_KEY_LEFT:
-				
-				break;
-			case MENU_KEY_RIGHT:
-				
-				break;
+			// case MENU_KEY_LEFT:
+				// break;
+			// case MENU_KEY_RIGHT:
+				// break;
 			case MENU_KEY_SELECT:
 				menu_execute = menu_cursor;
 				break;
 			case MENU_KEY_EXIT:
 				current_menu = NOT_IN_MENU;
+				menu_cursor = MAINMENU_1STLINE_POS;
+				eeprom_update_custom(); // update all custom EEPROM values (if necessary)
 				rgb_matrix_reload_from_eeprom();
 				render_ui_frame();
 				return true; // leave here
@@ -69,11 +91,15 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 			default:
 				break;
 		}
-        if (menu_cursor > MENU_NUMOFLINES) menu_cursor = MENU_1STLINE_POS;
-        if (menu_cursor == 0) menu_cursor = MENU_NUMOFLINES;
-        menu_set_cursor(menu_cursor);
-		menu_quick_view(menu_cursor);
-		menu_quick_view(menu_cursor);
+        if (menu_cursor > MAINMENU_MAXITEMS) {
+			menu_cursor = 1;     // scroll back to #1
+			menu_printlist();    // refresh the list
+		}
+        if (menu_cursor == 0) {
+			menu_cursor = MAINMENU_MAXITEMS; // scroll to last item
+			menu_printlist();            // refresh the list
+		}
+		menu_set_cursor(menu_cursor);
 		if (menu_execute) {
 			menu_action();
 		}
@@ -81,29 +107,55 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 	else if (current_menu == SUB_MENU) {
 		switch (record->event.key.row * 10 + record->event.key.col) {
 			// case MENU_KEY_UP:
-				
 				// break;
 			// case MENU_KEY_DOWN:
-				
 				// break;
-			// case MENU_KEY_LEFT:
-				
-				// break;
-			// case MENU_KEY_RIGHT:
-				
-				// break;
-			// case MENU_KEY_SELECT:
-				
-				// break;
+			case MENU_KEY_LEFT:
+				if (menu_execute == 1) { // Active layer
+					if (eepdata_active_layer == ACTIVE_LAYER_MIN) eepdata_active_layer = ACTIVE_LAYER_MAX;
+					else eepdata_active_layer--;
+				}
+				if (menu_execute == 2) { // Animation
+					if (eepdata_oled_anim == 0) eepdata_oled_anim = OLED_ANIM_QTY;
+					else eepdata_oled_anim--;
+				}
+				if (menu_execute == 3) { // OLED Timeout
+					eepdata_oled_timeout -= OLED_TIMEOUT_STEP;
+					if (eepdata_oled_timeout <= 0)
+						eepdata_oled_timeout = OLED_TIMEOUT_NEVER;
+				}
+				break;
+			case MENU_KEY_RIGHT:
+				if (menu_execute == 1) { // Active layer
+					if (eepdata_active_layer == ACTIVE_LAYER_MAX) eepdata_active_layer = ACTIVE_LAYER_MIN;
+					else eepdata_active_layer++;
+				}
+				if (menu_execute == 2) { // Animation
+					if (eepdata_oled_anim == OLED_ANIM_QTY) eepdata_oled_anim = 0;
+					else eepdata_oled_anim++;
+				}
+				if (menu_execute == 3) { // OLED Timeout
+					eepdata_oled_timeout += OLED_TIMEOUT_STEP;
+					if (eepdata_oled_timeout > OLED_TIMEOUT_NEVER)
+						eepdata_oled_timeout = OLED_TIMEOUT_MIN;
+				}
+				break;
+			case MENU_KEY_SELECT:
 			case MENU_KEY_EXIT:
+				menu_execute = 0;
 				current_menu = MAIN_MENU;
-				menu_init();
-				return true; // leave here
-				break;            
+				if (menu_cursor == 1) {
+					layer_move(eepdata_active_layer); // when exit "Active layer", activate that chosen layer
+				}
+				if (menu_cursor == 7) {
+					menu_init(); // when exit "About Kawii9", need to re-render Main Menu
+				}
+				break;
 			default:
 				break;
 		}
 	}
+	menu_quick_view(menu_cursor);
 	return true;
 }
 
@@ -115,26 +167,38 @@ void menu_quick_view(uint8_t menu_line) {
 	oled_set_cursor(2,7);
 	switch (menu_line) {
 		case 1:
-			oled_write_P(PSTR("Nothing special"), false);
+			oled_write_char(eepdata_active_layer + 0x30, false);
+			oled_write_char(0x5F, false);
+			oled_write(layer_name[eepdata_active_layer], false);
 			break;
 		case 2:
-			oled_write(get_u16_str(OLED_TIMEOUT/1000, ' '), false);
-			oled_write_P(PSTR(" seconds"), false);
+			oled_write(anim_list[eepdata_oled_anim], false);
 			break;
 		case 3:
-			oled_write_P(PSTR("FW: "), false);
+			if (eepdata_oled_timeout == OLED_TIMEOUT_NEVER) {
+				oled_write_P(PSTR("   Always ON"), false);
+				break;
+			}
+			oled_write(get_u8_str(eepdata_oled_timeout, ' '), false);
+			oled_write_P(PSTR(" seconds"), false);
+			break;
+		case 6:
 			oled_write_P(PSTR(FW_VERSION), false);
 			break;
-		case 4:
-			oled_write_P(PSTR("Clear all"), false);
+		case 7:
+			// oled_write_P(PSTR("..."), false);
 			break;
-		case 5:
-			oled_write_P(PSTR("For updating FW"), false);
+		case 8:
+			oled_write_P(PSTR("reset all settings"), false);
+			break;
+		case 9:
+			oled_write_P(PSTR("FW & memory update"), false);
 			break;
         default:
             break;
 	}
-	if (menu_list_ischangable[menu_line-1]) {
+	// Render 2 arrows (left & right) for "changable" settings
+	if (menu_list_ischangable[menu_line-1] && (current_menu == SUB_MENU)) {
 		oled_set_cursor(0,7);
 		oled_write_char(0x11, false);
 		oled_set_cursor(20,7);
@@ -145,24 +209,38 @@ void menu_quick_view(uint8_t menu_line) {
 void menu_action(void) {
     switch (menu_execute) {
         case 1:
-			action_aboutkawii9();
+			action_activelayer();
             break;
         case 2:
-			//
+			action_animation();
             break;
         case 3:
-			//
-			break;
+			action_oledtimeout();
+            break;
         case 4:
+			//
+			menu_execute = 0;
+            break;
+        case 5:
+			//
+			menu_execute = 0;
+            break;
+        case 6:
+			// NOP
+			menu_execute = 0;
+            break;
+        case 7:
+			action_aboutkawii9();
+			break;
+        case 8:
 			action_factoryreset();
 			break;
-        case 5:
+        case 9:
 			action_resettodfu();
 			break;
         default:
             break;
     }
-	menu_execute = 0;
 }
 
 void action_aboutkawii9(void) {
@@ -179,6 +257,9 @@ void action_aboutkawii9(void) {
 }
 
 void action_factoryreset(void) {
+	eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER, 0); // Default: Layer 0
+	eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,    1); // Default: QMK Logo
+	eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT, OLED_TIMEOUT_MIN); // Default: 30s
 	eeconfig_disable();
 	soft_reset_keyboard();
 }
@@ -192,6 +273,24 @@ void action_resettodfu(void) {
 	reset_keyboard();
 }
 
+void action_activelayer(void) {
+	current_menu = SUB_MENU;
+}
+
+void action_animation(void) {
+	current_menu = SUB_MENU;
+}
+
+void action_oledtimeout(void) {
+	current_menu = SUB_MENU;
+}
+
+void eeprom_update_custom(void) {
+	eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER, eepdata_active_layer);
+	eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,    eepdata_oled_anim);
+	eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT, eepdata_oled_timeout);
+}
+
 bool rgb_matrix_indicators_kb(void) { // showing Menu control keys in RGB Matrix
     if (!rgb_matrix_indicators_user()) {
         return false;
@@ -200,16 +299,21 @@ bool rgb_matrix_indicators_kb(void) { // showing Menu control keys in RGB Matrix
 		rgb_matrix_set_color_all(RGB_BLACK);
 		rgb_matrix_set_color(5,  RGB_WHITE);	// UP
 		rgb_matrix_set_color(11, RGB_WHITE);	// DOWN
-		rgb_matrix_set_color(7,  RGB_WHITE);	// LEFT
-		rgb_matrix_set_color(9,  RGB_WHITE);	// RIGHT
 		rgb_matrix_set_color(8,  RGB_GREEN);	// MIDDLE (OK)
 		rgb_matrix_set_color(10, RGB_RED);		// EXIT
 	}
 	if (current_menu == SUB_MENU) {
 		rgb_matrix_set_color_all(RGB_BLACK);
+		rgb_matrix_set_color(7,  RGB_WHITE);	// LEFT
+		rgb_matrix_set_color(9,  RGB_WHITE);	// RIGHT
 		rgb_matrix_set_color(10, RGB_RED);		// EXIT
 	}
     return true;
 }
 
-#endif
+#endif // defined(OLED_ENABLE)
+
+// void keyboard_post_init_kb(void) {
+	// oled_set_cursor(0,0);
+	// oled_write_char(0x5F, false);
+// }

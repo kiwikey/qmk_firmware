@@ -19,6 +19,23 @@
     RGB #03  * 55%
 ********************************/
 
+#define ACTIVE_LAYER_MIN    0
+#define ACTIVE_LAYER_MAX    4
+static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
+	// "Default",
+	// " Media ",
+	// " Mouse ",
+	// "User #1",
+	// "User #2",
+	// "  RGB  "
+	"DEFAULT",
+	" MEDIA ",
+	" MOUSE ",
+	"USER #1",
+	"USER #2",
+	"  RGB  "
+};
+
 extern uint8_t rgb_val;
 extern uint8_t sub_ui_mode;
 

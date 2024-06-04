@@ -232,4 +232,4 @@ static const unsigned char PROGMEM font[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-#endif
+#endif // defined(OLED_ENABLE)

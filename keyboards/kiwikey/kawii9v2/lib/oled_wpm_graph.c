@@ -24,4 +24,4 @@ void render_wpm_graph(void) {
     }
 }
 
-#endif
+#endif // defined(OLED_ENABLE) && defined(WPM_ENABLE)

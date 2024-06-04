@@ -4,3 +4,9 @@
 #pragma once
 
 #include "quantum.h"
+
+enum keyboard_keycodes {
+    CUSTOM_KC_MENU = QK_KB_0,
+    // CUSTOM_2,
+    // CUSTOM_3,
+};
