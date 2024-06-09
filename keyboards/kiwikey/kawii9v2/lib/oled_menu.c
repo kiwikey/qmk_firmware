@@ -7,9 +7,10 @@
 #include "oled_custom_api.h"
 #include "oled_ui.h"
 
-extern uint8_t  eepdata_active_layer,
+extern uint8_t	eepdata_active_layer,
 				eepdata_oled_anim,
 				eepdata_oled_timeout;
+extern bool		eepdata_layer_indicator;
 
 uint8_t current_menu = NOT_IN_MENU;
 static uint8_t menu_execute = 0; // 0 means no "menu line" is activated/chosen
@@ -94,7 +95,9 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 				current_menu = NOT_IN_MENU;
 				menu_cursor = MAINMENU_1STLINE_POS;
 				eeprom_update_custom(); // update all custom EEPROM values (if necessary)
+#if defined(WPM_ENABLE)
 				rgb_matrix_reload_from_eeprom();
+#endif // defined(WPM_ENABLE)
 				render_ui_frame();
 				return true; // leave here
 				break;            
@@ -301,6 +304,7 @@ void eeprom_update_custom(void) {
 	eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT, eepdata_oled_timeout);
 }
 
+#if defined(RGB_MATRIX_ENABLE)
 bool rgb_matrix_indicators_kb(void) { // showing Menu control keys in RGB Matrix
     if (!rgb_matrix_indicators_user()) {
         return false;
@@ -316,12 +320,13 @@ bool rgb_matrix_indicators_kb(void) { // showing Menu control keys in RGB Matrix
 		rgb_matrix_set_color_all(RGB_BLACK);
 		if (menu_execute != 7) // About Kawii9
 		{
-			rgb_matrix_set_color(7,  RGB_WHITE);	// LEFT
-			rgb_matrix_set_color(9,  RGB_WHITE);	// RIGHT
+			rgb_matrix_set_color(7, RGB_WHITE);	// LEFT
+			rgb_matrix_set_color(9, RGB_WHITE);	// RIGHT
 		}
 		rgb_matrix_set_color(10, RGB_RED);		// EXIT
 	}
     return true;
 }
+#endif // defined(RGB_MATRIX_ENABLE)
 
 #endif // defined(OLED_ENABLE)

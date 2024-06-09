@@ -10,13 +10,13 @@
 	"rgb_matrix": {
         "animations": {
             "breathing": true,
-            "cycle_all": true,
-            "cycle_left_right": true,
+            "cycle_all": false,
+            "cycle_left_right": false,
             "cycle_up_down": true,
-            "typing_heatmap": true,
-            "solid_reactive_simple": true,
-            "solid_reactive": true,
-            "solid_reactive_cross": true
+            "typing_heatmap": false,
+            "solid_reactive_simple": false,
+            "solid_reactive": false,
+            "solid_reactive_cross": false
         },
         "default": {
             "animation": "cycle_up_down"

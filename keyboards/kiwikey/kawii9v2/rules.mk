@@ -11,4 +11,5 @@ SRC += \
 	oled_wpm_graph.c  \
     oled_ui.c         \
 	oled_menu.c       \
+	via_custom.c      \
     oled.c

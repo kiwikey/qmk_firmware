@@ -11,12 +11,31 @@
 #include "oled_menu.h"
 #endif // defined(OLED_ENABLE)
 
+#if defined(CONSOLE_ENABLE)
+#include "print.h"
+#endif // defined(CONSOLE_ENABLE)
+
 uint32_t key_timer = 0;
 uint8_t eepdata_active_layer,
 		eepdata_oled_anim,
 		eepdata_oled_timeout;
+uint8_t eepdata_hue_layer[5],
+		eepdata_sat_layer[5];
+bool    eepdata_layer_indicator;
 
 void keyboard_post_init_kb(void) {
+
+	eepdata_active_layer    = eeprom_read_byte((uint8_t*)EEPROM_ACTIVE_LAYER);
+	eepdata_oled_anim       = eeprom_read_byte((uint8_t*)EEPROM_OLED_ANIM);
+	eepdata_oled_timeout    = eeprom_read_byte((uint8_t*)EEPROM_OLED_TIMEOUT);
+	eepdata_layer_indicator = eeprom_read_byte((uint8_t*)EEPROM_LAYER_INDICATOR);
+	// if (eepdata_active_layer) || (eepdata_oled_anim) || (eepdata_oled_timeout) { //check data validation
+	// }
+	layer_move(eepdata_active_layer);
+
+#if defined(OLED_ENABLE)
+    render_ui_frame();
+#endif // defined(OLED_ENABLE)
 
 #if defined(CONSOLE_ENABLE)
 	debug_enable=true;
@@ -25,22 +44,27 @@ void keyboard_post_init_kb(void) {
 	debug_mouse=false;
 #endif // defined(CONSOLE_ENABLE)
 
-	eepdata_active_layer = eeprom_read_byte((uint8_t*)EEPROM_ACTIVE_LAYER);
-	eepdata_oled_anim    = eeprom_read_byte((uint8_t*)EEPROM_OLED_ANIM);
-	eepdata_oled_timeout = eeprom_read_byte((uint8_t*)EEPROM_OLED_TIMEOUT);
-	// if (eepdata_active_layer) || (eepdata_oled_anim) || (eepdata_oled_timeout) { //check data validation
-	// }
-	layer_move(eepdata_active_layer);
-
-#if defined(OLED_ENABLE)
-    render_ui_frame();
-#endif // defined(OLED_ENABLE)
     keyboard_post_init_user();
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 	if (record->event.pressed)
 		key_timer = timer_read32();
+	
+	if (record->event.pressed) {
+		dprintf("get_highest_layer: %d \n", get_highest_layer(layer_state));
+		dprint("HUE: ");
+		for (uint8_t i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT-1; i++) {
+			dprintf("%d - ", eepdata_hue_layer[i]);
+		}
+		dprint("\n");
+		dprint("SAT: ");
+		for (uint8_t i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT-1; i++) {
+			dprintf("%d - ", eepdata_sat_layer[i]);
+		}
+		dprint("\n");
+	}
+	
 #if defined(OLED_ENABLE)
     if (current_menu != NOT_IN_MENU) { // in MENU all keys are for controlling, no keycode is sent
 		process_record_menu(keycode, record);
@@ -77,12 +101,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
     return process_record_user(keycode, record);
 }
-
-// void housekeeping_task_kb(void) {
-	// oled_set_cursor(0,0);
-	// oled_write_char(temp1+0x30,false);
-	// oled_write_char(temp2+0x30,false);
-// }
 
 // Try to save some bytes...
 #ifndef MAGIC_ENABLE

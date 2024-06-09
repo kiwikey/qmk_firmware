@@ -14,9 +14,10 @@
 #include "anim_mario.c"
 
 extern uint32_t key_timer;
-extern uint8_t  eepdata_active_layer,
-                eepdata_oled_anim,
-                eepdata_oled_timeout;
+extern uint8_t eepdata_active_layer,
+               eepdata_oled_anim,
+               eepdata_oled_timeout;
+extern bool    eepdata_layer_indicator;
 
 bool oled_task_kb(void) {
     if (!oled_task_user()) {
