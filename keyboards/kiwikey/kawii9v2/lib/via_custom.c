@@ -156,6 +156,13 @@ void via_config_save(void)
 	eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,       eepdata_oled_anim);
 	eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT,    eepdata_oled_timeout);
 	eeprom_update_byte((uint8_t*)EEPROM_LAYER_INDICATOR, eepdata_layer_indicator);
+	// Saving all layers' HUE & SAT setting (total 10 numbers)
+	for (uint8_t i = 0; i <= 4; i++) {
+		eeprom_update_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+4), eepdata_hue_layer[i]);
+	}
+	for (uint8_t i = 0; i <= 4; i++) {
+		eeprom_update_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+9), eepdata_sat_layer[i]);
+	}
 	// dprint("- via_config_save! \n");
 }
 

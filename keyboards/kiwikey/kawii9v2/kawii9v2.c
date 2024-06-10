@@ -19,8 +19,8 @@ uint32_t key_timer = 0;
 uint8_t eepdata_active_layer,
 		eepdata_oled_anim,
 		eepdata_oled_timeout;
-uint8_t eepdata_hue_layer[5],
-		eepdata_sat_layer[5];
+uint8_t eepdata_hue_layer[5] = {0,0,0,0,0},
+		eepdata_sat_layer[5] = {0,0,0,0,0};
 bool    eepdata_layer_indicator;
 
 void keyboard_post_init_kb(void) {
@@ -29,6 +29,13 @@ void keyboard_post_init_kb(void) {
 	eepdata_oled_anim       = eeprom_read_byte((uint8_t*)EEPROM_OLED_ANIM);
 	eepdata_oled_timeout    = eeprom_read_byte((uint8_t*)EEPROM_OLED_TIMEOUT);
 	eepdata_layer_indicator = eeprom_read_byte((uint8_t*)EEPROM_LAYER_INDICATOR);
+	// Reading all layers' HUE & SAT setting (total 10 numbers)
+	for (uint8_t i = 0; i <= 4; i++) {
+		eepdata_hue_layer[i] = eeprom_read_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+4));
+	}
+	for (uint8_t i = 0; i <= 4; i++) {
+		eepdata_sat_layer[i] = eeprom_read_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+9));
+	}
 	// if (eepdata_active_layer) || (eepdata_oled_anim) || (eepdata_oled_timeout) { //check data validation
 	// }
 	layer_move(eepdata_active_layer);

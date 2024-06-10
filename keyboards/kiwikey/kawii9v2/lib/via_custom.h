@@ -5,7 +5,7 @@ enum via_layer_indicator_value {
 	id_layer_setactive          = 0,
     id_layer_indicator_enable   = 1,
 	id_layer_indicator_setled   = 2,
-    id_layer_indicator_layer    = 3
+    id_layer_indicator_layer    = 3 // array
 };
 
 enum via_oled_value {
