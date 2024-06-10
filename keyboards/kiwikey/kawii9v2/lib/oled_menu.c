@@ -270,9 +270,11 @@ void action_aboutkawii9(void) {
 }
 
 void action_factoryreset(void) {
-	eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER, 0); // Default: Layer 0
-	eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,    1); // Default: QMK Logo
-	eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT, OLED_TIMEOUT_MIN); // Default: 30s
+	// Set all custom EEPROM values to default, as follow:
+	eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER,    0); // Layer 0
+	eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,       1); // QMK Logo
+	eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT,    OLED_TIMEOUT_MIN); // OLED Timeout 30s
+	eeprom_update_byte((uint8_t*)EEPROM_LAYER_INDICATOR, false); // Layer Indicator OFF
 	eeconfig_disable();
 	soft_reset_keyboard();
 }

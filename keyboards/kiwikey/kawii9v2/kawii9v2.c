@@ -23,6 +23,17 @@ uint8_t eepdata_hue_layer[5] = {0,0,0,0,0},
 		eepdata_sat_layer[5] = {0,0,0,0,0};
 bool    eepdata_layer_indicator;
 
+// typedef struct {
+    // uint8_t active_layer;
+    // uint8_t oled_anim;
+    // uint8_t oled_timeout;
+    // uint8_t layer_indicator;
+    // uint8_t layer_hue[5];
+	// uint8_t layer_sat[5];
+// } EEPROM_CUSTOM_DATA;
+
+// EEPROM_CUSTOM_DATA eepdata;
+
 void keyboard_post_init_kb(void) {
 
 	eepdata_active_layer    = eeprom_read_byte((uint8_t*)EEPROM_ACTIVE_LAYER);
@@ -32,8 +43,6 @@ void keyboard_post_init_kb(void) {
 	// Reading all layers' HUE & SAT setting (total 10 numbers)
 	for (uint8_t i = 0; i <= 4; i++) {
 		eepdata_hue_layer[i] = eeprom_read_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+4));
-	}
-	for (uint8_t i = 0; i <= 4; i++) {
 		eepdata_sat_layer[i] = eeprom_read_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+9));
 	}
 	// if (eepdata_active_layer) || (eepdata_oled_anim) || (eepdata_oled_timeout) { //check data validation
@@ -59,7 +68,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 		key_timer = timer_read32();
 	
 	if (record->event.pressed) {
-		dprintf("get_highest_layer: %d \n", get_highest_layer(layer_state));
 		dprint("HUE: ");
 		for (uint8_t i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT-1; i++) {
 			dprintf("%d - ", eepdata_hue_layer[i]);
