@@ -4,6 +4,8 @@
 #include "quantum.h"
 #include "kawii9v2.h"
 
+EEPROM_CUSTOM_DATA eepdata;
+
 #if defined(OLED_ENABLE)
 #include "oled_key_matrix.h"
 #include "oled_wpm_graph.h"
@@ -16,38 +18,15 @@
 #endif // defined(CONSOLE_ENABLE)
 
 uint32_t key_timer = 0;
-uint8_t eepdata_active_layer,
-		eepdata_oled_anim,
-		eepdata_oled_timeout;
-uint8_t eepdata_hue_layer[5] = {0,0,0,0,0},
-		eepdata_sat_layer[5] = {0,0,0,0,0};
-bool    eepdata_layer_indicator;
-
-// typedef struct {
-    // uint8_t active_layer;
-    // uint8_t oled_anim;
-    // uint8_t oled_timeout;
-    // uint8_t layer_indicator;
-    // uint8_t layer_hue[5];
-	// uint8_t layer_sat[5];
-// } EEPROM_CUSTOM_DATA;
-
-// EEPROM_CUSTOM_DATA eepdata;
 
 void keyboard_post_init_kb(void) {
+	// Reading all EEPROM custom data:
+	// + Settings for OLED & layer (4 numbers)
+	// + Layers' HUE & SAT setting (total 10 numbers)
+	eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 
-	eepdata_active_layer    = eeprom_read_byte((uint8_t*)EEPROM_ACTIVE_LAYER);
-	eepdata_oled_anim       = eeprom_read_byte((uint8_t*)EEPROM_OLED_ANIM);
-	eepdata_oled_timeout    = eeprom_read_byte((uint8_t*)EEPROM_OLED_TIMEOUT);
-	eepdata_layer_indicator = eeprom_read_byte((uint8_t*)EEPROM_LAYER_INDICATOR);
-	// Reading all layers' HUE & SAT setting (total 10 numbers)
-	for (uint8_t i = 0; i <= 4; i++) {
-		eepdata_hue_layer[i] = eeprom_read_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+4));
-		eepdata_sat_layer[i] = eeprom_read_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+9));
-	}
-	// if (eepdata_active_layer) || (eepdata_oled_anim) || (eepdata_oled_timeout) { //check data validation
-	// }
-	layer_move(eepdata_active_layer);
+	// Validation check?
+	layer_move(eepdata.active_layer);
 
 #if defined(OLED_ENABLE)
     render_ui_frame();
@@ -68,14 +47,19 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 		key_timer = timer_read32();
 	
 	if (record->event.pressed) {
+		dprintf("Init new: %d %d %d %d - HUE %d %d %d %d %d - SAT %d %d %d %d %d \n",
+				eepdata.active_layer, eepdata.oled_anim, eepdata.oled_timeout, eepdata.layer_indicator,
+				eepdata.layer_hue[0], eepdata.layer_hue[1], eepdata.layer_hue[2], eepdata.layer_hue[3], eepdata.layer_hue[4],
+				eepdata.layer_sat[0], eepdata.layer_sat[1], eepdata.layer_sat[2], eepdata.layer_sat[3], eepdata.layer_sat[4]
+				);
 		dprint("HUE: ");
 		for (uint8_t i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT-1; i++) {
-			dprintf("%d - ", eepdata_hue_layer[i]);
+			dprintf("%d - ", eepdata.layer_hue[i]);
 		}
 		dprint("\n");
 		dprint("SAT: ");
 		for (uint8_t i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT-1; i++) {
-			dprintf("%d - ", eepdata_sat_layer[i]);
+			dprintf("%d - ", eepdata.layer_sat[i]);
 		}
 		dprint("\n");
 	}
@@ -104,7 +88,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         case CUSTOM_KC_MENU:
             if (current_menu == NOT_IN_MENU) {
 				current_menu = MAIN_MENU;
-				layer_move(eepdata_active_layer); // to avoid weird behavior of current_layer when turn on MENU 
+				layer_move(eepdata.active_layer); // to avoid weird behavior of current_layer when turn on MENU 
 				menu_init();
 			}
 			return false; // no need to process this keycode

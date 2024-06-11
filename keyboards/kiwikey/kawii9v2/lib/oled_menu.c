@@ -1,16 +1,13 @@
 // Copyright 2023 KiwiKey
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "kawii9v2.h"
+
 #if defined(OLED_ENABLE)
 
 #include "oled_menu.h"
 #include "oled_custom_api.h"
 #include "oled_ui.h"
-
-extern uint8_t	eepdata_active_layer,
-				eepdata_oled_anim,
-				eepdata_oled_timeout;
-extern bool		eepdata_layer_indicator;
 
 uint8_t current_menu = NOT_IN_MENU;
 static uint8_t menu_execute = 0; // 0 means no "menu line" is activated/chosen
@@ -125,32 +122,32 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 				// break;
 			case MENU_KEY_LEFT:
 				if (menu_execute == 1) { // Active layer
-					if (eepdata_active_layer == ACTIVE_LAYER_MIN) eepdata_active_layer = ACTIVE_LAYER_MAX;
-					else eepdata_active_layer--;
+					if (eepdata.active_layer == ACTIVE_LAYER_MIN) eepdata.active_layer = ACTIVE_LAYER_MAX;
+					else eepdata.active_layer--;
 				}
 				if (menu_execute == 2) { // Animation
-					if (eepdata_oled_anim == 0) eepdata_oled_anim = OLED_ANIM_QTY;
-					else eepdata_oled_anim--;
+					if (eepdata.oled_anim == 0) eepdata.oled_anim = OLED_ANIM_QTY;
+					else eepdata.oled_anim--;
 				}
 				if (menu_execute == 3) { // OLED Timeout
-					eepdata_oled_timeout -= OLED_TIMEOUT_STEP;
-					if (eepdata_oled_timeout <= 0)
-						eepdata_oled_timeout = OLED_TIMEOUT_NEVER;
+					eepdata.oled_timeout -= OLED_TIMEOUT_STEP;
+					if (eepdata.oled_timeout <= 0)
+						eepdata.oled_timeout = OLED_TIMEOUT_NEVER;
 				}
 				break;
 			case MENU_KEY_RIGHT:
 				if (menu_execute == 1) { // Active layer
-					if (eepdata_active_layer == ACTIVE_LAYER_MAX) eepdata_active_layer = ACTIVE_LAYER_MIN;
-					else eepdata_active_layer++;
+					if (eepdata.active_layer == ACTIVE_LAYER_MAX) eepdata.active_layer = ACTIVE_LAYER_MIN;
+					else eepdata.active_layer++;
 				}
 				if (menu_execute == 2) { // Animation
-					if (eepdata_oled_anim == OLED_ANIM_QTY) eepdata_oled_anim = 0;
-					else eepdata_oled_anim++;
+					if (eepdata.oled_anim == OLED_ANIM_QTY) eepdata.oled_anim = 0;
+					else eepdata.oled_anim++;
 				}
 				if (menu_execute == 3) { // OLED Timeout
-					eepdata_oled_timeout += OLED_TIMEOUT_STEP;
-					if (eepdata_oled_timeout > OLED_TIMEOUT_NEVER)
-						eepdata_oled_timeout = OLED_TIMEOUT_MIN;
+					eepdata.oled_timeout += OLED_TIMEOUT_STEP;
+					if (eepdata.oled_timeout > OLED_TIMEOUT_NEVER)
+						eepdata.oled_timeout = OLED_TIMEOUT_MIN;
 				}
 				break;
 			case MENU_KEY_SELECT:
@@ -158,7 +155,7 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 				menu_execute = 0;
 				current_menu = MAIN_MENU;
 				if (menu_cursor == 1) {
-					layer_move(eepdata_active_layer); // when exit "Active layer", activate that chosen layer
+					layer_move(eepdata.active_layer); // when exit "Active layer", activate that chosen layer
 				}
 				if (menu_cursor == 7) {
 					menu_init(); // when exit "About Kawii9", need to re-render Main Menu
@@ -182,20 +179,20 @@ void menu_quick_view(uint8_t menu_line) {
 		case 1:
 			oled_set_cursor(5,7);
 			oled_write_char(0x28, false);
-			oled_write_char(eepdata_active_layer + 0x30, false);
+			oled_write_char(eepdata.active_layer + 0x30, false);
 			oled_write_char(0x29, false);
-			oled_write(layer_name[eepdata_active_layer], false);
+			oled_write(layer_name[eepdata.active_layer], false);
 			break;
 		case 2:
-			oled_write_align(anim_list[eepdata_oled_anim], ALIGN_CENTER, false);
+			oled_write_align(anim_list[eepdata.oled_anim], ALIGN_CENTER, false);
 			break;
 		case 3:
-			if (eepdata_oled_timeout == OLED_TIMEOUT_NEVER) {
+			if (eepdata.oled_timeout == OLED_TIMEOUT_NEVER) {
 				oled_write_align_P(PSTR("Always ON"), ALIGN_CENTER, false);
 				break;
 			}
 			oled_set_cursor(5,7);
-			oled_write(get_u8_str(eepdata_oled_timeout, ' '), false);
+			oled_write(get_u8_str(eepdata.oled_timeout, ' '), false);
 			oled_write_P(PSTR(" seconds"), false);
 			break;
 		case 6:
@@ -270,11 +267,22 @@ void action_aboutkawii9(void) {
 }
 
 void action_factoryreset(void) {
+	EEPROM_CUSTOM_DATA eepdata_default = {
+		0,                // Layer 0
+		1,                // QMK Logo
+		OLED_TIMEOUT_MIN, // OLED Timeout 30s
+		0,                // Layer Indicator OFF
+		{1,2,3,4,5},
+		{6,7,8,9,1}
+	};
 	// Set all custom EEPROM values to default, as follow:
-	eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER,    0); // Layer 0
-	eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,       1); // QMK Logo
-	eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT,    OLED_TIMEOUT_MIN); // OLED Timeout 30s
-	eeprom_update_byte((uint8_t*)EEPROM_LAYER_INDICATOR, false); // Layer Indicator OFF
+	// eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER,    0); // Layer 0
+	// eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,       1); // QMK Logo
+	// eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT,    OLED_TIMEOUT_MIN); // OLED Timeout 30s
+	// eeprom_update_byte((uint8_t*)EEPROM_LAYER_INDICATOR, false); // Layer Indicator OFF
+	
+	eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
+	
 	eeconfig_disable();
 	soft_reset_keyboard();
 }
@@ -301,9 +309,11 @@ void action_oledtimeout(void) {
 }
 
 void eeprom_update_custom(void) {
-	eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER, eepdata_active_layer);
-	eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,    eepdata_oled_anim);
-	eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT, eepdata_oled_timeout);
+	// eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER, eepdata.active_layer);
+	// eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,    eepdata.oled_anim);
+	// eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT, eepdata.oled_timeout);
+	
+	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 }
 
 #if defined(RGB_MATRIX_ENABLE)

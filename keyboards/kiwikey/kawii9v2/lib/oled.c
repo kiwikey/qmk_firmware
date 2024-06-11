@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
  
 #include "quantum.h"
+#include "kawii9v2.h"
 
 #if defined(OLED_ENABLE)
 
@@ -14,10 +15,6 @@
 #include "anim_mario.c"
 
 extern uint32_t key_timer;
-extern uint8_t eepdata_active_layer,
-               eepdata_oled_anim,
-               eepdata_oled_timeout;
-extern bool    eepdata_layer_indicator;
 
 bool oled_task_kb(void) {
     if (!oled_task_user()) {
@@ -32,7 +29,7 @@ bool oled_task_kb(void) {
 #if defined(WPM_ENABLE)
             render_wpm_graph();
 #endif // defined(WPM_ENABLE)
-            switch (eepdata_oled_anim) {
+            switch (eepdata.oled_anim) {
                 case 0:
                     break;
                 case 1:
@@ -54,7 +51,7 @@ bool oled_task_kb(void) {
         sub_ui_mode = 0;
         sub_ui_clear();
     }
-    if ((eepdata_oled_timeout != OLED_TIMEOUT_NEVER) && ((timer_elapsed32(key_timer)/1000) > eepdata_oled_timeout)) {
+    if ((eepdata.oled_timeout != OLED_TIMEOUT_NEVER) && ((timer_elapsed32(key_timer)/1000) > eepdata.oled_timeout)) {
         oled_off();
     }
     return false;
