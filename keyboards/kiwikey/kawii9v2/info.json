@@ -1,7 +1,7 @@
 {
     "features": {
         "extrakey": true,
-        "mousekey": false,
+        "mousekey": true,
         "rgb_matrix": true,
         "encoder": true,
         "oled": true,
@@ -10,13 +10,13 @@
 	"rgb_matrix": {
         "animations": {
             "breathing": true,
-            "cycle_all": false,
-            "cycle_left_right": false,
+            "cycle_all": true,
+            "cycle_left_right": true,
             "cycle_up_down": true,
-            "typing_heatmap": false,
-            "solid_reactive_simple": false,
-            "solid_reactive": false,
-            "solid_reactive_cross": false
+            "typing_heatmap": true,
+            "solid_reactive_simple": true,
+            "solid_reactive": true,
+            "solid_reactive_cross": true
         },
         "default": {
             "animation": "cycle_up_down"

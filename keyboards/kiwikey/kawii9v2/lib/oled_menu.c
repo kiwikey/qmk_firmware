@@ -10,7 +10,7 @@
 #include "oled_ui.h"
 
 uint8_t current_menu = NOT_IN_MENU;
-static uint8_t menu_execute = 0; // 0 means no "menu line" is activated/chosen
+uint8_t menu_execute = 0; // 0 means no "menu line" is being activated/chosen
 static uint8_t menu_cursor = MAINMENU_1STLINE_POS;
 
 void menu_init(void) {
@@ -134,6 +134,17 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 					if (eepdata.oled_timeout <= 0)
 						eepdata.oled_timeout = OLED_TIMEOUT_NEVER;
 				}
+				if (menu_execute == 4) { // Lighting Layers
+					if (eepdata.lighting_layers == 0) {
+						eepdata.lighting_layers = 1;
+						eepdata.lighting_flags = 2;
+					} else eepdata.lighting_flags ? eepdata.lighting_flags-- : (eepdata.lighting_layers = 0);  // Drawing a flowchart may help
+				}
+				if (menu_execute == 5) { // Layers' Color
+					eepdata.layer_hue[eepdata.active_layer] -= OLED_ADJUSTCOLOR_STEP;
+					if (eepdata.layer_hue[eepdata.active_layer] == 242) eepdata.layer_hue[eepdata.active_layer] = 252; // Manually tune for a special case (TODO: clean up this)
+					eepdata.layer_hue[eepdata.active_layer] -= eepdata.layer_hue[eepdata.active_layer] % OLED_ADJUSTCOLOR_STEP; // Tune the HUE to "correct" color
+				}
 				break;
 			case MENU_KEY_RIGHT:
 				if (menu_execute == 1) { // Active layer
@@ -148,6 +159,16 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 					eepdata.oled_timeout += OLED_TIMEOUT_STEP;
 					if (eepdata.oled_timeout > OLED_TIMEOUT_NEVER)
 						eepdata.oled_timeout = OLED_TIMEOUT_MIN;
+				}
+				if (menu_execute == 4) { // Lighting Layers
+					if (eepdata.lighting_flags == 2) {
+						eepdata.lighting_flags = 0;
+						eepdata.lighting_layers = 0;
+					} else eepdata.lighting_layers ? eepdata.lighting_flags++ : eepdata.lighting_layers++; // Drawing a flowchart may help
+				}
+				if (menu_execute == 5) { // Layers' Color
+					eepdata.layer_hue[eepdata.active_layer] += OLED_ADJUSTCOLOR_STEP;
+					eepdata.layer_hue[eepdata.active_layer] -= eepdata.layer_hue[eepdata.active_layer] % OLED_ADJUSTCOLOR_STEP; // Tune the HUE to "correct" color
 				}
 				break;
 			case MENU_KEY_SELECT:
@@ -178,9 +199,9 @@ void menu_quick_view(uint8_t menu_line) {
 	switch (menu_line) {
 		case 1:
 			oled_set_cursor(5,7);
-			oled_write_char(0x28, false);
+			oled_write_char(0x28, false); // '('
 			oled_write_char(eepdata.active_layer + 0x30, false);
-			oled_write_char(0x29, false);
+			oled_write_char(0x29, false); // ')'
 			oled_write(layer_name[eepdata.active_layer], false);
 			break;
 		case 2:
@@ -194,6 +215,39 @@ void menu_quick_view(uint8_t menu_line) {
 			oled_set_cursor(5,7);
 			oled_write(get_u8_str(eepdata.oled_timeout, ' '), false);
 			oled_write_P(PSTR(" seconds"), false);
+			break;
+		case 4:
+			if (!eepdata.lighting_layers) {
+				oled_write_align("OFF", ALIGN_CENTER, false);
+			}
+			else switch (eepdata.lighting_flags) {
+					case 0:
+						oled_write_align("ON (Underglow)", ALIGN_CENTER, false);
+						break;
+					case 1:
+						oled_write_align("ON (Backlight)", ALIGN_CENTER, false);
+						break;
+					case 2:
+						oled_write_align("ON (All LEDs)", ALIGN_CENTER, false);
+						break;
+				}
+			break;
+		case 5:
+			oled_set_cursor(3,7);
+			if (!eepdata.lighting_layers) {
+				oled_write("(unavailable)", false);
+				break;
+			}
+			if (current_menu == MAIN_MENU) {
+				oled_write(" of Layer (", false);
+				oled_write_char(get_highest_layer(layer_state)+0x30, false);
+				oled_write_char(0x29, false); // ')'
+			}
+			else if (current_menu == SUB_MENU) {
+				oled_write("Layer (", false);
+				oled_write_char(get_highest_layer(layer_state)+0x30, false);
+				oled_write(") color", false);
+			}
 			break;
 		case 6:
 			oled_write_align_P(PSTR(FW_VERSION), ALIGN_CENTER, false);
@@ -231,13 +285,11 @@ void menu_action(void) {
 			action_oledtimeout();
             break;
         case 4:
-			//
-			menu_execute = 0;
+			action_lightinglayers();
             break;
         case 5:
-			//
-			menu_execute = 0;
-            break;
+			action_lightingconfig();
+			break;
         case 6:
 			// NOP
 			menu_execute = 0;
@@ -256,6 +308,28 @@ void menu_action(void) {
     }
 }
 
+void action_activelayer(void) {
+	current_menu = SUB_MENU;
+}
+
+void action_animation(void) {
+	current_menu = SUB_MENU;
+}
+
+void action_oledtimeout(void) {
+	current_menu = SUB_MENU;
+}
+
+void action_lightinglayers(void) {
+	current_menu = SUB_MENU;
+}
+
+void action_lightingconfig(void) {
+	if (eepdata.lighting_layers) { // Process to SubMenu as long as Lighting Layers is ON
+		current_menu = SUB_MENU;
+	}
+}
+
 void action_aboutkawii9(void) {
 	current_menu = SUB_MENU;
 	oled_clear();
@@ -268,21 +342,15 @@ void action_aboutkawii9(void) {
 
 void action_factoryreset(void) {
 	EEPROM_CUSTOM_DATA eepdata_default = {
-		0,                // Layer 0
-		1,                // QMK Logo
-		OLED_TIMEOUT_MIN, // OLED Timeout 30s
-		0,                // Layer Indicator OFF
-		{1,2,3,4,5},
-		{6,7,8,9,1}
+		0,                           // Layer 0
+		1,                           // QMK Logo
+		OLED_TIMEOUT_MIN,            // OLED Timeout 30s
+		0,                           // Lighting Layers OFF
+		0,                           // Lighting Layers applied to Underglow LEDs
+		{ 126, 210,  42,  84, 168 }, // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green - Blue
+		{ 255, 255, 255, 255, 255 }  // Lighting Layers' SATs: maximum (255)
 	};
-	// Set all custom EEPROM values to default, as follow:
-	// eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER,    0); // Layer 0
-	// eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,       1); // QMK Logo
-	// eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT,    OLED_TIMEOUT_MIN); // OLED Timeout 30s
-	// eeprom_update_byte((uint8_t*)EEPROM_LAYER_INDICATOR, false); // Layer Indicator OFF
-	
 	eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
-	
 	eeconfig_disable();
 	soft_reset_keyboard();
 }
@@ -296,49 +364,8 @@ void action_resettodfu(void) {
 	reset_keyboard();
 }
 
-void action_activelayer(void) {
-	current_menu = SUB_MENU;
-}
-
-void action_animation(void) {
-	current_menu = SUB_MENU;
-}
-
-void action_oledtimeout(void) {
-	current_menu = SUB_MENU;
-}
-
 void eeprom_update_custom(void) {
-	// eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER, eepdata.active_layer);
-	// eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,    eepdata.oled_anim);
-	// eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT, eepdata.oled_timeout);
-	
 	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 }
-
-#if defined(RGB_MATRIX_ENABLE)
-bool rgb_matrix_indicators_kb(void) { // showing Menu control keys in RGB Matrix
-    if (!rgb_matrix_indicators_user()) {
-        return false;
-    }
-	if (current_menu == MAIN_MENU) {
-		rgb_matrix_set_color_all(RGB_BLACK);
-		rgb_matrix_set_color(5,  RGB_WHITE);	// UP
-		rgb_matrix_set_color(11, RGB_WHITE);	// DOWN
-		rgb_matrix_set_color(8,  RGB_GREEN);	// MIDDLE (OK)
-		rgb_matrix_set_color(10, RGB_RED);		// EXIT
-	}
-	if (current_menu == SUB_MENU) {
-		rgb_matrix_set_color_all(RGB_BLACK);
-		if (menu_execute != 7) // About Kawii9
-		{
-			rgb_matrix_set_color(7, RGB_WHITE);	// LEFT
-			rgb_matrix_set_color(9, RGB_WHITE);	// RIGHT
-		}
-		rgb_matrix_set_color(10, RGB_RED);		// EXIT
-	}
-    return true;
-}
-#endif // defined(RGB_MATRIX_ENABLE)
 
 #endif // defined(OLED_ENABLE)

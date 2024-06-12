@@ -12,7 +12,8 @@ typedef struct {
     uint8_t active_layer;
     uint8_t oled_anim;
     uint8_t oled_timeout;
-    uint8_t layer_indicator;
+    uint8_t lighting_layers; // 0 = OFF; 1 = ON
+	uint8_t lighting_flags;  // 0 = UNDERGLOW; 1 = BACKLIGHT; 2 = ALL LEDS
     uint8_t layer_hue[5];
 	uint8_t layer_sat[5];
 } EEPROM_CUSTOM_DATA;

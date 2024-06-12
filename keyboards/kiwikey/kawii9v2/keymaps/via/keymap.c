@@ -27,7 +27,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_MOUSE] = LAYOUT(
         KC_BTN1,   KC_MS_U,   KC_BTN2,
-        KC_MS_L,   KC_BTN3,   KC_MS_R,
+        KC_MS_L,   KC_BTN1,   KC_MS_R,
         MO(_RGB),  KC_MS_D,   XXXXXXX,
         KC_MUTE,   _______
     ),

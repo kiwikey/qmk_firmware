@@ -7,7 +7,7 @@
 /*** For reference ***
 #define EEPROM_OLED_ANIM       (VIA_EEPROM_CUSTOM_CONFIG_ADDR+1)
 #define EEPROM_OLED_TIMEOUT    (VIA_EEPROM_CUSTOM_CONFIG_ADDR+2)
-#define EEPROM_LAYER_INDICATOR (VIA_EEPROM_CUSTOM_CONFIG_ADDR+3)
+#define EEPROM_LIGHTING LAYERS (VIA_EEPROM_CUSTOM_CONFIG_ADDR+3)
 #define EEPROM_LAYER_HUE       (VIA_EEPROM_CUSTOM_CONFIG_ADDR+4)  // array of 5 numbers
 #define EEPROM_LAYER_SAT       (VIA_EEPROM_CUSTOM_CONFIG_ADDR+9)  // array of 5 numbers
 ******/
@@ -17,16 +17,18 @@
 #define OLED_TIMEOUT_MAX    180
 #define OLED_TIMEOUT_NEVER  OLED_TIMEOUT_MAX + OLED_TIMEOUT_STEP
 
+#define OLED_ADJUSTCOLOR_STEP 14 // For changing RGB color of each layer
+
 #define MAINMENU_1STLINE_POS  1 // from 0 to 7
 #define MAINMENU_MAXITEMS     9
 #define MAINMENU_LINESPERPAGE 5
 
 static const char * const menu_list[MAINMENU_MAXITEMS] = {
-	" 1.Active Layer",
+	" 1.Active layer",
 	" 2.Animation",
-	" 3.OLED Timeout",
-	" 4.?????",
-	" 5.?????",
+	" 3.OLED timeout",
+	" 4.Lighting layers",
+	" 5.Adjust color",	// TODO
 	" 6.FW Version",
 	" 7.About Kawii9",
 	" 8.Factory Reset",
@@ -37,8 +39,8 @@ static const bool menu_list_ischangable[MAINMENU_MAXITEMS] = {
 	true,  // 1
 	true,  // 2
 	true,  // 3
-	false, // 4
-	false, // 5
+	true,  // 4
+	true,  // 5
 	false, // 6
 	false, // 7
 	false, // 8
@@ -62,7 +64,7 @@ static const bool menu_list_ischangable[MAINMENU_MAXITEMS] = {
 1: in main menu
 2: in sub menu
 *****************/
-extern uint8_t current_menu;
+extern uint8_t current_menu, menu_execute;
 #define NOT_IN_MENU 0
 #define MAIN_MENU   1
 #define SUB_MENU    2
@@ -76,7 +78,6 @@ static const char * const anim_list[OLED_ANIM_QTY+1] = {
 	"Bongo Cat"
 };
 
-
 void menu_init(void);
 void menu_printlist(void);
 void menu_set_cursor(uint8_t cursor_pos);
@@ -89,6 +90,8 @@ void menu_action(void);
 void action_activelayer(void);
 void action_animation(void);
 void action_oledtimeout(void);
+void action_lightinglayers(void);
+void action_lightingconfig(void);
 void action_aboutkawii9(void);
 void action_factoryreset(void);
 void action_resettodfu(void);

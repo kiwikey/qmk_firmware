@@ -21,11 +21,11 @@ uint32_t key_timer = 0;
 
 void keyboard_post_init_kb(void) {
 	// Reading all EEPROM custom data:
-	// + Settings for OLED & layer (4 numbers)
+	// + Settings for OLED & Layer (4 numbers)
 	// + Layers' HUE & SAT setting (total 10 numbers)
 	eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 
-	// Validation check?
+	// TODO: Validation check?
 	layer_move(eepdata.active_layer);
 
 #if defined(OLED_ENABLE)
@@ -33,10 +33,10 @@ void keyboard_post_init_kb(void) {
 #endif // defined(OLED_ENABLE)
 
 #if defined(CONSOLE_ENABLE)
-	debug_enable=true;
-	debug_matrix=false;
-	debug_keyboard=false;
-	debug_mouse=false;
+	debug_enable   = true;
+	debug_matrix   = false;
+	debug_keyboard = false;
+	debug_mouse    = false;
 #endif // defined(CONSOLE_ENABLE)
 
     keyboard_post_init_user();
@@ -45,25 +45,25 @@ void keyboard_post_init_kb(void) {
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 	if (record->event.pressed)
 		key_timer = timer_read32();
-	
+
+#if defined(CONSOLE_ENABLE)
 	if (record->event.pressed) {
-		dprintf("Init new: %d %d %d %d - HUE %d %d %d %d %d - SAT %d %d %d %d %d \n",
-				eepdata.active_layer, eepdata.oled_anim, eepdata.oled_timeout, eepdata.layer_indicator,
-				eepdata.layer_hue[0], eepdata.layer_hue[1], eepdata.layer_hue[2], eepdata.layer_hue[3], eepdata.layer_hue[4],
-				eepdata.layer_sat[0], eepdata.layer_sat[1], eepdata.layer_sat[2], eepdata.layer_sat[3], eepdata.layer_sat[4]
-				);
-		dprint("HUE: ");
-		for (uint8_t i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT-1; i++) {
-			dprintf("%d - ", eepdata.layer_hue[i]);
-		}
-		dprint("\n");
-		dprint("SAT: ");
-		for (uint8_t i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT-1; i++) {
-			dprintf("%d - ", eepdata.layer_sat[i]);
-		}
-		dprint("\n");
+		// dprintf("Init: %d %d %d %d %d \n", eepdata.active_layer, eepdata.oled_anim, eepdata.oled_timeout, eepdata.lighting_layers, eepdata.lighting_flags);
+		// dprintf(" lighting_layers: %d \n lighting_flags:  %d \n", eepdata.lighting_layers, eepdata.lighting_flags);
+		// dprintf(" HUE of layer %d: %d \n", eepdata.active_layer, eepdata.layer_hue[eepdata.active_layer]);
+		// dprint("HUE: ");
+		// for (uint8_t i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT-1; i++) {
+			// dprintf("%3d  ", eepdata.layer_hue[i]);
+		// }
+		// dprint("\n");
+		// dprint("SAT: ");
+		// for (uint8_t i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT-1; i++) {
+			// dprintf("%3d  ", eepdata.layer_sat[i]);
+		// }
+		// dprint("\n");
 	}
-	
+#endif // defined(CONSOLE_ENABLE)
+
 #if defined(OLED_ENABLE)
     if (current_menu != NOT_IN_MENU) { // in MENU all keys are for controlling, no keycode is sent
 		process_record_menu(keycode, record);

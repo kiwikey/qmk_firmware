@@ -3,13 +3,17 @@
 
 #include "via_custom.h"
 #include "oled_menu.h"
+#include "oled_ui.h"
 
 extern uint32_t key_timer;
 
 void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
 	oled_on(); key_timer = timer_read32(); // turn on OLED
 	
+	
+#if defined(CONSOLE_ENABLE)
 	dprintf("via_custom_value_command_kb: %d %d %d %d - %d %d - %d %d \n", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+#endif // defined(CONSOLE_ENABLE)
 	
     // data = [ command_id, channel_id, value_id, value_data ]
     uint8_t *command_id        = &(data[0]);
@@ -52,17 +56,21 @@ void via_config_set_value( uint8_t *data )
 
     switch ( *value_id ) {
 		
-		// DEFAULT LAYER & LAYER INDICATOR
+		// DEFAULT LAYER & LIGHTING LAYERS
         case id_layer_setactive: {
 			eepdata.active_layer = *value_data;
 			layer_move(eepdata.active_layer);
             break;
         }
-        case id_layer_indicator_enable: {
-			eepdata.layer_indicator = *value_data;
+        case id_lighting_layers_enable: {
+			eepdata.lighting_layers = *value_data;
             break;
         }
-        case id_layer_indicator_layer: { // received an array
+        case id_lighting_layers_flags: {
+			eepdata.lighting_flags = *value_data;
+            break;
+        }
+        case id_lighting_layers_layer: { // received an array
 			// data[0] is value_id
 			// data[1] is array index
 			// data[2] is value of HUE
@@ -75,6 +83,7 @@ void via_config_set_value( uint8_t *data )
 		// OLED CONTROL
         case id_oled_animation: {
 			eepdata.oled_anim = *value_data;
+			sub_ui_clear(); // need to refresh SubUI when changing animation using VIA
             break;
         }
 		case id_oled_timeout: {
@@ -96,7 +105,6 @@ void via_config_set_value( uint8_t *data )
 			break;
 		}
     }
-	// dprintf("- via_config_set_value: %d %d \n", data[0], data[1]);
 }
 
 void via_config_get_value( uint8_t *data )
@@ -108,18 +116,23 @@ void via_config_get_value( uint8_t *data )
     switch ( *value_id )
     {
 
-		// DEFAULT LAYER & LAYER INDICATOR
+		// DEFAULT LAYER & LIGHTING LAYERS
         case id_layer_setactive: {
             value_data[0] = eepdata.active_layer;
             value_data[1] = 0xFF;
             break;
         }
-        case id_layer_indicator_enable: {
-			value_data[0] = eepdata.layer_indicator;
+        case id_lighting_layers_enable: {
+			value_data[0] = eepdata.lighting_layers;
 			value_data[1] = 0xFF;
             break;
         }
-        case id_layer_indicator_layer: { // going to send an array
+        case id_lighting_layers_flags: {
+			value_data[0] = eepdata.lighting_flags;
+			value_data[1] = 0xFF;
+            break;
+        }
+        case id_lighting_layers_layer: { // going to send an array
 			// value_data[0] is array index
 			// value_data[1] is value of HUE
 			// value_data[2] is value of SAT
@@ -142,42 +155,61 @@ void via_config_get_value( uint8_t *data )
 			break;
 		}
     }
-	dprintf("- via_config_get_value: %d %d %d %d \n", data[0], data[1], data[2], data[3]);
 }
 
 void via_config_save(void)
 {
-	// eeprom_update_byte((uint8_t*)EEPROM_ACTIVE_LAYER,    eepdata.active_layer);
-	// eeprom_update_byte((uint8_t*)EEPROM_OLED_ANIM,       eepdata.oled_anim);
-	// eeprom_update_byte((uint8_t*)EEPROM_OLED_TIMEOUT,    eepdata.oled_timeout);
-	// eeprom_update_byte((uint8_t*)EEPROM_LAYER_INDICATOR, eepdata.layer_indicator);
-	// Saving all layers' HUE & SAT setting (total 10 numbers)
-	// for (uint8_t i = 0; i <= 4; i++) {
-		// eeprom_update_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+4), eepdata.layer_hue[i]);
-	// }
-	// for (uint8_t i = 0; i <= 4; i++) {
-		// eeprom_update_byte((uint8_t*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR+i+9), eepdata.layer_sat[i]);
-	// }
 	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
-	// dprint("- via_config_save! \n");
 }
 
-bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
+#if defined(RGB_MATRIX_ENABLE)
+bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) { // Lighting Layers
     if (!rgb_matrix_indicators_advanced_user(led_min, led_max)) {
         return false;
     }
-	if (!eepdata.layer_indicator) // If Layer Indicator is off, there's nothing to do here
-		return false;
-	
-	HSV hsv = {0, 255, rgb_matrix_get_val()};
-	uint8_t i = get_highest_layer(layer_state);
-	hsv.h = eepdata.layer_hue[i];
+
+	HSV hsv = {
+		eepdata.layer_hue[get_highest_layer(layer_state)], // HUE = HUE setting of current layer
+		eepdata.layer_sat[get_highest_layer(layer_state)],
+		rgb_matrix_get_val() // VAL = current RGBMatrix's brightness
+	};
+	if (hsv.s == 0) hsv.v = 0;
     RGB rgb = hsv_to_rgb(hsv);
-	rgb_matrix_set_color_all(rgb.r, rgb.g, rgb.b);
-    // for (uint8_t i = led_min; i < led_max; i++) {
-        // if (HAS_FLAGS(g_led_config.flags[i], 0x01)) { // 0x01 == LED_FLAG_MODIFIER
-            // rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
-        // }
-    // }
+
+#if defined(OLED_ENABLE)
+	if (current_menu == MAIN_MENU) {
+		rgb_matrix_set_color_all(RGB_BLACK);
+		rgb_matrix_set_color(5,  RGB_WHITE); // UP
+		rgb_matrix_set_color(11, RGB_WHITE); // DOWN
+		rgb_matrix_set_color(8,  RGB_GREEN); // MIDDLE (OK)
+		rgb_matrix_set_color(10, RGB_RED);   // EXIT
+		return false;
+	}
+	if (current_menu == SUB_MENU) {
+		if (menu_execute == 5) { // In SubMenu 5 (Lighting Layer's Color), show the real-time color
+			for (uint8_t i = led_min; i < led_max; i++) {
+				if (g_led_config.flags[i] & ((eepdata.lighting_flags+1) << 1)) {
+					rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+				}
+			}
+			return false;
+		}
+		rgb_matrix_set_color_all(RGB_BLACK);
+		rgb_matrix_set_color(7, RGB_WHITE);	// LEFT
+		rgb_matrix_set_color(9, RGB_WHITE);	// RIGHT
+		rgb_matrix_set_color(10, RGB_RED);  // EXIT
+		return false;
+	}
+#endif // defined(OLED_ENABLE)
+
+	if (!(eepdata.lighting_layers & 0x0F)) // If Lighting Layers is off, there's nothing to do here
+		return false;
+
+    for (uint8_t i = led_min; i < led_max; i++) {
+		if (g_led_config.flags[i] & ((eepdata.lighting_flags+1) << 1)) {
+            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+        }
+    }
     return false;
 }
+#endif // defined(RGB_MATRIX_ENABLE)

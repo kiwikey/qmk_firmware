@@ -9,9 +9,9 @@
 
 #define DYNAMIC_KEYMAP_LAYER_COUNT 6
 // #define VIA_EEPROM_CUSTOM_CONFIG_ADDR ?  // need to dig in
-#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 14
+#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 15
 
-#define FW_VERSION "2.0.240610"
+#define FW_VERSION "2.0.240612"
 
 // Try to save some bytes...
 #define NO_ACTION_ONESHOT      // 636 bytes
