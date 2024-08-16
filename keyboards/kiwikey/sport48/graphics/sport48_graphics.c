@@ -236,11 +236,11 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         // default:
             // break;
     // }
-	if (is_keyboard_left()) {
-        SEND_STRING("left process_record_kb");
-    } else {
-        SEND_STRING("right process_record_kb");
-    }
+	// if (is_keyboard_left()) {
+        // SEND_STRING("left process_record_kb");
+    // } else {
+        // SEND_STRING("right process_record_kb");
+    // }
 	char buf1[32] = {0};
     sprintf(buf1, "Test %d", get_highest_layer(layer_state));
 	qp_drawtext(my_display, 0, 60, arial30, buf1);
