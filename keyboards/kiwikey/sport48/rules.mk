@@ -3,7 +3,6 @@ SERIAL_DRIVER = usart
 
 DEFAULT_FOLDER = kiwikey/sport48/f401
 
-# VPATH += keyboards/kiwikey/sport48/graphics
 VPATH += keyboards/kiwikey/0.libraries/graphics
 SRC += \
     qp_graphics.c \

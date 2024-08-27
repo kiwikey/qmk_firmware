@@ -11,13 +11,13 @@
 #define DISPLAY_SPI_DIVISOR 1 // 1, 2, 4, 8 all works
 #define DISPLAY_SPI_MODE    3 // ST7789 240*240 works with mode 2 or 3 only, not sure why
 
-/*** QUANTUM PAINTER DRIVER DEFINITIONS ***/
 #define ST7789_WIDTH  240
 #define ST7789_HEIGHT 240
 
 #define DISPLAY_CS_PIN      B9 // cannot be changed
 #define DISPLAY_DC_PIN      B12
 #define DISPLAY_RST_PIN     B14
+
 #define QUANTUM_PAINTER_NUM_IMAGES	4	//The maximum number of images/animations that can be loaded at any one time.
 #define QUANTUM_PAINTER_NUM_FONTS	2	//The maximum number of fonts that can be loaded at any one time.
 #define QUANTUM_PAINTER_CONCURRENT_ANIMATIONS	2	//The maximum number of animations that can be executed at the same time.
