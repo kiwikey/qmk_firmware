@@ -1,0 +1,3 @@
+QUANTUM_PAINTER_DRIVERS += st7789_spi
+
+DEFAULT_FOLDER = kiwikey/kiwi5x5/f401
