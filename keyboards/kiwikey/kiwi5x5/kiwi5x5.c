@@ -40,6 +40,6 @@ __attribute__((weak)) void render_ui_user(void) {}
 
 void housekeeping_task_kb(void) {
 	// if (is_keyboard_master()) {
-		render_ui_user();
+	render_ui_user();
 	// }
 }
