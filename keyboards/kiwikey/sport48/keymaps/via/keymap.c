@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
+#include "qp_graphics.h"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT_ortho_4x12(
@@ -42,4 +43,12 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 void keyboard_post_init_user(void) {
     void keyboard_post_init_display(void);
     keyboard_post_init_display();
+}
+
+void housekeeping_task_user(void) {
+    // Update kb_state so we can send to slave
+    // theme_state_update();
+
+    // Data sync from master to slave
+    // theme_state_sync();
 }
