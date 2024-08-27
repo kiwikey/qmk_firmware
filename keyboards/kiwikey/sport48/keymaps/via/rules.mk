@@ -1,7 +1,7 @@
 ENCODER_MAP_ENABLE = yes
 VIA_ENABLE = yes
 
-VPATH += keyboards/kiwikey/sport48/graphics
+VPATH += keyboards/kiwikey/0.libraries/graphics
 SRC += \
     sport48_graphics.c \
 	thintel15.qff.c \
