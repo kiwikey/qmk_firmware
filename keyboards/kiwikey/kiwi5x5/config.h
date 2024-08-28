@@ -18,7 +18,7 @@
 #define DISPLAY_DC_PIN      B12
 #define DISPLAY_RST_PIN     B14
 
-#define QUANTUM_PAINTER_NUM_IMAGES	4	//The maximum number of images/animations that can be loaded at any one time.
+#define QUANTUM_PAINTER_NUM_IMAGES	16	//The maximum number of images/animations that can be loaded at any one time.
 #define QUANTUM_PAINTER_NUM_FONTS	2	//The maximum number of fonts that can be loaded at any one time.
 #define QUANTUM_PAINTER_CONCURRENT_ANIMATIONS	2	//The maximum number of animations that can be executed at the same time.
 #define QUANTUM_PAINTER_LOAD_FONTS_TO_RAM	FALSE	//Whether or not fonts should be loaded to RAM. Relevant for fonts stored in off-chip persistent storage, such as external flash.

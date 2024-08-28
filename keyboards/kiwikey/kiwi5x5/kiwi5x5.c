@@ -26,20 +26,28 @@ void keyboard_post_init_kb(void) {
     st7789_init();
 	qp_rect(my_display, 0, 0, 239, 239, HSV_BLACK, true);
 	
-	backlight_enable();
+	backlight_enable(); // TFT backlight
 	backlight_level(10);
+	
+	void keyboard_post_init_display(void);
+    keyboard_post_init_display();
 	
 	// Allow for user post-init
     keyboard_post_init_user();
 }
 
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+	void process_record_display(void);
+    process_record_display();
+	
+	return process_record_user(keycode, record);
+}
+
 //----------------------------------------------------------
 // UI Placeholder, implemented in themes
 
-__attribute__((weak)) void render_ui_user(void) {}
+__attribute__((weak)) void render_update_ui(void) {}
 
 void housekeeping_task_kb(void) {
-	// if (is_keyboard_master()) {
-	render_ui_user();
-	// }
+	render_update_ui();
 }

@@ -8,7 +8,15 @@ SRC += \
     qp_graphics.c \
 	qp_matrix_reactive.c \
 	resources/thintel15.qff.c \
+	resources/thintel40.qff.c \
 	resources/arial30.qff.c \
+	resources/bg_240x240.qgf.c \
 	resources/pikachu.qgf.c \
 	resources/anya01.qgf.c \
-	resources/pusheen_240px.qgf.c
+	resources/pusheen_240px.qgf.c \
+	resources/icons/lock-caps-ON.qgf.c \
+	resources/icons/lock-scrl-ON.qgf.c \
+	resources/icons/lock-num-ON.qgf.c \
+	resources/icons/lock-caps-OFF.qgf.c \
+	resources/icons/lock-scrl-OFF.qgf.c \
+	resources/icons/lock-num-OFF.qgf.c
