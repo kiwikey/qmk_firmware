@@ -8,7 +8,7 @@ SRC += \
     qp_graphics.c \
 	qp_matrix_reactive.c \
 	resources/thintel15.qff.c \
-	resources/thintel40.qff.c \
+	resources/thintel50.qff.c \
 	resources/arial30.qff.c \
 	resources/bg_240x240.qgf.c \
 	resources/pikachu.qgf.c \

@@ -43,6 +43,13 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 	return process_record_user(keycode, record);
 }
 
+layer_state_t layer_state_set_user(layer_state_t state) {
+	void layer_state_set_display(void);
+    layer_state_set_display();
+	
+	return state;
+}
+
 //----------------------------------------------------------
 // UI Placeholder, implemented in themes
 
