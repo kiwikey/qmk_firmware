@@ -80,6 +80,11 @@ void keyboard_post_init_display(void) {
 	#define UI_LAYER_TEXTCOLOR  HSV_BLACK
 	#define UI_SHADOW_POS		3
 	
+	qp_roundrect(UI_LAYER_X+UI_SHADOW_POS,
+				UI_LAYER_Y+UI_SHADOW_POS,
+				UI_LAYER_X+UI_LAYER_SIZE+UI_SHADOW_POS,
+				UI_LAYER_Y+UI_LAYER_SIZE+UI_SHADOW_POS,
+				0,0,100, true, 5, true, true);
 	qp_roundrect(UI_LAYER_X, UI_LAYER_Y, UI_LAYER_X+UI_LAYER_SIZE, UI_LAYER_Y+UI_LAYER_SIZE/3, HSV_WHITE, true, 5, true, false);
 	qp_drawtext_recolor(my_display, 25, 9, thintel50, "LAYER", UI_LAYER_TEXTCOLOR, HSV_WHITE);
 	for (uint8_t i = 0; i < 4; i++) {
