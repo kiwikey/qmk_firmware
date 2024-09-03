@@ -4,10 +4,13 @@
 #include "spi_master.h"
 #include "color.h"
 
-painter_device_t my_display;
+#if defined(QUANTUM_PAINTER_ENABLE)
+	painter_device_t my_display;
+#endif // defined(QUANTUM_PAINTER_ENABLE)
 
-void st7789_init(void) {
-	// Create my_display
+void keyboard_post_init_kb(void) {
+	
+#if defined(QUANTUM_PAINTER_ENABLE)
     my_display = qp_st7789_make_spi_device(
 		ST7789_WIDTH,
 		ST7789_HEIGHT,
@@ -17,44 +20,50 @@ void st7789_init(void) {
 		DISPLAY_SPI_DIVISOR,
 		DISPLAY_SPI_MODE
 	);
-    qp_init(my_display, QP_ROTATION_0);   // Initialise the my_display
+    qp_init(my_display, QP_ROTATION_0);
 	qp_power(my_display, true);
 	qp_clear(my_display);
-}
-
-void keyboard_post_init_kb(void) {
-    st7789_init();
-	qp_rect(my_display, 0, 0, 239, 239, HSV_BLACK, true);
-	
-	backlight_enable(); // TFT backlight
-	backlight_level(10);
-	
+	qp_rect(my_display, 0, 0, 239, 239, HSV_BLACK, true); // Fill screen by black color
 	void keyboard_post_init_display(void);
     keyboard_post_init_display();
+#endif // defined(QUANTUM_PAINTER_ENABLE)
 	
+#if defined(BACKLIGHT_ENABLE)
+	backlight_enable(); // TFT backlight
+	backlight_level(10);
+#endif // defined(BACKLIGHT_ENABLE)
+		
 	// Allow for user post-init
     keyboard_post_init_user();
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+
+#if defined(QUANTUM_PAINTER_ENABLE)
 	void process_record_display(void);
     process_record_display();
+#endif // defined(QUANTUM_PAINTER_ENABLE)
 	
 	return process_record_user(keycode, record);
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
+	
+#if defined(QUANTUM_PAINTER_ENABLE)
 	void layer_state_set_display(void);
     layer_state_set_display();
+#endif // defined(QUANTUM_PAINTER_ENABLE)
 	
 	return state;
 }
 
+#if defined(QUANTUM_PAINTER_ENABLE)
 //----------------------------------------------------------
 // UI Placeholder, implemented in themes
 
-__attribute__((weak)) void render_update_ui(void) {}
+__attribute__((weak)) void housekeeping_task_display(void) {}
 
 void housekeeping_task_kb(void) {
-	render_update_ui();
+	housekeeping_task_display();
 }
+#endif // defined(QUANTUM_PAINTER_ENABLE)
