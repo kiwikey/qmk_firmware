@@ -5,22 +5,24 @@
 #include "qp.h"
 #include "qp_widget_matrix.h"
 #include "qp_custom_api.h"
+#include "defines.h"
 
 extern painter_device_t my_display;
+bool   qp_widget_matrix_flag = false;
 
 void widget_matrix_init(void) {
-	// Background
-	qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER + WIDGET_LAYER_SHADOW,
-				 WIDGET_MATRIX_POSY - WIDGET_MATRIX_BORDER + WIDGET_LAYER_SHADOW + 1,
-				 WIDGET_MATRIX_POSX + 95+ WIDGET_MATRIX_BORDER + WIDGET_LAYER_SHADOW,
-				 WIDGET_MATRIX_POSY + 95+ WIDGET_MATRIX_BORDER + WIDGET_LAYER_SHADOW,
-				 0,0,100, true, 5, true, true);
 	// Shadow
+	qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
+				 WIDGET_MATRIX_POSY - WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW + 1,
+				 WIDGET_MATRIX_POSX + 95 + WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
+				 WIDGET_MATRIX_POSY + 95 + WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
+				 UI_COLOR_SHADOW, true, 5, true, true);
+	// Background
 	qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER,
 				 WIDGET_MATRIX_POSY - WIDGET_MATRIX_BORDER + 1,
-				 WIDGET_MATRIX_POSX + 95+ WIDGET_MATRIX_BORDER,
-				 WIDGET_MATRIX_POSY + 95+ WIDGET_MATRIX_BORDER,
-				 HSV_BLACK, true, 5, true, true);
+				 WIDGET_MATRIX_POSX + 95 + WIDGET_MATRIX_BORDER,
+				 WIDGET_MATRIX_POSY + 95 + WIDGET_MATRIX_BORDER,
+				 WIDGET_MATRIX_BACKGROUND, true, 5, true, true);
 	// Draw all keys
     for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
         for (uint8_t y = 0; y < MATRIX_COLS-1; y++) {
@@ -29,9 +31,7 @@ void widget_matrix_init(void) {
                     WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING), // top
                     WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH, // right
                     WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT, // bottom
-                    255, // hue
-                    0, // sat
-                    255, // val
+					WIDGET_MATRIX_COLOR_OFF,
                     true);
         }
     }

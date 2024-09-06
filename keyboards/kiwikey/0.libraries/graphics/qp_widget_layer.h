@@ -6,14 +6,17 @@
 #define WIDGET_LAYER_POSX      5
 #define WIDGET_LAYER_POSY      5
 #define WIDGET_LAYER_SIZE      108
-#define WIDGET_LAYER_TEXTCOLOR HSV_BLACK
-#define WIDGET_LAYER_SHADOW    3 // shadow of widgets, in pixel
+
+#define ACTIVE_LAYER_MIN    0
+#define ACTIVE_LAYER_MAX    DYNAMIC_KEYMAP_LAYER_COUNT-1
+
+extern bool qp_widget_layer_flag;
 
 static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	"Default",
 	" Raise ",
 	" Lower ",
-	" User  "
+	" User1 "
 };
 
 void widget_layer_init(void);

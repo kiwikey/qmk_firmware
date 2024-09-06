@@ -27,11 +27,6 @@ void keyboard_post_init_kb(void) {
 	void keyboard_post_init_display(void);
     keyboard_post_init_display();
 #endif // defined(QUANTUM_PAINTER_ENABLE)
-	
-#if defined(BACKLIGHT_ENABLE)
-	backlight_enable(); // TFT backlight
-	backlight_level(10);
-#endif // defined(BACKLIGHT_ENABLE)
 		
 	// Allow for user post-init
     keyboard_post_init_user();
@@ -40,8 +35,8 @@ void keyboard_post_init_kb(void) {
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
 #if defined(QUANTUM_PAINTER_ENABLE)
-	void process_record_display(void);
-    process_record_display();
+	bool process_record_display(uint16_t keycode, keyrecord_t *record);
+    return process_record_display(keycode, record);
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 	
 	return process_record_user(keycode, record);

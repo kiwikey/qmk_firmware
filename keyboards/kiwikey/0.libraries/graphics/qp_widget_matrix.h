@@ -10,7 +10,8 @@
 #define WIDGET_MATRIX_KEY_SPACING  5
 
 #define WIDGET_MATRIX_BORDER  7
-#define WIDGET_LAYER_SHADOW        3 // shadow of widgets, in pixel
+
+extern bool qp_widget_matrix_flag;
 
 void widget_matrix_init(void);
 void widget_matrix_update(uint8_t col, uint8_t row);

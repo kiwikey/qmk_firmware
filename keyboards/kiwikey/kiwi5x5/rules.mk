@@ -13,19 +13,31 @@ SRC += \
 	qp_menu.c \
 	qp_widget_layer.c \
 	qp_widget_matrix.c \
-	rgb_matrix_name.c
+	qp_widget_rgbstat.c \
+	rgb_matrix_name.c \
+	via_custom.c
 	
 SRC += \
 	resources/thintel15.qff.c \
-	resources/thintel50.qff.c \
-	resources/arial30.qff.c \
-	resources/bg_240x240.qgf.c \
+	resources/roboto20.qff.c \
+	resources/roboto25.qff.c \
+	resources/robotobold25.qff.c
+	
+SRC += \
 	resources/pikachu.qgf.c \
 	resources/anya01.qgf.c \
 	resources/pusheen_240px.qgf.c \
-	resources/icons/lock-caps-ON.qgf.c \
-	resources/icons/lock-scrl-ON.qgf.c \
-	resources/icons/lock-num-ON.qgf.c \
-	resources/icons/lock-caps-OFF.qgf.c \
-	resources/icons/lock-scrl-OFF.qgf.c \
-	resources/icons/lock-num-OFF.qgf.c
+	resources/gif_nyan120px.qgf.c \
+	resources/gif_cat01.qgf.c \
+	resources/gif_cat02.qgf.c \
+	resources/gif_dog01.qgf.c
+	
+SRC += \
+	resources/icons/ico32_brightness.qgf.c
+
+	# resources/icons/lock-caps-ON.qgf.c \
+	# resources/icons/lock-scrl-ON.qgf.c \
+	# resources/icons/lock-num-ON.qgf.c \
+	# resources/icons/lock-caps-OFF.qgf.c \
+	# resources/icons/lock-scrl-OFF.qgf.c \
+	# resources/icons/lock-num-OFF.qgf.c \

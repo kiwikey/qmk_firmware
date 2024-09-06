@@ -26,7 +26,7 @@
 	#define DISPLAY_DC_PIN      B12
 	#define DISPLAY_RST_PIN     B14
 	/*** QUANTUM PAINTER CONFIGURATION ***/
-	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT  20000
+	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT  0  // Not set, controlled by custom code
 	#define QUANTUM_PAINTER_NUM_IMAGES	16	//The maximum number of images/animations that can be loaded at any one time.
 	#define QUANTUM_PAINTER_NUM_FONTS	4	//The maximum number of fonts that can be loaded at any one time.
 	#define QUANTUM_PAINTER_CONCURRENT_ANIMATIONS	2	//The maximum number of animations that can be executed at the same time.
@@ -44,6 +44,7 @@
 	#define BACKLIGHT_PWM_DRIVER    PWMD5  // Use TIM5_CH2 of pin PA1 for dimming TFT's brightness
 	#define BACKLIGHT_PWM_CHANNEL   2
 	#define BACKLIGHT_PAL_MODE      2      // PA1's alternate function 2 is TIM5_CH2
+	// #define BACKLIGHT_LEVELS        10  // already defined in 'info.json'
 	#define BACKLIGHT_DEFAULT_LEVEL 10
 
 #endif // defined(BACKLIGHT_ENABLE)
