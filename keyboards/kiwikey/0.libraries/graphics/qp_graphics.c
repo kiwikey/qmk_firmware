@@ -32,7 +32,7 @@ void ui_refresh(void) {
 	widget_rgb_init();
 	widget_rgb_render();
 	
-	qp_drawtext_recolor(my_display, 0, ST7789_HEIGHT-thintel->line_height, thintel, "Kiwi5x5 by KiwiKey", HSV_WHITE, UI_COLOR_BACKGROUND);
+	qp_drawtext_recolor(my_display, 0, ST7789_HEIGHT-thintel->line_height-5, thintel, " - Kiwi5x5 by KiwiKey - ", HSV_WHITE, UI_COLOR_BACKGROUND);
 	
 	switch (eepdata.oled_anim) {
 		case 0:
@@ -53,16 +53,35 @@ void ui_refresh(void) {
 }
 
 void keyboard_post_init_display(void) {
-	qp_init_load_files();
-
 	// Reading all EEPROM custom data
 	eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 	
 	/*** Validation check ***/
-	if (eepdata.oled_timeout <= 0) eepdata.oled_timeout = 30; // TODO: this is just a hotfix, need to dig in
-	if ((eepdata.oled_anim > QP_ANIM_QTY) || (eepdata.oled_anim < 0)) eepdata.oled_anim = 1;
+	if (eepdata.oled_timeout <= 0)
+		eepdata.oled_timeout = 30; // TODO: this is just a hotfix, need to dig in
+	if ((eepdata.oled_anim > QP_ANIM_QTY) || (eepdata.oled_anim < 0))
+		eepdata.oled_anim = 1;
+	if ((eepdata.lcd_rotation > QP_ROTATION_270) || (eepdata.lcd_rotation < QP_ROTATION_0))
+		eepdata.lcd_rotation = QP_ROTATION_0;
 	/************************/
 	
+	/*** Below configuration should be in <keyboard>.c ***/
+    my_display = qp_st7789_make_spi_device(
+		ST7789_WIDTH,
+		ST7789_HEIGHT,
+		DISPLAY_CS_PIN,
+		DISPLAY_DC_PIN,
+		DISPLAY_RST_PIN,
+		DISPLAY_SPI_DIVISOR,
+		DISPLAY_SPI_MODE
+	);
+    qp_init(my_display, eepdata.lcd_rotation);
+	qp_power(my_display, true);
+	qp_clear(my_display);
+	qp_rect(my_display, 0, 0, 239, 239, HSV_BLACK, true); // Fill screen by black color
+	/****************************************************/
+	
+	qp_init_load_files();
 	layer_move(eepdata.active_layer);
 	
 #if defined(BACKLIGHT_ENABLE)
@@ -74,13 +93,14 @@ void keyboard_post_init_display(void) {
 }
 
 void housekeeping_task_display(void) {
-	if ((eepdata.oled_timeout != QP_TIMEOUT_NEVER) && (last_matrix_activity_elapsed() > eepdata.oled_timeout*1000)) {
+	if ((eepdata.oled_timeout != QP_TIMEOUT_NEVER) && (last_input_activity_elapsed() > eepdata.oled_timeout*1000)) {
 		qp_power(my_display, false); // Turn off display
 		backlight_level(0);          // Turn off display backlight
 		lcdoff_flag = 1;
     }
 	
 	if (refresh_flag == 1) {
+		qp_stop_animation(my_anim);
 		ui_refresh();		
 		refresh_flag = 0;
 	}
@@ -99,10 +119,9 @@ void housekeeping_task_display(void) {
 		qp_widget_rgbstat_flag = false;
 	}
 	
-	char buf1[50] = {0};
-	sprintf(buf1, "RGB: %u", rgb_matrix_is_enabled() ? 1 : 0);
-	qp_drawtext(my_display, 40, ST7789_HEIGHT-roboto20->line_height*2, roboto20, buf1);
-	
+	// char buf1[50] = {0};
+	// sprintf(buf1, "Rotation: %u", eepdata.lcd_rotation);
+	// qp_drawtext(my_display, 40, ST7789_HEIGHT-roboto20->line_height*2, roboto20, buf1);
 	// uint16_t curr_hue = 100;
 	// static led_t last_led_state = {0};
 	// last_led_state.raw = host_keyboard_led_state().raw;
@@ -147,8 +166,11 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 			return false; // no need to process this keycode
             break;
         case CUSTOM_KC_REFRESH:
-			if (record->event.pressed) ui_refresh();
-			return false; // no need to process this keycode
+			if (record->event.pressed) {
+				qp_stop_animation(my_anim);
+				ui_refresh();
+			}
+			// return false; // no need to process this keycode
             break;
         default:
             break;

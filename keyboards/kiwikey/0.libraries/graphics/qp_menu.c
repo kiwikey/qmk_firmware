@@ -137,11 +137,12 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 					else eepdata.oled_brightness--;
 					backlight_level(eepdata.oled_brightness);
 				}
-				if (menu_execute == 5) { // Lighting Layers
-					// if (eepdata.lighting_layers == 0) {
-						// eepdata.lighting_layers = 1;
-						// eepdata.lighting_flags = 2;
-					// } else eepdata.lighting_flags ? eepdata.lighting_flags-- : (eepdata.lighting_layers = 0);  // Drawing a flowchart may help
+				if (menu_execute == 5) { // LCD Rotation
+					if (eepdata.lcd_rotation == QP_ROTATION_0)
+						eepdata.lcd_rotation = QP_ROTATION_270;
+					else eepdata.lcd_rotation--;
+					qp_init(my_display, eepdata.lcd_rotation);
+					menu_init();
 				}
 				if (menu_execute == 6) { // Layers' Color
 					// eepdata.layer_hue[eepdata.active_layer] -= OLED_ADJUSTCOLOR_STEP;
@@ -169,11 +170,14 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record) {
 					else eepdata.oled_brightness++;
 					backlight_level(eepdata.oled_brightness);
 				}
-				if (menu_execute == 5) { // Lighting Layers
-					// if (eepdata.lighting_flags == 2) {
-						// eepdata.lighting_flags = 0;
-						// eepdata.lighting_layers = 0;
-					// } else eepdata.lighting_layers ? eepdata.lighting_flags++ : eepdata.lighting_layers++; // Drawing a flowchart may help
+				if (menu_execute == 5) { // LCD Rotation
+					if (eepdata.lcd_rotation == QP_ROTATION_270)
+						eepdata.lcd_rotation = QP_ROTATION_0;
+					else eepdata.lcd_rotation++;
+					qp_init(my_display, eepdata.lcd_rotation);
+					menu_init();
+					// qp_power(my_display, false);
+					
 				}
 				if (menu_execute == 6) { // Layers' Color
 					// eepdata.layer_hue[eepdata.active_layer] += OLED_ADJUSTCOLOR_STEP;
@@ -228,22 +232,10 @@ void menu_quick_view(uint8_t menu_line) {
 			sprintf(buf1, "%3u%%", eepdata.oled_brightness*10);
 			qp_drawtext(my_display, 90, ST7789_HEIGHT-roboto20->line_height, roboto20, buf1);
 			break;
-		// case 5:
-			// if (!eepdata.lighting_layers) {
-				// oled_write_align("OFF", ALIGN_CENTER, false);
-			// }
-			// else switch (eepdata.lighting_flags) {
-					// case 0:
-						// oled_write_align("ON (Underglow)", ALIGN_CENTER, false);
-						// break;
-					// case 1:
-						// oled_write_align("ON (Backlight)", ALIGN_CENTER, false);
-						// break;
-					// case 2:
-						// oled_write_align("ON (All LEDs)", ALIGN_CENTER, false);
-						// break;
-				// }
-			// break;
+		case 5: // LCD Rotation
+			sprintf(buf1, "Rotation: %u", eepdata.lcd_rotation*90);
+			qp_drawtext(my_display, 40, ST7789_HEIGHT-roboto20->line_height, roboto20, buf1);
+			break;
 		// case 6:
 			// oled_set_cursor(3,7);
 			// if (!eepdata.lighting_layers) {
@@ -299,10 +291,11 @@ void menu_action(void) {
 			action_displaybrightness();
             break;
         case 5:
-			action_lightinglayers();
+			action_displayrotation();
             break;
         case 6:
-			action_lightingconfig();
+			// action_lightingconfig();
+			menu_execute = 0;
 			break;
         case 7:
 			// NOP
@@ -338,15 +331,15 @@ void action_displaybrightness(void) {
 	current_menu = SUB_MENU;
 }
 
-void action_lightinglayers(void) {
+void action_displayrotation(void) {
 	current_menu = SUB_MENU;
 }
 
-void action_lightingconfig(void) {
+// void action_lightingconfig(void) {
 	// if (eepdata.lighting_layers) { // Process to SubMenu as long as Lighting Layers is ON
-		current_menu = SUB_MENU;
+		// current_menu = SUB_MENU;
 	// }
-}
+// }
 
 void action_aboutkiwi5x5(void) {
 	current_menu = SUB_MENU;
@@ -361,7 +354,7 @@ void action_factoryreset(void) {
 		1,                           // Animation #1
 		QP_TIMEOUT_MIN,              // LCD Timeout 30s
 		BACKLIGHT_DEFAULT_LEVEL,     // LCD Brightness default (10 = max)
-		0,                           // Lighting Layers OFF
+		QP_ROTATION_0,               // Default rotation
 		0,                           // Lighting Layers applied to Underglow LEDs
 		{ 126, 210,  42,  84 },      // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
 		{ 255, 255, 255, 255 }       // Lighting Layers' SATs: maximum (255)

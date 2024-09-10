@@ -22,11 +22,11 @@
 // #define QP_ADJUSTCOLOR_STEP 14 // For changing RGB color of each layer
 
 static const char * const menu_list[MAINMENU_MAXITEMS] = {
-	" 1.Active layer",
+	" 1.Active Layer",
 	" 2.Animation",
-	" 3.LCD timeout",
-	" 4.LCD brightness",
-	" 5.(TO DO)",
+	" 3.LCD Timeout",
+	" 4.LCD Brightness",
+	" 5.LCD Rotation",
 	" 6.(TO DO)",	// TODO
 	" 7.FW Version",
 	" 8.About Kiwi5x5",
@@ -39,7 +39,7 @@ static const bool menu_list_ischangable[MAINMENU_MAXITEMS] = {
 	true,  // 2
 	true,  // 3
 	true,  // 4
-	false, // 5
+	true,  // 5
 	false, // 6
 	false, // 7
 	false, // 8
@@ -87,7 +87,7 @@ void action_activelayer(void);
 void action_animation(void);
 void action_displaytimeout(void);
 void action_displaybrightness(void);
-void action_lightinglayers(void);
+void action_displayrotation(void);
 void action_lightingconfig(void);
 void action_aboutkiwi5x5(void);
 void action_factoryreset(void);

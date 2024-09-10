@@ -10,7 +10,7 @@ typedef struct {
     uint8_t oled_anim;
     uint8_t oled_timeout;
 	uint8_t oled_brightness;
-    uint8_t lighting_layers; // 0 = OFF; 1 = ON
+    uint8_t lcd_rotation;
 	uint8_t lighting_flags;  // 0 = UNDERGLOW; 1 = BACKLIGHT; 2 = ALL LEDS
     uint8_t layer_hue[DYNAMIC_KEYMAP_LAYER_COUNT];
 	uint8_t layer_sat[DYNAMIC_KEYMAP_LAYER_COUNT];

@@ -11,19 +11,6 @@
 void keyboard_post_init_kb(void) {
 	
 #if defined(QUANTUM_PAINTER_ENABLE)
-    my_display = qp_st7789_make_spi_device(
-		ST7789_WIDTH,
-		ST7789_HEIGHT,
-		DISPLAY_CS_PIN,
-		DISPLAY_DC_PIN,
-		DISPLAY_RST_PIN,
-		DISPLAY_SPI_DIVISOR,
-		DISPLAY_SPI_MODE
-	);
-    qp_init(my_display, QP_ROTATION_0);
-	qp_power(my_display, true);
-	qp_clear(my_display);
-	qp_rect(my_display, 0, 0, 239, 239, HSV_BLACK, true); // Fill screen by black color
 	void keyboard_post_init_display(void);
     keyboard_post_init_display();
 #endif // defined(QUANTUM_PAINTER_ENABLE)

@@ -12,13 +12,6 @@
 
 extern bool qp_widget_layer_flag;
 
-static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
-	"Default",
-	" Raise ",
-	" Lower ",
-	" User1 "
-};
-
 void widget_layer_init(void);
 void widget_layer_render(uint8_t layer);
 

@@ -16,7 +16,12 @@
 
 
 #define WIDGET_LAYER_COLOR1     HSV_WHITE // Color of the 1st line
-
+static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
+	"Default",
+	" User1 ",
+	" User2 ",
+	"Configs"
+};
 
 #define WIDGET_MATRIX_BACKGROUND 0,0,40
 #define WIDGET_MATRIX_COLOR_OFF  HSV_WHITE

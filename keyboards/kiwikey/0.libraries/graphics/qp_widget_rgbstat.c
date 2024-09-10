@@ -35,7 +35,11 @@ void widget_rgb_render(void) {
     qp_drawtext_recolor(my_display, 65, 131, robotobold25, buf1, UI_COLOR_TEXT_H1, WIDGET_RGB_COLOR1);
     
     char buf2[50] = {0};
-    sprintf(buf2, "%3u%%", rgb_matrix_get_val()*100/RGB_MATRIX_MAXIMUM_BRIGHTNESS);
+    if (rgb_matrix_is_enabled()) {
+        sprintf(buf2, "%3u%%", rgb_matrix_get_val()*100/RGB_MATRIX_MAXIMUM_BRIGHTNESS);
+    } else {
+        sprintf(buf2, " ---");
+    }
 	qp_drawtext_recolor(my_display, 50, 167, roboto25, buf2, HSV_BLACK, WIDGET_RGB_COLOR2);
     // char buf2[50] = {0};
     // sprintf(buf2, "Color:  %u-%u-%u", rgb_matrix_get_hue(), rgb_matrix_get_sat(), rgb_matrix_get_val());
@@ -43,5 +47,3 @@ void widget_rgb_render(void) {
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)
-
-// sprintf(buf1, "RGB Mode: %s", rgb_matrix_name(rgb_matrix_get_mode()));
