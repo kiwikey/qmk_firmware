@@ -48,3 +48,5 @@
 	#define BACKLIGHT_DEFAULT_LEVEL 10
 
 #endif // defined(BACKLIGHT_ENABLE)
+
+#define TAPPING_TERM 300
