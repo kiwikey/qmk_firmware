@@ -1,6 +1,6 @@
 SEND_STRING_ENABLE = yes
 
-VPATH += keyboards/kiwikey/0_libraries/graphics
+VPATH += keyboards/kiwikey/0_libraries/custom_display
 
 SRC += \
     oled.c            \

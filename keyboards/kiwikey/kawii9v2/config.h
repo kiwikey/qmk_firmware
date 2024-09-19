@@ -5,7 +5,7 @@
 
 #define OLED_DISPLAY_128X64
 #define OLED_TIMEOUT 0 // the OLED timeout is manually controlled by custom firmware
-#define OLED_FONT_H "../0_libraries/graphics/oled/glcdfont.c"
+#define OLED_FONT_H "../0_libraries/custom_display/oled/glcdfont.c"
 
 #define DYNAMIC_KEYMAP_LAYER_COUNT 6
 #define VIA_EEPROM_CUSTOM_CONFIG_SIZE 16
