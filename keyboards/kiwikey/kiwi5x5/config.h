@@ -1,14 +1,19 @@
 #pragma once
 
+#define FW_VERSION "2024.09.24_01"
+
+#define ENCODER_RESOLUTION 4
+
+#if defined(CONSOLE_ENABLE)
+	// #define DEBUG_MATRIX_SCAN_RATE
+#endif // defined(CONSOLE_ENABLE)
+	
 #if defined(VIA_ENABLE)
-
 	#define DYNAMIC_KEYMAP_LAYER_COUNT 4
-	// #define RGB_TRIGGER_ON_KEYDOWN
-
+	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 17 // last one: eepdata.checksum
 #endif // defined(VIA_ENABLE)
 
 #if defined(QUANTUM_PAINTER_ENABLE)
-
 	/*** SPI DRIVER DEFINITIONS ***/
 	#define SPI_DRIVER        SPID2
 	#define SPI_SCK_PIN       B13 // SCK
@@ -19,7 +24,7 @@
 	#define SPI_MISO_PAL_MODE 5
 	#define DISPLAY_SPI_DIVISOR 1 // 1, 2, 4, 8 all works
 	#define DISPLAY_SPI_MODE    3 // ST7789 240*240 works with mode 2 or 3 only, not sure why
-
+	/*** TFT DISPLAY CONFIGURATIONS ***/
 	#define ST7789_WIDTH  240
 	#define ST7789_HEIGHT 240
 	#define DISPLAY_CS_PIN      B9 // cannot be changed
@@ -33,12 +38,10 @@
 	#define QUANTUM_PAINTER_LOAD_FONTS_TO_RAM	FALSE	//Whether or not fonts should be loaded to RAM. Relevant for fonts stored in off-chip persistent storage, such as external flash.
 	#define QUANTUM_PAINTER_PIXDATA_BUFFER_SIZE	1024	//The limit of the amount of pixel data that can be transmitted in one transaction to the display. Higher values require more RAM on the MCU.
 	#define QUANTUM_PAINTER_SUPPORTS_256_PALETTE	FALSE	//If 256-color palettes are supported. Requires significantly more RAM on the MCU.
-	#define QUANTUM_PAINTER_DEBUG	unset	//Prints out significant amounts of debugging information to CONSOLE output. Significant performance degradation, use only for debugging.
-
+	// #define QUANTUM_PAINTER_DEBUG // Prints out significant amounts of debugging information to CONSOLE output. Significant performance degradation, use only for debugging.
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 #if defined(BACKLIGHT_ENABLE)
-
 	/*** PWM DRIVER DEFINITIONS ***/
 	// There is no official API for PWM, so PWM Backlight is used
 	#define BACKLIGHT_PWM_DRIVER    PWMD5  // Use TIM5_CH2 of pin PA1 for dimming TFT's brightness
@@ -46,5 +49,4 @@
 	#define BACKLIGHT_PAL_MODE      2      // PA1's alternate function 2 is TIM5_CH2
 	// #define BACKLIGHT_LEVELS        10  // already defined in 'info.json'
 	#define BACKLIGHT_DEFAULT_LEVEL 10
-
 #endif // defined(BACKLIGHT_ENABLE)

@@ -3,10 +3,11 @@
 
 #include "oled_menu.h"
 
-#include "eeprom_custom.h"
-#include "oled/oled_custom_api.h"
-#include "oled/oled_ui.h"
+#include "oled.h"
 #include "encoder.h"
+#include "eeprom_custom.h"
+#include "oled_custom_api.h"
+#include "oled_ui.h"
 
 uint8_t current_menu = NOT_IN_MENU;
 uint8_t menu_cursor = MAINMENU_1STLINE_POS;
@@ -84,7 +85,7 @@ void menu_quick_view(void) {
         case MENU_ANIMATION:
             oled_write_align(anim_list[eepdata.display_anim], ALIGN_CENTER, false);
             break;
-        case MENU_OLEDTIMEOUT:
+        case MENU_DISPLAYTIMEOUT:
             if (eepdata.display_timeout == DISPLAY_TIMEOUT_NEVER) {
                 oled_write_align_P(PSTR("Always ON"), ALIGN_CENTER, false);
                 break;
@@ -117,7 +118,7 @@ void menu_quick_view(void) {
         case MENU_FWVERSION:
             oled_write_align_P(PSTR(FW_VERSION), ALIGN_CENTER, false);
             break;
-        case MENU_ABOUTKAWII9:
+        case MENU_ABOUT:
             // oled_write_P(PSTR("..."), false);
             break;
         case MENU_FACTORYRESET:
@@ -154,7 +155,7 @@ void menu_action(void) {
         case MENU_ANIMATION:
             // action_animation();
             break;
-        case MENU_OLEDTIMEOUT:
+        case MENU_DISPLAYTIMEOUT:
             // action_oledtimeout();
             break;
         case MENU_LIGHTINGLAYERS:
@@ -166,7 +167,7 @@ void menu_action(void) {
         case MENU_FWVERSION:
             // NOP
             break;
-        case MENU_ABOUTKAWII9:
+        case MENU_ABOUT:
             action_aboutkawii9();
             break;
         case MENU_FACTORYRESET:

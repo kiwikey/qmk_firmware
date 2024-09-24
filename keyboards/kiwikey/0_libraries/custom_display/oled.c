@@ -3,8 +3,8 @@
  
 #include "oled.h"
 
-#include "eeprom_custom.h"
 #include "encoder.h"
+#include "eeprom_custom.h"
 #include "oled/oled_key_matrix.h"
 #include "oled/oled_ui.h"
 #include "oled/oled_menu.h"
@@ -83,15 +83,14 @@ bool oled_task_kb(void) {
 }
 
 bool process_record_oled(uint16_t keycode, keyrecord_t *record) {
-
 	if (current_menu != NOT_IN_MENU) { // If being in MENU, only process the encoder, skip all other keycodes
 		if (record->event.key.col != 3) // If not encoder press, leave here (only 1 condition is needed)
 			return false;
     }
 	
 	# ifdef OLED_KEY_MATRIX
-	if (record->event.key.col != 3) // TODO: hotfix, do not render "key matrix" if the encoder is pressed
-		render_matrix();
+		if (record->event.key.col != 3) // TODO: hotfix, do not render "key matrix" if the encoder is pressed
+			render_matrix();
 	# endif // OLED_KEY_MATRIX
 
     switch (keycode) {

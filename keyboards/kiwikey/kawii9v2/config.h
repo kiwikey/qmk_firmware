@@ -10,7 +10,7 @@
 #define DYNAMIC_KEYMAP_LAYER_COUNT 6
 #define VIA_EEPROM_CUSTOM_CONFIG_SIZE 16
 
-#define FW_VERSION "2.0.240919" // 16.09.2024
+#define FW_VERSION "2.0.240919"
 
 // AVR firmware size reducing
 #define NO_ACTION_ONESHOT      // 636 bytes

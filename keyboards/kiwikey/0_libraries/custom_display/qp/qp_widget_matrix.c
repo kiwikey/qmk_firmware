@@ -38,11 +38,11 @@ void widget_matrix_init(void) {
 }
 
 void widget_matrix_update(uint8_t col, uint8_t row) {
-	// char buf1[32] = {0};
-    // sprintf(buf1, "Row %d Col %d", row, col);
-	// qp_drawtext(my_display, 0, 30, arial30, buf1);
-	bool on = (matrix_get_row(row) & (1 << col)) > 0; // The matrix position [x,y] is being pressed
 	if (col != 5) { // TODO: hotfix for knob keypress
+		/* This line is for Kiwi5x5, which uses Swap-hands to rotate layout 90degree clockwise */
+		/* TODO: add normal calculation for normal uses */
+		bool on = (is_swap_hands_on() ? matrix_is_on(col, 4-row) : matrix_is_on(row, col)); // magical coding, again
+		// bool on = (matrix_get_row(row) & (1 << col)) > 0; // The matrix position [x,y] is being pressed
 		qp_rect(my_display,
 				WIDGET_MATRIX_POSX + col*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING), // left
 				WIDGET_MATRIX_POSY + row*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING), // top

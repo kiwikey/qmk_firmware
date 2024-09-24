@@ -5,23 +5,22 @@
 #include <printf.h>
 #include "qp.h"
 #include "qp_graphics.h"
-#include "qp_custom_api.h"
-#include "qp_includes.h"
 #include "defines.h"
+#include "eeprom_custom.h"
 
-#include "qp_widget_layer.h"
-#include "qp_widget_matrix.h"
-#include "qp_widget_rgbstat.h"
-#include "qp_menu.h"
+#include "qp/qp_custom_api.h"
+#include "qp/qp_includes.h"
+#include "qp/qp_widget_layer.h"
+#include "qp/qp_widget_matrix.h"
+#include "qp/qp_widget_rgbstat.h"
+#include "qp/qp_menu.h"
 
-EEPROM_CUSTOM_DATA eepdata;
+bool display_rotate_flag  = false;
+bool is_display_on         = false;
+// bool rgboff_flag   = false;
 
-uint8_t refresh_flag = 0;
-bool    lcdoff_flag = false;
-bool    rgboff_flag = false;
-
-void ui_refresh(void) {
-	// qp_drawimage(my_display, 0, 0, img_pikachu);
+void ui_refresh(void) { // TODO: move to 'qp_ui.c'
+	is_display_on = true;
 	qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, UI_COLOR_BACKGROUND, true); // Clear screen
 	
 	widget_layer_init();
@@ -34,82 +33,75 @@ void ui_refresh(void) {
 	
 	qp_drawtext_recolor(my_display, 0, ST7789_HEIGHT-thintel->line_height-5, thintel, " - Kiwi5x5 by KiwiKey - ", HSV_WHITE, UI_COLOR_BACKGROUND);
 	
-	switch (eepdata.oled_anim) {
-		case 0:
-			qp_stop_animation(my_anim);
-			break;
-		case 1:
-			my_anim = qp_animate(my_display, 120, 120, gif_cat01);
-			break;
-		case 2:
-			my_anim = qp_animate(my_display, 120, 120, gif_dog01);
-			break;
-		case 3:
-			my_anim = qp_animate(my_display, 120, 120, gif_nyan120px);
-			break;
-		default:
-			break;
+	// switch (eepdata.display_anim) {
+		// case 0:
+			// qp_stop_animation(my_anim);
+			// break;
+		// case 1:
+			// my_anim = qp_animate(my_display, 120, 120, gif_cat01);
+			// break;
+		// case 2:
+			// my_anim = qp_animate(my_display, 120, 120, gif_dog01);
+			// break;
+		// case 3:
+			// my_anim = qp_animate(my_display, 120, 120, gif_nyan120px);
+			// break;
+		// default:
+			// break;
+	// }
+}
+
+bool display_task_kb(void) {
+	// char buf1[50] = {0};
+	// sprintf(buf1, "R=%2u  ", eepdata.display_rotation);
+	// qp_drawtext(my_display, 0, 0, roboto20, buf1);
+	
+	/* Manually turn off OLED, if OLED timeout reached & not "Always ON" (even in Menu) */
+	if (is_display_on) {
+		if ((eepdata.display_timeout != DISPLAY_TIMEOUT_NEVER) && ((last_input_activity_elapsed()/1000) > eepdata.display_timeout)) {
+			if (current_menu != NOT_IN_MENU) menu_exit();
+			qp_power(my_display, false); // Turn off display
+			backlight_level(0);          // Turn off display backlight
+			is_display_on = false;
+		}
+    } else if ((last_input_activity_elapsed()/1000) < eepdata.display_timeout) { // Manually turn on display
+		backlight_level(eepdata.display_brightness);
+		qp_power(my_display, true); // Turn on display
+		ui_refresh();
+		is_display_on = true; // not necessary
 	}
-}
-
-void keyboard_post_init_display(void) {
-	// Reading all EEPROM custom data
-	eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 	
-	/*** Validation check ***/
-	if (eepdata.oled_timeout <= 0)
-		eepdata.oled_timeout = 30; // TODO: this is just a hotfix, need to dig in
-	if ((eepdata.oled_anim > QP_ANIM_QTY) || (eepdata.oled_anim < 0))
-		eepdata.oled_anim = 1;
-	if ((eepdata.lcd_rotation > QP_ROTATION_270) || (eepdata.lcd_rotation < QP_ROTATION_0))
-		eepdata.lcd_rotation = QP_ROTATION_0;
-	/************************/
+	/* This is used only when rotate the display */
+	// TODO: clean up this
+	if (display_rotate_flag) {
+		qp_init(my_display, eepdata.display_rotation);
+		qp_power(my_display, true);
+		menu_init();
+		qp_drawtext(my_display, 0, ST7789_HEIGHT-roboto20->line_height, roboto20, "<");
+		qp_drawtext(my_display, ST7789_WIDTH-roboto20->line_height, ST7789_HEIGHT-roboto20->line_height, roboto20, ">");
+		current_menu = SUB_MENU;
+		menu_cursor = MENU_DISPLAYROTATION;
+		if (eepdata.display_rotation == QP_ROTATION_0)
+			swap_hands_off();
+		else if (eepdata.display_rotation == QP_ROTATION_90)
+			swap_hands_on();
+		display_rotate_flag = false;
+	}
 	
-	/*** Below configuration should be in <keyboard>.c ***/
-    my_display = qp_st7789_make_spi_device(
-		ST7789_WIDTH,
-		ST7789_HEIGHT,
-		DISPLAY_CS_PIN,
-		DISPLAY_DC_PIN,
-		DISPLAY_RST_PIN,
-		DISPLAY_SPI_DIVISOR,
-		DISPLAY_SPI_MODE
-	);
-    qp_init(my_display, eepdata.lcd_rotation);
-	qp_power(my_display, true);
-	qp_clear(my_display);
-	qp_rect(my_display, 0, 0, 239, 239, HSV_BLACK, true); // Fill screen by black color
-	/****************************************************/
-	
-	qp_init_load_files();
-	layer_move(eepdata.active_layer);
-	
-#if defined(BACKLIGHT_ENABLE)
-	backlight_enable(); // TFT backlight
-	backlight_level(eepdata.oled_brightness);
-#endif // defined(BACKLIGHT_ENABLE)
-
-	ui_refresh();
-}
-
-void housekeeping_task_display(void) {
-	if ((eepdata.oled_timeout != QP_TIMEOUT_NEVER) && (last_input_activity_elapsed() > eepdata.oled_timeout*1000)) {
-		qp_power(my_display, false); // Turn off display
-		backlight_level(0);          // Turn off display backlight
-		lcdoff_flag = 1;
+	/*** If in Menu, skip all other DISPLAY processes ***/
+    if (current_menu != NOT_IN_MENU) {
+		if ((last_input_activity_elapsed()/1000) > DISPLAY_TIMEOUT_MIN) // Turn off Menu automatically after DISPLAY_TIMEOUT_MIN
+			menu_exit();
+        return false;
     }
 	
-	if (refresh_flag == 1) {
-		qp_stop_animation(my_anim);
-		ui_refresh();		
-		refresh_flag = 0;
-	}
+
 	
 	// Flags check, refresh widget if needed
-	if (qp_widget_layer_flag) {
-		widget_layer_render(eepdata.active_layer);
-		qp_widget_layer_flag = false;
-	}
+	// if (qp_widget_layer_flag) {
+		// widget_layer_render(eepdata.active_layer);
+		// qp_widget_layzer_flag = false;
+	// }
 	// if (qp_widget_matrix_flag) {
 		// widget_matrix_update();
 		// qp_widget_matrix_flag = false;
@@ -119,66 +111,62 @@ void housekeeping_task_display(void) {
 		qp_widget_rgbstat_flag = false;
 	}
 	
-	// char buf1[50] = {0};
-	// sprintf(buf1, "Rotation: %u", eepdata.lcd_rotation);
-	// qp_drawtext(my_display, 40, ST7789_HEIGHT-roboto20->line_height*2, roboto20, buf1);
 	// uint16_t curr_hue = 100;
 	// static led_t last_led_state = {0};
 	// last_led_state.raw = host_keyboard_led_state().raw;
 	// qp_drawimage_recolor(my_display, 12, 120, last_led_state.caps_lock ? lock_caps_on : lock_caps_off, curr_hue, 255, last_led_state.caps_lock ? 255 : 32, curr_hue, 255, 0);
 	// qp_drawimage_recolor(my_display, 12+32, 120, last_led_state.num_lock ? lock_num_on : lock_num_off, curr_hue, 255, last_led_state.num_lock ? 255 : 32, curr_hue, 255, 0);
 	// qp_drawimage_recolor(my_display, 12+32+32, 120, last_led_state.scroll_lock ? lock_scrl_on : lock_scrl_off, curr_hue, 255, last_led_state.scroll_lock ? 255 : 32, curr_hue, 255, 0);
+	return false;
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
-	// if (!record->event.pressed) { // reconsidering...
-		// return true;
-	// }
-	if (lcdoff_flag) {
-		qp_power(my_display, true); // Turn on display
-		backlight_level(eepdata.oled_brightness); // Turn on display backlight
-	}
-    if (current_menu != NOT_IN_MENU) { // in MENU all keys are for controlling, no keycode is sent
-		process_record_menu(keycode, record);
-		return false;
+	if (current_menu != NOT_IN_MENU) { // If being in MENU, only process the encoder, skip all other keycodes
+		if (record->event.key.col != 5) // If not encoder press, leave here (only 1 condition is needed)
+			return false;
     }
-	widget_matrix_update(record->event.key.col, record->event.key.row);
+	
+	#if defined(QP_WIDGET_MATRIX)
+		if (record->event.key.col != 5) // TODO: hotfix, do not render "key matrix" if the encoder is pressed
+			widget_matrix_update(record->event.key.col, record->event.key.row);
+	#endif // defined(QP_WIDGET_MATRIX)
+	
+	// if (is_display_on) {
+		// qp_power(my_display, true); // Turn on display
+		// backlight_level(eepdata.display_brightness); // Turn on display backlight
+	// }
 	
 	switch (keycode) {
         case QK_LIGHTING ... QK_LIGHTING_MAX:
-            // sub_ui_mode = 1;
-            // sub_ui_clear();
 			qp_widget_rgbstat_flag = true;
             break;
-        case CUSTOM_KC_MENU:
-            if (current_menu == NOT_IN_MENU) {
-// #if defined(???)
-				if (!rgb_matrix_is_enabled()) {
-					rgb_matrix_enable_noeeprom();
-					rgboff_flag = true;
-				}
-// #endif // defined(???)
-				qp_stop_animation(my_anim);
-				current_menu = MAIN_MENU;
-				layer_move(eepdata.active_layer); // to avoid weird behavior of current_layer when turn on MENU
-				menu_init();
-			}
-			return false; // no need to process this keycode
-            break;
-        case CUSTOM_KC_REFRESH:
-			if (record->event.pressed) {
-				qp_stop_animation(my_anim);
-				ui_refresh();
-			}
+        // case CUSTOM_KC_MENU:
+            // if (current_menu == NOT_IN_MENU) {
+				// if (!rgb_matrix_is_enabled()) {
+					// rgb_matrix_enable_noeeprom();
+					// rgboff_flag = true;
+				// }
+				// qp_stop_animation(my_anim);
+				// current_menu = MAIN_MENU;
+				// layer_move(eepdata.active_layer); // to avoid weird behavior of current_layer when turn on MENU
+				// menu_init();
+			// }
 			// return false; // no need to process this keycode
-            break;
+            // break;
+        // case CUSTOM_KC_REFRESH:
+			// if (record->event.pressed) {
+				// qp_stop_animation(my_anim);
+				// ui_refresh();
+			// }
+			// //return false; // no need to process this keycode
+            // break;
         default:
             break;
     }
 	return true;
 }
 
-layer_state_t layer_state_set_display(layer_state_t state) {
+layer_state_t layer_state_set_kb(layer_state_t state) {
 	if (current_menu == NOT_IN_MENU)
 		widget_layer_render(get_highest_layer(state));
 	return state;

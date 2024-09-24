@@ -19,8 +19,6 @@
     RGB #03  * 55%
 ********************************/
 
-#define ACTIVE_LAYER_MIN    0
-#define ACTIVE_LAYER_MAX    4
 static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	// "Default",
 	// " Media ",

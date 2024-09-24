@@ -25,11 +25,6 @@
 	void eeprom_update_custom(void); // TODO
 /**********************************/
 
-#define DISPLAY_TIMEOUT_MIN    30	// seconds
-#define DISPLAY_TIMEOUT_STEP   30
-#define DISPLAY_TIMEOUT_MAX    180
-#define DISPLAY_TIMEOUT_NEVER  DISPLAY_TIMEOUT_MAX + DISPLAY_TIMEOUT_STEP
-
 #define MAINMENU_1STLINE_POS  1 // OLED: from 0 to 7
 #define MAINMENU_MAXITEMS     9
 #define MAINMENU_LINESPERPAGE 5
@@ -47,11 +42,11 @@ enum menu_list_references {
 	__DUMP = 0,
     MENU_ACTIVATELAYER,
     MENU_ANIMATION,
-    MENU_OLEDTIMEOUT,
+    MENU_DISPLAYTIMEOUT,
     MENU_LIGHTINGLAYERS,
     MENU_KNOBFUNCTION,
-    MENU_FWVERSION,
-	MENU_ABOUTKAWII9,
+    MENU_FWVERSION = 6,
+	MENU_ABOUT,
 	MENU_FACTORYRESET,
 	MENU_BOOTTODFU
 };
@@ -82,15 +77,13 @@ static const bool menu_list_ischangeable[MAINMENU_MAXITEMS+1] = {
 	false  // 9
 };
 
-#define display_anim_QTY    3  // QMK logo, Mario, Bongo Cat
+#define DISPLAY_ANIM_QTY    3  // QMK logo, Mario, Bongo Cat
 
-static const char * const anim_list[display_anim_QTY+1] = {
+static const char * const anim_list[DISPLAY_ANIM_QTY+1] = {
 	"none",
 	"QMK Logo",
 	"Mario",
 	"Bongo Cat"
 };
-
-
 
 #endif /* OLED_MENU */

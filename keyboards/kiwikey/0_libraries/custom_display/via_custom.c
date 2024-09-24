@@ -1,8 +1,11 @@
 #include "via_custom.h"
-
-#include "oled/oled_ui.h"
-#include "oled/oled_menu.h"
 #include "eeprom_custom.h"
+
+#if defined(OLED_ENABLE)
+	#include "oled.h"
+	#include "oled/oled_ui.h"
+	#include "oled/oled_menu.h"
+#endif // defined(OLED_ENABLE)
 
 void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
 	oled_on();

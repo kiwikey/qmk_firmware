@@ -9,23 +9,37 @@
         "device_version": "1.0.0"
     },
     "features": {
-		"bootmagic": true,
         "command": false,
-        "console": false,
-        "extrakey": true,
-        "mousekey": true,
+        "console": true,
+        "extrakey": false,
+        "mousekey": false,
+		"rgblight": false,
         "backlight": true,
-        "rgblight": false,
 		"rgb_matrix": true,
-        "nkro": true,
+        "nkro": false,
         "quantum_painter": true
     },
+	"bootmagic": {
+        "enabled": true,
+		"matrix": [0,0]
+    },
+    "matrix_pins": {
+        "cols": [ "B10", "B1", "B0", "A8", "A15", "C15" ],
+        "rows": [ "B8",  "B7", "B3", "B4", "B6"  ]
+    },
+    "diode_direction": "COL2ROW",
     "backlight": {
         "pin": "A1",
         "driver": "pwm",
         "breathing": false,
         "max_brightness": 255,
         "levels": 10
+    },
+    "encoder": {
+        "enabled": true,
+        "rotary": [
+            {"pin_a": "A3", "pin_b": "A2"}
+        ]
     },
     "ws2812": {
         "pin": "C14"
@@ -127,17 +141,6 @@
 	"default": {
 		"animation": "cycle_up_down"
 	}
-    "encoder": {
-        "enabled": true,
-        "rotary": [
-            {"pin_a": "A3", "pin_b": "A2"}
-        ]
-    },
-    "matrix_pins": {
-        "cols": [ "B10", "B1", "B0", "A8", "A15", "C15" ],
-        "rows": [ "B8",  "B7", "B3", "B4", "B6"  ]
-    },
-    "diode_direction": "COL2ROW",
     "layouts": {
         "LAYOUT_ortho_5x5": {
             "layout": [
