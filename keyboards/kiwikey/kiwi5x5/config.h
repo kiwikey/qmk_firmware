@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "2024.09.24_01"
+#define FW_VERSION "2024.09.25_01"
 
 #define ENCODER_RESOLUTION 4
 

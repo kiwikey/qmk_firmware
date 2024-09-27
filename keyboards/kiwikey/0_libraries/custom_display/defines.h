@@ -14,18 +14,23 @@
 
 #define WIDGET_LAYER_COLOR1     HSV_WHITE // Color of the 1st line
 
-static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
-	"Default",
-	" User1 ",
-	" User2 ",
-	"Configs"
-};
-
 #define WIDGET_MATRIX_BACKGROUND 0,0,40
 #define WIDGET_MATRIX_COLOR_OFF  HSV_WHITE
 // #define WIDGET_MATRIX_HUE_ON    HSV_RED
 
 #define WIDGET_RGB_COLOR1     HSV_WHITE // Color of the 1st line
 #define WIDGET_RGB_COLOR2     HSV_GREEN // Color of the 2st line
+
+// #define WIDGET_ENCODER_COLOR1     HSV_PINK  // Color of the 1st line
+// #define WIDGET_ENCODER_COLOR2     HSV_GOLD // Color of the 2st line
+#define WIDGET_ENCODER_KNOBCOLORIN      HSV_YELLOW
+#define WIDGET_ENCODER_KNOBCOLOROUT     HSV_GOLDENROD
+
+static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
+	"Default",
+	" User1 ",
+	" User2 ",
+	"Configs"
+};
 
 #endif /* _DEFINES */

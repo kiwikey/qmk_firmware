@@ -17,7 +17,6 @@ void widget_layer_init(void) {
                  WIDGET_LAYER_POSY + WIDGET_LAYER_SIZE+UI_WIDGET_SHADOW,
                  UI_COLOR_SHADOW, true, 5, true, true);
 	qp_roundrect(WIDGET_LAYER_POSX, WIDGET_LAYER_POSY, WIDGET_LAYER_POSX + WIDGET_LAYER_SIZE, WIDGET_LAYER_POSY + WIDGET_LAYER_SIZE/3, WIDGET_LAYER_COLOR1, true, 5, true, false);
-	// qp_drawtext_recolor(my_display, 25, 9, thintel50, "LAYER", WIDGET_LAYER_TEXTCOLOR, HSV_WHITE);
 	qp_drawtext_recolor(my_display, 22, 11, robotobold25, "LAYER", UI_COLOR_TEXT_H1, WIDGET_LAYER_COLOR1);
 	for (uint8_t i = 0; i < 4; i++) {
 		qp_rect(my_display,
@@ -39,9 +38,9 @@ void widget_layer_render(uint8_t layer) {
 		char buf1[10] = {0};
 		sprintf(buf1, "%d", i);
 		// qp_drawtext_recolor(my_display, 12+i*27, 45,    // Write layer number
-                 	// thintel50, buf1,
-                 	// 0, 0, (layer == i) ? 0 : 200,
-                 	// layer_color_hue[i], 255, 255);
+							// thintel50, buf1,
+							// 0, 0, (layer == i) ? 0 : 200,
+							// layer_color_hue[i], 255, 255);
 		qp_drawtext_recolor(my_display, 12+i*27, 47,    // Write layer number
 							robotobold25, buf1,
 							0, 0, (layer == i) ? 0 : 200,

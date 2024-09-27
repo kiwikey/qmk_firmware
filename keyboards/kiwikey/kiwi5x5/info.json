@@ -10,9 +10,9 @@
     },
     "features": {
         "command": false,
-        "console": true,
-        "extrakey": false,
-        "mousekey": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
 		"rgblight": false,
         "backlight": true,
 		"rgb_matrix": true,

@@ -13,6 +13,7 @@
 #include "qp/qp_widget_layer.h"
 #include "qp/qp_widget_matrix.h"
 #include "qp/qp_widget_rgbstat.h"
+#include "qp/qp_widget_encoder.h"
 #include "qp/qp_menu.h"
 
 bool display_rotate_flag  = false;
@@ -30,6 +31,9 @@ void ui_refresh(void) { // TODO: move to 'qp_ui.c'
 	
 	widget_rgb_init();
 	widget_rgb_render();
+	
+	widget_encoder_init();
+	widget_encoder_render();
 	
 	qp_drawtext_recolor(my_display, 0, ST7789_HEIGHT-thintel->line_height-5, thintel, " - Kiwi5x5 by KiwiKey - ", HSV_WHITE, UI_COLOR_BACKGROUND);
 	
@@ -60,6 +64,7 @@ bool display_task_kb(void) {
 	if (is_display_on) {
 		if ((eepdata.display_timeout != DISPLAY_TIMEOUT_NEVER) && ((last_input_activity_elapsed()/1000) > eepdata.display_timeout)) {
 			if (current_menu != NOT_IN_MENU) menu_exit();
+			qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, UI_COLOR_BACKGROUND, true); // screen should be clear to avoid old infos when turn on again
 			qp_power(my_display, false); // Turn off display
 			backlight_level(0);          // Turn off display backlight
 			is_display_on = false;
@@ -94,8 +99,6 @@ bool display_task_kb(void) {
 			menu_exit();
         return false;
     }
-	
-
 	
 	// Flags check, refresh widget if needed
 	// if (qp_widget_layer_flag) {
@@ -140,26 +143,6 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
         case QK_LIGHTING ... QK_LIGHTING_MAX:
 			qp_widget_rgbstat_flag = true;
             break;
-        // case CUSTOM_KC_MENU:
-            // if (current_menu == NOT_IN_MENU) {
-				// if (!rgb_matrix_is_enabled()) {
-					// rgb_matrix_enable_noeeprom();
-					// rgboff_flag = true;
-				// }
-				// qp_stop_animation(my_anim);
-				// current_menu = MAIN_MENU;
-				// layer_move(eepdata.active_layer); // to avoid weird behavior of current_layer when turn on MENU
-				// menu_init();
-			// }
-			// return false; // no need to process this keycode
-            // break;
-        // case CUSTOM_KC_REFRESH:
-			// if (record->event.pressed) {
-				// qp_stop_animation(my_anim);
-				// ui_refresh();
-			// }
-			// //return false; // no need to process this keycode
-            // break;
         default:
             break;
     }

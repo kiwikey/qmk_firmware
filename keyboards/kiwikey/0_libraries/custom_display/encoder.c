@@ -27,20 +27,23 @@ bool process_encoder_rotate(uint8_t index, bool clockwise) { // Rotating only, n
 		if (current_menu == MAIN_MENU) {
 			if (clockwise) { // Turn clockwise => DOWN
 				menu_cursor++;
-				if (menu_cursor > MAINMENU_LINESPERPAGE)
+				if (menu_cursor == MAINMENU_LINESPERPAGE+1) // when jumping to next page, re-print the list
 					menu_printlist();
 			} else {         // Turn counter-clockwise => UP
 				menu_cursor--;
 				if (menu_cursor == MAINMENU_LINESPERPAGE)
 					menu_printlist();
+					dprintf("2\n");
 			}
 			if (menu_cursor > MAINMENU_MAXITEMS) {
 				menu_cursor = 1;                 // scroll back to #1
 				menu_printlist();                // refresh the list
+				dprintf("3\n");
 			}
 			if (menu_cursor == 0) {
 				menu_cursor = MAINMENU_MAXITEMS; // scroll to last item
 				menu_printlist();                // refresh the list
+				dprintf("4\n");
 			}
 			menu_set_cursor(menu_cursor);
 		/* In Sub-menu, knob rotation moves between options */

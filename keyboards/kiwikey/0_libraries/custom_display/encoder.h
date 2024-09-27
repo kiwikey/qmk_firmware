@@ -4,14 +4,14 @@
 #include "quantum.h"
 
 #define ENCODER_FUNC_MAX 4
-// #define ENCODER_TAP_FN   SS_TAP(X_MUTE)
-#define ENCODER_TAP_FN   SS_TAP(X_Z)
+#define ENCODER_TAP_FN   SS_TAP(X_MUTE)
+// #define ENCODER_TAP_FN   SS_TAP(X_Z)
 
 /*** Encoder's rotating uses ***/
-// #define ENCODER_FN1_CW  KC_VOLU
-// #define ENCODER_FN1_CCW KC_VOLD
-#define ENCODER_FN1_CW  KC_RIGHT
-#define ENCODER_FN1_CCW KC_LEFT
+#define ENCODER_FN1_CW  KC_VOLU
+#define ENCODER_FN1_CCW KC_VOLD
+// #define ENCODER_FN1_CW  KC_RIGHT
+// #define ENCODER_FN1_CCW KC_LEFT
 
 #define ENCODER_FN2_CW  KC_PGDN
 #define ENCODER_FN2_CCW KC_PGUP
@@ -28,6 +28,14 @@ static const char * const encoder_func_name[ENCODER_FUNC_MAX+1] = {
 	"  SCROLL (fast) ",
 	"  SCROLL (slow) ",
 	" - BRIGHTNESS + "
+};
+
+static const char * const encoder_func_shortname[ENCODER_FUNC_MAX+1] = {
+	"---",
+	"VOL",
+	"SCR",
+	"SCR",
+	"BRT"
 };
 
 bool process_encoder_rotate(uint8_t index, bool clockwise);

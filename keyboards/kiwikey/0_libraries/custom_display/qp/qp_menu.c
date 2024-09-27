@@ -62,10 +62,12 @@ void menu_set_cursor(uint8_t cursor_pos) {
 		cursor_pos -= MAINMENU_LINESPERPAGE;
 	}
     for (uint8_t i = MAINMENU_1STLINE_POS; i <= MAINMENU_LINESPERPAGE; i++) {
-        qp_drawtext(my_display, MENU_POSX, MENU_POSY+(i-1)*roboto20->line_height, roboto20, i == cursor_pos ? ">" : " ");
+        // qp_drawtext(my_display, MENU_POSX, MENU_POSY+(i-1)*roboto20->line_height, roboto20, i == cursor_pos ? ">" : " ");
+		if (i == cursor_pos)
+			qp_drawimage_recolor(my_display, MENU_POSX, MENU_POSY+2+(i-1)*roboto20->line_height, ico16_arrow_right, HSV_BLACK, HSV_YELLOW);
+		else qp_drawimage_recolor(my_display, MENU_POSX, MENU_POSY+2+(i-1)*roboto20->line_height, ico16_arrow_right, HSV_BLACK, HSV_BLACK);
     }
 }
-
 void menu_quick_view(void) {
 	// Clear the 2 bottom lines
 	qp_rect(my_display, 0, ST7789_HEIGHT-roboto20->line_height*2, ST7789_WIDTH, ST7789_HEIGHT, MENU_COLOR_BACKGROUND, true);
@@ -143,8 +145,14 @@ void menu_quick_view(void) {
 	}
 	// Render 2 arrows (left & right) for "changable" settings
     if ((current_menu == SUB_MENU) && menu_list_ischangeable[menu_cursor]) {
-		qp_drawtext(my_display, 0, ST7789_HEIGHT-roboto20->line_height, roboto20, "<");
-		qp_drawtext(my_display, ST7789_WIDTH-roboto20->line_height, ST7789_HEIGHT-roboto20->line_height, roboto20, ">");
+		// qp_drawtext(my_display, 0, ST7789_HEIGHT-roboto20->line_height, roboto20, "<");
+		// qp_drawtext(my_display, ST7789_WIDTH-roboto20->line_height, ST7789_HEIGHT-roboto20->line_height, roboto20, ">");
+		qp_drawimage_recolor(my_display,
+							0, (239 - ico16_arrow_left->height),
+							ico16_arrow_left,  HSV_BLACK, HSV_WHITE);
+		qp_drawimage_recolor(my_display,
+							(239 - ico16_arrow_right->width), (239 - ico16_arrow_right->height),
+							ico16_arrow_right, HSV_BLACK, HSV_WHITE);
 	}
 }
 
@@ -152,10 +160,15 @@ void menu_action(void) {
     if (menu_list_ischangeable[menu_cursor]) {
         current_menu = SUB_MENU;
 		// Render 2 arrows (left & right) for "changable" settings
-		qp_drawtext(my_display, 0, ST7789_HEIGHT-roboto20->line_height, roboto20, "<");
-		qp_drawtext(my_display, ST7789_WIDTH-roboto20->line_height, ST7789_HEIGHT-roboto20->line_height, roboto20, ">");
+		// qp_drawtext(my_display, 0, ST7789_HEIGHT-roboto20->line_height, roboto20, "<");
+		// qp_drawtext(my_display, ST7789_WIDTH-roboto20->line_height, ST7789_HEIGHT-roboto20->line_height, roboto20, ">");
+		qp_drawimage_recolor(my_display,
+							0, (239 - ico16_arrow_left->height),
+							ico16_arrow_left,  HSV_BLACK, HSV_WHITE);
+		qp_drawimage_recolor(my_display,
+							(239 - ico16_arrow_right->width), (239 - ico16_arrow_right->height),
+							ico16_arrow_right, HSV_BLACK, HSV_WHITE);
     }
-
     switch (menu_cursor) {
         case MENU_ACTIVATELAYER:
 			// action_activelayer();

@@ -4,7 +4,7 @@
 #include "quantum.h"
 
 #define WIDGET_RGB_POSX      5
-#define WIDGET_RGB_POSY      125
+#define WIDGET_RGB_POSY      125 // ok
 #define WIDGET_RGB_WIDTH     108
 #define WIDGET_RGB_HEIGHT    72
 
