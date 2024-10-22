@@ -239,19 +239,6 @@ void action_aboutkiwi5x5(void) {
 
 void action_factoryreset(void) {
 	clear_keyboard();   // release all pressed keys if available
-	EEPROM_CUSTOM_DATA eepdata_default = {
-		0,                           // Layer 0
-		1,                           // Animation #1
-		DISPLAY_TIMEOUT_MIN,         // LCD Timeout 30s
-		BACKLIGHT_DEFAULT_LEVEL,     // LCD Brightness default (10 = max)
-		QP_ROTATION_0,               // Default rotation
-		0,                           // Lighting Layers OFF
-		0,                           // Lighting Layers applied to Underglow LEDs
-		{ 126, 210,  42,  84 },      // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
-		{ 255, 255, 255, 255 },      // Lighting Layers' SATs: maximum (255)
-		1,                           // Knob: Volume
-		7,                           // Checksum is always 7
-	};
 	eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 	eeconfig_disable();
 	soft_reset_keyboard();

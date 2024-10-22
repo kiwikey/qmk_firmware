@@ -2,11 +2,11 @@
 
 #define FW_VERSION "2024.09.25_01"
 
-#define ENCODER_RESOLUTION 4
-
 #if defined(CONSOLE_ENABLE)
 	// #define DEBUG_MATRIX_SCAN_RATE
 #endif // defined(CONSOLE_ENABLE)
+
+#define ENCODER_RESOLUTION 4
 	
 #if defined(VIA_ENABLE)
 	#define DYNAMIC_KEYMAP_LAYER_COUNT 4

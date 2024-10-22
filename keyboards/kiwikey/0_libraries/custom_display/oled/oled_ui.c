@@ -1,6 +1,7 @@
 #if defined(OLED_ENABLE)
 
 #include "oled_ui.h"
+#include "encoder.h"
 #include "eeprom_custom.h"
 #include "oled_custom_api.h"
 #include "rgb_matrix_name.h"
@@ -106,26 +107,7 @@ void render_stats(void) {
 	// Knob function
 	oled_set_cursor(19,1); oled_write_char(0x5E, false); // Arrow up
 	oled_set_cursor(19,3); oled_write_char(0xDD, false); // Arrow up
-	oled_set_cursor(18,2);
-	switch (eepdata.knob_func) {
-		case 0:
-			oled_write_P(PSTR("---"), false);
-			break;
-		case 1:
-			oled_write_P(PSTR("Vol"), false);
-			break;
-		case 2:
-			oled_write_P(PSTR("Scr"), false);
-			break;
-		case 3:
-			oled_write_P(PSTR("Scr"), false);
-			break;
-		case 4:
-			oled_write_P(PSTR("Brt"), false);
-			break;
-		default:
-			break;
-	}
+	oled_set_cursor(18,2); oled_write(encoder_func_shortname[eepdata.knob_func],false);
 	
 	#endif // RGB_MATRIX_ENABLE
 }

@@ -13,6 +13,7 @@ uint8_t current_menu = NOT_IN_MENU;
 uint8_t menu_cursor = MAINMENU_1STLINE_POS;
 
 void menu_init(void) {
+	clear_keyboard(); // release all pressed keys if available
     current_menu = MAIN_MENU;
     oled_clear();
     // Draw 2 lines to separate the main Menu and the "Menu quick view"
@@ -35,6 +36,7 @@ void menu_exit(void) {
         layer_move(eepdata.active_layer);
     }
     /*************************/
+	clear_keyboard(); // release all pressed keys if available
     ui_refresh();
 }
 
@@ -206,16 +208,6 @@ void action_aboutkawii9(void) {
 }
 
 void action_factoryreset(void) {
-    EEPROM_CUSTOM_DATA eepdata_default = {
-        0,                           // Layer 0
-        1,                           // QMK Logo
-        DISPLAY_TIMEOUT_MIN,            // OLED Timeout 30s
-        0,                           // Lighting Layers OFF
-        0,                           // Lighting Layers applied to Underglow LEDs
-        { 126, 210,  42,  84, 168 }, // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green - Blue
-        { 255, 255, 255, 255, 255 }, // Lighting Layers' SATs: maximum (255)
-        1,                           // Knob: Volume
-    };
     eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
     eeconfig_disable();
 	clear_keyboard(); // release all pressed keys if available

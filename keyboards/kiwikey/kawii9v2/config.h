@@ -1,16 +1,19 @@
-// Copyright 2023 KiwiKey
-// SPDX-License-Identifier: GPL-2.0-or-later
-
 #pragma once
+
+#define FW_VERSION "2.0.241001"
+
+#if defined(CONSOLE_ENABLE)
+	#define DEBUG_MATRIX_SCAN_RATE
+#endif // defined(CONSOLE_ENABLE)
+
+#if defined(VIA_ENABLE)
+	#define DYNAMIC_KEYMAP_LAYER_COUNT 6
+	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 19
+#endif // defined(VIA_ENABLE)
 
 #define OLED_DISPLAY_128X64
 #define OLED_TIMEOUT 0 // the OLED timeout is manually controlled by custom firmware
 #define OLED_FONT_H "../0_libraries/custom_display/oled/glcdfont.c"
-
-#define DYNAMIC_KEYMAP_LAYER_COUNT 6
-#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 16
-
-#define FW_VERSION "2.0.240919"
 
 // AVR firmware size reducing
 #define NO_ACTION_ONESHOT      // 636 bytes

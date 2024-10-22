@@ -1,6 +1,3 @@
-// Copyright 2023 KiwiKey
-// SPDX-License-Identifier: GPL-2.0-or-later
- 
 #include "encoder.h"
 #include "eeprom_custom.h"
 
@@ -20,7 +17,6 @@
 
 bool process_encoder_rotate(uint8_t index, bool clockwise) { // Rotating only, no Pressing
 
-	#if defined(QUANTUM_PAINTER_ENABLE)
 	/*** ENCODER IN MENU ***/
 	if (current_menu != NOT_IN_MENU) {
 		/* In Main-menu, knob rotation controls cursor Up/Down */
@@ -33,17 +29,14 @@ bool process_encoder_rotate(uint8_t index, bool clockwise) { // Rotating only, n
 				menu_cursor--;
 				if (menu_cursor == MAINMENU_LINESPERPAGE)
 					menu_printlist();
-					dprintf("2\n");
 			}
 			if (menu_cursor > MAINMENU_MAXITEMS) {
 				menu_cursor = 1;                 // scroll back to #1
 				menu_printlist();                // refresh the list
-				dprintf("3\n");
 			}
 			if (menu_cursor == 0) {
 				menu_cursor = MAINMENU_MAXITEMS; // scroll to last item
 				menu_printlist();                // refresh the list
-				dprintf("4\n");
 			}
 			menu_set_cursor(menu_cursor);
 		/* In Sub-menu, knob rotation moves between options */
@@ -136,14 +129,15 @@ bool process_encoder_rotate(uint8_t index, bool clockwise) { // Rotating only, n
 		menu_quick_view();
 		return false;
 	}
-	#endif // defined(QUANTUM_PAINTER_ENABLE)
 	
 	/*** ENCODER'S NORMAL BEHAVIOR ***/
 	/* First encoder */
-	dprintf("eepdata.knob_func: %u\n", eepdata.knob_func);
     if (index == 0) {
         if (clockwise) { /*** CLOCKWISE ***/
-			switch (eepdata.knob_func) {
+			if (get_highest_layer(layer_state|default_layer_state) == 5) { // Kawii9v2: Layer #5 is _RGB
+				rgb_matrix_increase_val();
+			}
+			else switch (eepdata.knob_func) {
 				case 0:
 					break;
 				case 1:
@@ -162,7 +156,10 @@ bool process_encoder_rotate(uint8_t index, bool clockwise) { // Rotating only, n
 					break;
 			}
         } else {        /*** COUNTER CLOCKWISE ***/
-			switch (eepdata.knob_func) {
+			if (get_highest_layer(layer_state|default_layer_state) == 5) { // Kawii9v2: Layer #5 is _RGB
+				rgb_matrix_decrease_val();
+			}
+			else switch (eepdata.knob_func) {
 				case 0:
 					break;
 				case 1:
@@ -182,11 +179,11 @@ bool process_encoder_rotate(uint8_t index, bool clockwise) { // Rotating only, n
 			}
         }
     }
+	/* Second encoder is not available yet */
     return true;
 }
 
 bool process_encoder_tap(void) {
-	#if defined(QUANTUM_PAINTER_ENABLE)
 	if (current_menu == MAIN_MENU) {       // single-press in Menu = execute that line		
 		menu_action();
 		return true;
@@ -194,14 +191,21 @@ bool process_encoder_tap(void) {
 		current_menu = MAIN_MENU;
 		menu_quick_view();
 		/* Special cases handling */
-		if (menu_cursor == MENU_ABOUT) { // when exit "About Kawii9", need to re-render Main Menu
+		if (menu_cursor == MENU_ABOUT) { // when exit "About...", need to re-render Main Menu
 			menu_init();
 		}
 		/*************************/
 		return true;
 	}
-	#endif // defined(QUANTUM_PAINTER_ENABLE)
 	
-	SEND_STRING(ENCODER_TAP_FN);
+	switch (get_highest_layer(layer_state|default_layer_state)) {
+		case 5: // _RGB layer
+			rgb_matrix_toggle();
+			break;
+		default:
+			SEND_STRING(ENCODER_TAP_FN);
+			break;
+	}
+	
 	return true;
 }

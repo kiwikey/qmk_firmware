@@ -19,8 +19,6 @@ bool oled_task_kb(void) {
     // oled_write_P(PSTR(" S="), false);
 	// oled_write_char(VIA_EEPROM_CUSTOM_CONFIG_SIZE/10+0x30, false);
 	// oled_write_char(VIA_EEPROM_CUSTOM_CONFIG_SIZE%10+0x30, false);
-	// oled_write_P(PSTR(" Sub: "), false);
-	// oled_write_char(oled_max_lines()-SUB_UI_DISPLAY_ROW+0x30, false);
 
     if (!oled_task_user()) {
         return false;
