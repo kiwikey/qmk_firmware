@@ -3,51 +3,46 @@
     "keyboard_name": "Kiwi75",
     "maintainer": "KiwiKey",
     "bootloader": "atmel-dfu",
-    "diode_direction": "COL2ROW",
+    "processor": "atmega32u4",
+    "usb": {
+        "vid": "0x4B57",
+        "pid": "0x0075",
+        "device_version": "1.1.0",
+        "suspend_wakeup_delay": 0
+    },
+    
     "features": {
         "bootmagic": true,
         "command": false,
         "console": false,
-        "extrakey": true,
-        "mousekey": false,
         "nkro": true,
-		"backlight": true,
+        "extrakey": true,
+        "mousekey": true,
 		"rgblight": true
     },
+    "diode_direction": "COL2ROW",
     "matrix_pins": {
         "cols": [ "B2", "B1", "B3", "B7", "E6", "F1", "F4", "F5", "F6", "F7", "C7", "C6", "B5", "B4", "D2" ],
         "rows": [ "F0", "D7", "D4", "D6", "D5", "D3" ]
+    },    
+    "ws2812": {
+        "pin": "B0"
     },
-    "processor": "atmega32u4",
-    "url": "",
-    "usb": {
-        "vid": "0x4B57",
-        "pid": "0x0075",
-        "device_version": "1.0.0",
-		"suspend_wakeup_delay": 0
-    },
-	"backlight": {
-        "breathing": true,
-        "breathing_period": 5,
-        "levels": 15,
-        "pin": "B6"
-    }
     "rgblight": {
         "led_count": 22,
-        "pin": "B0",
         "hue_steps": 10,
         "saturation_steps": 17,
         "brightness_steps": 17,
         "animations": {
-            "alternating": true,
             "breathing": true,
-            "christmas": true,
-            "knight": true,
             "rainbow_mood": true,
             "rainbow_swirl": true,
-            "rgb_test": true,
             "snake": true,
+            "knight": true,
+            "christmas": true,
             "static_gradient": true,
+            "rgb_test": true,
+            "alternating": true,
             "twinkle": true
         }
     },
@@ -82,7 +77,7 @@
                 { "matrix": [1, 11], "w": 1, "x": 24, "y": 0 },
                 { "matrix": [1, 12], "w": 1, "x": 25, "y": 0 },
                 { "matrix": [1, 13], "w": 1, "x": 26, "y": 0 },
-				{ "matrix": [0, 14], "w": 1, "x": 27, "y": 0 },
+                { "matrix": [0, 14], "w": 1, "x": 27, "y": 0 },
                 { "matrix": [1, 14], "w": 1, "x": 28, "y": 0 },
 
                 { "matrix": [2, 0], "w": 1, "x": 29, "y": 0 },
