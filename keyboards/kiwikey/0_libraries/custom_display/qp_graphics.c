@@ -76,8 +76,9 @@ bool display_task_kb(void) {
 		is_display_on = true; // not necessary
 	}
 	
-	/* This is used only when rotate the display */
+	/* This is only for rotating the display on Kiwi5x5 */
 	// TODO: clean up this
+	#ifdef SWAP_HANDS_ENABLE
 	if (display_rotate_flag) {
 		qp_init(my_display, eepdata.display_rotation);
 		qp_power(my_display, true);
@@ -92,6 +93,7 @@ bool display_task_kb(void) {
 			swap_hands_on();
 		display_rotate_flag = false;
 	}
+	#endif /* SWAP_HANDS_ENABLE */
 	
 	/*** If in Menu, skip all other DISPLAY processes ***/
     if (current_menu != NOT_IN_MENU) {
