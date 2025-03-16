@@ -38,6 +38,7 @@ void widget_matrix_init(void) {
 }
 
 void widget_matrix_update(uint8_t col, uint8_t row) {
+	#ifdef SWAP_HANDS_ENABLE
 	if (col != 5) { // TODO: hotfix for knob keypress
 		/* This line is for Kiwi5x5, which uses Swap-hands to rotate layout 90degree clockwise */
 		/* TODO: add normal calculation for normal uses */
@@ -53,6 +54,7 @@ void widget_matrix_update(uint8_t col, uint8_t row) {
 				255, // val
 				true);
 	}
+	#endif /* SWAP_HANDS_ENABLE */
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)

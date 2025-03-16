@@ -3,6 +3,9 @@
     "manufacturer": "KiwiKey",
     "url": "kiwikey.vn",
     "maintainer": "kiwikey",
+    "processor": "STM32F401",
+    "bootloader": "tinyuf2",
+    "board": "BLACKPILL_STM32_F401"	
     "usb": {
         "vid": "0x4B57",
         "pid": "0x0505",

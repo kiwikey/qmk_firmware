@@ -1,8 +1,6 @@
 QUANTUM_PAINTER_DRIVERS += st7789_spi
 SEND_STRING_ENABLE = yes
 
-DEFAULT_FOLDER = kiwikey/kiwi5x5/f401
-
 VPATH += keyboards/kiwikey/0_libraries/custom_display
 
 SRC += \
