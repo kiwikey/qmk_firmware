@@ -1,6 +1,5 @@
 #include "kiwi5x5.h"
 
-#include "print.h"
 #include "color.h"
 #include "spi_master.h"
 
@@ -14,7 +13,24 @@
 	painter_device_t my_display;
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
+#if defined(CONSOLE_ENABLE)
+    #include "print.h"
+#endif // defined(CONSOLE_ENABLE)
+
 EEPROM_CUSTOM_DATA eepdata;
+EEPROM_CUSTOM_DATA eepdata_default = {
+	0,                           // Layer 0
+	1,                           // Animation #1
+	DISPLAY_TIMEOUT_MIN,         // LCD Timeout 30s
+	BACKLIGHT_DEFAULT_LEVEL,     // LCD Brightness default (10 = max)
+	QP_ROTATION_0,               // Default rotation
+	0,                           // Lighting Layers OFF
+	0,                           // Lighting Layers applied to Underglow LEDs
+	{ 126, 210,  42,  84 },      // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
+	{ 255, 255, 255, 255 },      // Lighting Layers' SATs: maximum (255)
+	1,                           // Knob: Volume
+	7                            // Checksum is always 7
+};
 
 void keyboard_post_init_kb(void) {
     #if defined(CONSOLE_ENABLE)
@@ -30,22 +46,11 @@ void keyboard_post_init_kb(void) {
 	/*** Validation check ***/
 	/* This runs everytime the EEPROM is corrupted, or right after 'factory_reset' or 'bootmagic_reset' */
 	if (eepdata.checksum != 7) {
-		EEPROM_CUSTOM_DATA eepdata_default = {
-			0,                           // Layer 0
-			1,                           // Animation #1
-			DISPLAY_TIMEOUT_MIN,         // LCD Timeout 30s
-			BACKLIGHT_DEFAULT_LEVEL,     // LCD Brightness default (10 = max)
-			QP_ROTATION_0,               // Default rotation
-			0,                           // Lighting Layers OFF
-			0,                           // Lighting Layers applied to Underglow LEDs
-			{ 126, 210,  42,  84 },      // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
-			{ 255, 255, 255, 255 },      // Lighting Layers' SATs: maximum (255)
-			1,                           // Knob: Volume
-			7,                           // Checksum is always 7
-		};
 		eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
-		eepdata = eepdata_default;
+		// Reading all EEPROM custom datas, again
+		eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 	}
+	
 	// if (eepdata.display_timeout <= 0)
 		// eepdata.display_timeout = DISPLAY_TIMEOUT_MIN; // TODO: this is just a hotfix, need to dig in
 	// if ((eepdata.display_anim > DISPLAY_ANIM_QTY) || (eepdata.display_anim < 0))
@@ -53,14 +58,20 @@ void keyboard_post_init_kb(void) {
 	// if ((eepdata.display_rotation > QP_ROTATION_270) || (eepdata.display_rotation < QP_ROTATION_0))
 		// eepdata.display_rotation = QP_ROTATION_0;
 	/************************/
+	
 	layer_move(eepdata.active_layer);
+	
+	// Kiwi5x5 ONLY: swap_hand relates to keyboard's rotation and also QP_ROTATION
+	#if defined(SWAP_HANDS_ENABLE)
 	if (eepdata.display_rotation == QP_ROTATION_0)
 		swap_hands_off();
 	else if (eepdata.display_rotation == QP_ROTATION_90)
 		swap_hands_on();
+	#endif // defined(SWAP_HANDS_ENABLE)
+		
 	#if defined(BACKLIGHT_ENABLE)
-		backlight_enable(); // TFT backlight
-		backlight_level(eepdata.display_brightness);
+	backlight_enable(); // TFT backlight
+	backlight_level(eepdata.display_brightness);
 	#endif // defined(BACKLIGHT_ENABLE)
 	
 	#if defined(QUANTUM_PAINTER_ENABLE)
@@ -89,6 +100,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         if (process_record_display(keycode, record) == false) // process_record_display = false if being in Menu
             return false;
 	#endif // defined(QUANTUM_PAINTER_ENABLE)
+	
 	return process_record_user(keycode, record);
 	// uprintf("get_matrix_scan_rate: %lu\n", get_matrix_scan_rate());
 }
@@ -112,7 +124,7 @@ void housekeeping_task_kb(void) {
 }
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
-// Overrides default bootmagic
+// Kiwi5x5 ONLY: Overrides default bootmagic
 void bootmagic_scan(void) {
     wait_ms(100);
     matrix_scan();

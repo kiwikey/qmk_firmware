@@ -105,7 +105,7 @@ bool display_task_kb(void) {
 	// Flags check, refresh widget if needed
 	// if (qp_widget_layer_flag) {
 		// widget_layer_render(eepdata.active_layer);
-		// qp_widget_layzer_flag = false;
+		// qp_widget_layer_flag = false;
 	// }
 	// if (qp_widget_matrix_flag) {
 		// widget_matrix_update();

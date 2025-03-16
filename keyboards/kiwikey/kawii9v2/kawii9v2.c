@@ -19,17 +19,17 @@
 
 EEPROM_CUSTOM_DATA eepdata;
 EEPROM_CUSTOM_DATA eepdata_default = {
-	0,                              // active_layer       : 0
-	1,                              // display_anim       : QMK Logo
-	30,                             // display_timeout    : 30s
-	0,                              // display_brightness :
-	0,                              // display_rotation   : (OLED_ROTATION_0 = 0)
-	0,                              // lighting_layers    : OFF
-	0,                              // lighting_flags     : applied to Underglow LEDs
-	{ 126, 210,  42,  84, 168 },    // layer_hue          : Cyan - Magenta - Yellow - Green - Blue
-	{ 255, 255, 255, 255, 255 },    // layer_sat          : maximum (255)
-	1,                              // knob_func          : Volume
-	7,                              // checksum           : 7 (always)
+	0,                                // active_layer       : 0
+	1,                                // display_anim       : QMK Logo
+	30,                               // display_timeout    : 30s
+	0,                                // display_brightness :
+	0,                                // display_rotation   : (OLED_ROTATION_0 = 0)
+	0,                                // lighting_layers    : OFF
+	0,                                // lighting_flags     : applied to Underglow LEDs
+	{ 126, 210,  42,  84, 168, 255 }, // layer_hue          : Cyan - Magenta - Yellow - Green - Blue - null
+	{ 255, 255, 255, 255, 255, 255 }, // layer_sat          : maximum (255)
+	1,                                // knob_func          : Volume
+	7                                 // checksum           : 7 (always)
 };
 
 void keyboard_post_init_kb(void) {
@@ -50,7 +50,8 @@ void keyboard_post_init_kb(void) {
 		// Reading all EEPROM custom datas, again
 		eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 	}
-
+	/************************/
+	
     layer_move(eepdata.active_layer);
 
     #if defined(OLED_ENABLE)
