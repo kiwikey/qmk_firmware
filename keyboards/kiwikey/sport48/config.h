@@ -1,5 +1,7 @@
 #pragma once
 
+#define FW_VERSION "1.1"
+
 /*** SPI DRIVER DEFINITIONS ***/
 #define SPI_DRIVER        SPID2
 #define SPI_SCK_PIN       B13 // SCK
@@ -33,12 +35,11 @@
 #define BACKLIGHT_PAL_MODE      2      // PA1's alternate function 2 is TIM5_CH2
 #define BACKLIGHT_DEFAULT_LEVEL 10
 
-/*** SPLIT DEFINITIONS ***/
-#define SPLIT_HAND_PIN B10
-
-//#define SPLIT_TRANSPORT_MIRROR // already in info.json
-#define SPLIT_LAYER_STATE_ENABLE
+/*** SPLIT DEFINITIONS (moved to keyboard.json) ***/
+// #define SPLIT_HAND_PIN B10
+// #define SPLIT_TRANSPORT_MIRROR
+// #define SPLIT_LAYER_STATE_ENABLE
+// #define SPLIT_MODS_ENABLE
+// #define SPLIT_WPM_ENABLE
+// #define SPLIT_ACTIVITY_ENABLE
 #define SPLIT_LED_STATE_ENABLE
-//#define SPLIT_MODS_ENABLE // already in info.json
-#define SPLIT_WPM_ENABLE
-#define SPLIT_ACTIVITY_ENABLE

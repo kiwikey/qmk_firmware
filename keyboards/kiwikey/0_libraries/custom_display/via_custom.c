@@ -7,8 +7,18 @@
 	#include "oled/oled_menu.h"
 #endif // defined(OLED_ENABLE)
 
+#if defined(QUANTUM_PAINTER_ENABLE)
+    #include "qp_graphics.h"
+	#include "qp/qp_menu.h"
+	// #include "qp/qp_ui.h"
+	// extern painter_device_t my_display;
+	// extern bool display_rotate_flag;
+#endif // defined(QUANTUM_PAINTER_ENABLE)
+
 void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
+	#if defined(OLED_ENABLE)
 	oled_on();
+	#endif // defined(OLED_ENABLE)
 	
 #if defined(CONSOLE_ENABLE)
 	dprintf("via_custom_value_command_kb: %d %d %d %d - %d %d - %d %d \n", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
@@ -80,6 +90,7 @@ void via_config_set_value( uint8_t *data )
         }
 
 		// OLED CONTROL
+		#if defined(OLED_ENABLE)
         case id_display_animation: {
 			eepdata.display_anim = *value_data;
 			sub_ui_clear(); // need to refresh SubUI when changing animation using VIA
@@ -89,6 +100,7 @@ void via_config_set_value( uint8_t *data )
 			eepdata.display_timeout = (*value_data + 1) * DISPLAY_TIMEOUT_STEP;
 			break;
 		}
+		#endif // defined(OLED_ENABLE)
 		
 		// SYSTEM CONTROL
 		case id_soft_reset: {

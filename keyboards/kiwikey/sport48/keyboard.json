@@ -67,9 +67,17 @@
     "split": {
 		"enabled": true,
         "soft_serial_pin": "B6",
+		"handedness": {
+			"pin": "B10"
+		}
 		"transport": {
-			"sync_matrix_state": true,
-			"sync_modifiers": true
+			"sync": {
+				"activity": true,
+				"layer_state": true,
+				"matrix_state": true,
+				"modifiers": true,
+				"wpm": true
+			}
 		}
         "bootmagic": {
             "matrix": [4, 0]

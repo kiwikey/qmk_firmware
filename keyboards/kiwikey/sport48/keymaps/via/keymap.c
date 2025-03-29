@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "qp_graphics.h"
+
+#if defined(QUANTUM_PAINTER_ENABLE)
+    #include "qp_graphics.h"	
+	#include "qp/qp_includes.h"
+	#include "qp/qp_menu.h"
+	painter_device_t my_display;
+#endif // defined(QUANTUM_PAINTER_ENABLE)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT_ortho_4x12(
@@ -40,10 +46,10 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif
 
-void keyboard_post_init_user(void) {
-    void keyboard_post_init_display(void);
-    keyboard_post_init_display();
-}
+// void keyboard_post_init_user(void) {
+    // void keyboard_post_init_display(void);
+    // keyboard_post_init_display();
+// }
 
 void housekeeping_task_user(void) {
     // Update kb_state so we can send to slave

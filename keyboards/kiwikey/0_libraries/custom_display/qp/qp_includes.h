@@ -1,8 +1,6 @@
 #ifndef QP_INCLUDES
 #define QP_INCLUDES
 
-#include "qp.h"
-
 /* FONTS */
 	extern painter_font_handle_t thintel;
 	extern painter_font_handle_t roboto20;

@@ -70,8 +70,8 @@ void keyboard_post_init_kb(void) {
 	#endif // defined(SWAP_HANDS_ENABLE)
 		
 	#if defined(BACKLIGHT_ENABLE)
-	backlight_enable(); // TFT backlight
-	backlight_level(eepdata.display_brightness);
+		backlight_enable(); // TFT backlight
+		backlight_level(eepdata.display_brightness);
 	#endif // defined(BACKLIGHT_ENABLE)
 	
 	#if defined(QUANTUM_PAINTER_ENABLE)

@@ -1,5 +1,6 @@
 #if defined(QUANTUM_PAINTER_ENABLE)
 
+#include "qp.h"
 #include "qp_includes.h"
 
 /* FONTS */

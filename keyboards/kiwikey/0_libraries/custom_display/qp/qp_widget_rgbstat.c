@@ -26,6 +26,7 @@ void widget_rgb_init(void) {
 }
 
 void widget_rgb_render(void) {
+	#if defined(RGB_MATRIX_ENABLE)
     char buf1[50] = {0};
     if (rgb_matrix_is_enabled()) {
         sprintf(buf1, "#%.2u", rgb_matrix_get_mode());
@@ -44,6 +45,7 @@ void widget_rgb_render(void) {
     // char buf2[50] = {0};
     // sprintf(buf2, "Color:  %u-%u-%u", rgb_matrix_get_hue(), rgb_matrix_get_sat(), rgb_matrix_get_val());
     // qp_drawtext(my_display, 0, 220, roboto20, buf2);
+	#endif // defined(RGB_MATRIX_ENABLE)
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)
