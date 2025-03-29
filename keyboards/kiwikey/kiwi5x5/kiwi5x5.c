@@ -90,6 +90,7 @@ void keyboard_post_init_kb(void) {
 		qp_rect(my_display, 0, 0, 239, 239, HSV_BLACK, true); // Fill screen by black color
 		qp_init_load_files();
 		ui_refresh();
+		qp_drawtext_recolor(my_display, 0, ST7789_HEIGHT-thintel->line_height-5, thintel, " - Kiwi5x5 by KiwiKey - ", HSV_WHITE, UI_COLOR_BACKGROUND);
 	#endif // defined(QUANTUM_PAINTER_ENABLE)
 
     keyboard_post_init_user();
@@ -116,9 +117,7 @@ bool encoder_update_kb(uint8_t index, bool clockwise) { // Rotating
 #if defined(QUANTUM_PAINTER_ENABLE)
 //----------------------------------------------------------
 // UI Placeholder, implemented in themes
-
 // __attribute__((weak)) bool display_task_kb(void) {}
-
 void housekeeping_task_kb(void) {
 	display_task_kb(); // works as oled_task_kb(), but for QP
 }

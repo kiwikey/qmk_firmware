@@ -1,6 +1,3 @@
-// Copyright 2023 QMK
-// SPDX-License-Identifier: GPL-2.0-or-later
-
 #include QMK_KEYBOARD_H
 
 #if defined(QUANTUM_PAINTER_ENABLE)
@@ -51,10 +48,10 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     // keyboard_post_init_display();
 // }
 
-void housekeeping_task_user(void) {
+// void housekeeping_task_user(void) {
     // Update kb_state so we can send to slave
     // theme_state_update();
 
     // Data sync from master to slave
     // theme_state_sync();
-}
+// }

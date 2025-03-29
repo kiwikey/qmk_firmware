@@ -1,6 +1,8 @@
 #ifndef _DEFINES
 #define _DEFINES
 
+/*** Definitions of (almost) all positions, colors, texts,... ***/
+
 #define UI_COLOR_BACKGROUND     HSV_BLACK
 #define UI_COLOR_SHADOW         0, 0, 100
 #define UI_COLOR_TEXT_H1        HSV_BLACK

@@ -17,7 +17,7 @@
 #include "qp/qp_menu.h"
 
 bool display_rotate_flag  = false;
-bool is_display_on         = false;
+bool is_display_on        = false;
 // bool rgboff_flag   = false;
 
 void ui_refresh(void) { // TODO: move to 'qp_ui.c'
@@ -34,8 +34,6 @@ void ui_refresh(void) { // TODO: move to 'qp_ui.c'
 	
 	widget_encoder_init();
 	widget_encoder_render();
-	
-	qp_drawtext_recolor(my_display, 0, ST7789_HEIGHT-thintel->line_height-5, thintel, " - Kiwi5x5 by KiwiKey - ", HSV_WHITE, UI_COLOR_BACKGROUND);
 	
 	// switch (eepdata.display_anim) {
 		// case 0:

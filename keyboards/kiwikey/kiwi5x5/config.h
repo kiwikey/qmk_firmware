@@ -17,8 +17,8 @@
 	/*** SPI DRIVER DEFINITIONS ***/
 	#define SPI_DRIVER        SPID2
 	#define SPI_SCK_PIN       B13 // SCK
-	#define SPI_MOSI_PIN      B15 // MOSI
-	#define SPI_MISO_PIN      B14 // MISO
+	#define SPI_MOSI_PIN      B15 // MOSI = TFT's SDA
+	#define SPI_MISO_PIN      B14 // MISO = TFT's RESET
 	#define SPI_SCK_PAL_MODE  5
 	#define SPI_MOSI_PAL_MODE 5
 	#define SPI_MISO_PAL_MODE 5
@@ -47,6 +47,5 @@
 	#define BACKLIGHT_PWM_DRIVER    PWMD5  // Use TIM5_CH2 of pin PA1 for dimming TFT's brightness
 	#define BACKLIGHT_PWM_CHANNEL   2
 	#define BACKLIGHT_PAL_MODE      2      // PA1's alternate function 2 is TIM5_CH2
-	// #define BACKLIGHT_LEVELS        10  // already defined in 'info.json'
 	#define BACKLIGHT_DEFAULT_LEVEL 10
 #endif // defined(BACKLIGHT_ENABLE)
