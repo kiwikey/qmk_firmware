@@ -1,21 +1,13 @@
 QUANTUM_PAINTER_DRIVERS += st7789_spi
 SEND_STRING_ENABLE = yes
 SERIAL_DRIVER = usart
+RAW_ENABLE = yes
 
 VPATH += keyboards/kiwikey/0_libraries/custom_display
 
 SRC += \
-	rgb_matrix_name.c \
-    qp_graphics.c     \
-	via_custom.c      \
-	qp/qp_custom_api.c     \
-	qp/qp_includes.c       \
-	qp/qp_menu.c           \
-	qp/qp_widget_layer.c   \
-	qp/qp_widget_matrix.c  \
-	qp/qp_widget_rgbstat.c \
-	qp/qp_widget_encoder.c
-		# encoder.c         \
+	via_custom.c \
+	qp/qp_includes.c
 
 # FONTS
 SRC += \

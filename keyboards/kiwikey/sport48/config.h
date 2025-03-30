@@ -38,7 +38,7 @@
 	#define QUANTUM_PAINTER_LOAD_FONTS_TO_RAM	FALSE	//Whether or not fonts should be loaded to RAM. Relevant for fonts stored in off-chip persistent storage, such as external flash.
 	#define QUANTUM_PAINTER_PIXDATA_BUFFER_SIZE	1024	//The limit of the amount of pixel data that can be transmitted in one transaction to the display. Higher values require more RAM on the MCU.
 	#define QUANTUM_PAINTER_SUPPORTS_256_PALETTE	FALSE	//If 256-color palettes are supported. Requires significantly more RAM on the MCU.
-	#define QUANTUM_PAINTER_DEBUG	unset	//Prints out significant amounts of debugging information to CONSOLE output. Significant performance degradation, use only for debugging.
+	#define QUANTUM_PAINTER_DEBUG	FALSE	//Prints out significant amounts of debugging information to CONSOLE output. Significant performance degradation, use only for debugging.
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 #if defined(BACKLIGHT_ENABLE)

@@ -9,7 +9,7 @@
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT_ortho_4x12(
-		KC_ESC,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
+		QK_BOOT, KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
 		KC_TAB,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_ENT,
 		KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_UP,   KC_RSFT ,
 		KC_LCTL, KC_LGUI, KC_LALT, KC_APP,  MO(1),   KC_SPC, KC_MUTE,     RGB_TOG, KC_SPC,  MO(2),   KC_RALT, KC_LEFT, KC_DOWN, KC_RGHT
@@ -42,16 +42,3 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [3] = { ENCODER_CCW_CW( _______, _______ ), ENCODER_CCW_CW( _______, _______ ) }
 };
 #endif
-
-// void keyboard_post_init_user(void) {
-    // void keyboard_post_init_display(void);
-    // keyboard_post_init_display();
-// }
-
-// void housekeeping_task_user(void) {
-    // Update kb_state so we can send to slave
-    // theme_state_update();
-
-    // Data sync from master to slave
-    // theme_state_sync();
-// }
