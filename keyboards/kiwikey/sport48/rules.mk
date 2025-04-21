@@ -1,7 +1,7 @@
 QUANTUM_PAINTER_DRIVERS += st7789_spi
+QUANTUM_PAINTER_LVGL_INTEGRATION = yes
 SEND_STRING_ENABLE = yes
 SERIAL_DRIVER = usart
-RAW_ENABLE = yes
 
 VPATH += keyboards/kiwikey/0_libraries/custom_display
 

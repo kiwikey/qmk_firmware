@@ -108,11 +108,11 @@ void via_config_set_value( uint8_t *data )
 			break;
 		}
 		case id_factory_reset: {
-			action_factoryreset();
+			// action_factoryreset();
 			break;
 		}
 		case id_reset_to_dfu: {
-			action_resettodfu();
+			// action_resettodfu();
 			break;
 		}
     }

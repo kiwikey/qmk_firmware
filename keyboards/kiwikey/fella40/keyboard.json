@@ -18,8 +18,7 @@
         "encoder": true,
         "extrakey": true,
         "mousekey": true,
-        "nkro": true,
-        "lto": true
+        "nkro": true
     },
     "diode_direction": "COL2ROW",
     "matrix_pins": {
@@ -28,10 +27,10 @@
     },
     "rgblight": {
         "led_count": 14,
-        "pin": "F0",
+		"driver": "ws2812",
         "hue_steps": 10,
         "saturation_steps": 10,
-        "brightness_steps": 20,
+        "brightness_steps": 10,
 		"sleep": true,
         "animations": {
             "alternating": true,
@@ -45,6 +44,12 @@
             "static_gradient": true,
             "twinkle": true
         }
+		"default": {
+			"animation": "rainbow_swirl"
+		}
+    },
+    "ws2812": {
+        "pin": "F0"
     },
     "encoder": {
         "rotary": [

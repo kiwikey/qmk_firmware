@@ -2,6 +2,8 @@
     "keyboard_name": "Sofle",
     "features": {
         "bootmagic": true,
+		"console": true,
+		"command": false,
         "extrakey": true,
         "mousekey": true,
         "nkro": true,
@@ -12,7 +14,7 @@
         "lto": true
     },
     "usb": {
-        "vid": "0xFC32"
+        "vid": "0x4B57"
     },
     "diode_direction": "COL2ROW",
     "qmk": {

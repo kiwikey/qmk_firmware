@@ -3,19 +3,26 @@
 #include "color.h"
 #include "spi_master.h"
 #include "raw_hid.h"
+#include "via.h"
 
 #include "eeprom_custom.h"
+
+#include "graphics/lvgl.h"
+#include "graphics/display.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
     #include "qp_graphics.h"	
 	#include "qp/qp_includes.h"
 	#include "qp/qp_menu.h"
 	painter_device_t my_display;
+	bool qp_lvgl_attach(painter_device_t device);
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 #if defined(CONSOLE_ENABLE)
     #include "print.h"
 #endif // defined(CONSOLE_ENABLE)
+
+void init_render(void);
 
 EEPROM_CUSTOM_DATA eepdata;
 EEPROM_CUSTOM_DATA eepdata_default = {
@@ -73,6 +80,7 @@ void keyboard_post_init_kb(void) {
 		);
 		// qp_init(my_display, eepdata.display_rotation);
 		qp_init(my_display, QP_ROTATION_90);
+		// qp_set_viewport_offsets(my_display, 50, 50);
 		qp_power(my_display, true);
 		qp_clear(my_display);
 		qp_rect(my_display, 0, 0, 239, 239, HSV_BLACK, true); // Fill screen by black color
@@ -81,7 +89,7 @@ void keyboard_post_init_kb(void) {
 		qp_drawtext_recolor(my_display, 0, ST7789_HEIGHT-thintel->line_height-5, thintel, " - Sport48 by KiwiKey - ", HSV_WHITE, UI_COLOR_BACKGROUND);
 	#endif // defined(QUANTUM_PAINTER_ENABLE)
 	
-	print("- Init done! \n");
+	init_render();
 	
     keyboard_post_init_user();
 }
@@ -105,55 +113,29 @@ void housekeeping_task_kb(void) {
 }
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
+void init_render(void) {
+	char buf1[24] = {0};
+	qp_drawtext(my_display, 0, 0, thintel, "0123456789123456789");
+	sprintf(buf1,"QP:     %s",QUANTUM_PAINTER_ENABLE?"ON":"OFF");
+	qp_drawtext(my_display, 0, 20, thintel, buf1);
+	sprintf(buf1,"Dim:    %dx%d",qp_get_width(my_display),qp_get_height(my_display));
+	qp_drawtext(my_display, 0, 40, thintel, buf1);
+	sprintf(buf1,"Rot:    %d", qp_get_rotation(my_display)*90);
+	qp_drawtext(my_display, 0, 60, thintel, buf1);
+	sprintf(buf1,"Offset: %d,%d", qp_get_offset_x(my_display), qp_get_offset_y(my_display));
+	qp_drawtext(my_display, 0, 80, thintel, buf1);
+	
+	print("- Init done! \n");
+}
 
-void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
-// void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
-	// Create data array, size 64 bytes, and fill with 0x00 (to avoid weird data)
-	
-	// uint8_t dataHIDhandshake[64];
-	// uint8_t dataHIDlayout[64];
-	// for (int i = 0; i < 64; i++) {
-		// dataHIDhandshake[i] = 0x00;
-		// dataHIDlayout[i] = 0x00;
-	// }
+bool gfx_task_kb(void) {
+    static bool initialized = false;
+    if (!initialized) {
+        lv_obj_t *label = lv_label_create(lv_scr_act());
+        lv_label_set_text(label, "Hello World!");
+        lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+        initialized = true;
+    }
 
-	char buf1[32] = {0};
-	for (uint8_t i = 0; i<12; i++) {
-		sprintf(buf1, "%d", data[i]);
-		qp_drawtext(my_display, 10+i*16, 0, thintel, buf1);
-	}
-	for (uint8_t i = 0; i<12; i++) {
-		sprintf(buf1, "%d", data[i+12]);
-		qp_drawtext(my_display, 10+i*16, 20, thintel, buf1);
-	}
-	for (uint8_t i = 0; i<12; i++) {
-		sprintf(buf1, "%d", data[i+12+12]);
-		qp_drawtext(my_display, 10+i*16, 40, thintel, buf1);
-	}
-	
-	for (uint8_t i = 0; i<32; i++) {
-		uprintf("%d-", data[i]);
-	}
-	printf("\n");
-	
-	uint8_t dataHIDhandshake[32] = {0xaa,0xcc,0x55,'z','y'};
-	raw_hid_send(dataHIDhandshake, length);
-	
-	// Define response package
-	// dataHIDhandshake[0] = 0xAA;
-	// for (int i = 1; i <= 9; i++) {
-		// dataHIDlayout[i] = i+5;
-	// }
-	
-	// if (data[0] == 0x55) {
-		// raw_hid_send(dataHIDhandshake, length);		// If receive 0x55, confirm handshake
-		// rgblight_step();
-	// }
-	// if (data[0] == 0x69) {
-		// raw_hid_send(dataHIDlayout, length);		// If receive 0x69, send layout
-		// rgblight_step();
-	// }
-	// else {
-		// raw_hid_send(data, length);					// Or else, just echo what received
-	// }
+    return false; // Let QMK call gfx_task_user next
 }
