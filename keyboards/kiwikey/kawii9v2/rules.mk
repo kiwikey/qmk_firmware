@@ -12,7 +12,6 @@ SRC += \
 	oled/oled_menu.c       \
 	oled/oled_key_matrix.c
 
-
 # AVR firmware size reducing
 SPACE_CADET_ENABLE = no
 GRAVE_ESC_ENABLE = no 
