@@ -1,3 +1,6 @@
+sofle_rev1_via_20250606b:
++ Thêm 16 LEDs (mỗi bên 8 LEDs)
+
 sofle_rev1_via_20241101:
 + Chuyển handedness sang #define SPLIT_HAND_PIN D4
 

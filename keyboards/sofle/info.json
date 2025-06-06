@@ -6,7 +6,8 @@
         "mousekey": true,
         "nkro": true,
         "encoder": true,
-        "oled": true
+        "oled": true,
+		"rgblight": true
     },
     "build": {
         "lto": true
@@ -33,9 +34,22 @@
         "pin": "D3"
     },
     "rgblight": {
-        "led_count": 72,
-        "split_count": [36, 36],
-        "sleep": true
+        "led_count": 16,
+        "split_count": [8, 8],
+		"max_brightness": 255,
+        "sleep": true,
+        "animations": {
+            "breathing": true,
+            "rainbow_mood": true,
+            "rainbow_swirl": true,
+            "snake": true,
+            "knight": true,
+            "christmas": false,
+            "static_gradient": false,
+            "rgb_test": false,
+            "alternating": false,
+            "twinkle": false
+        }
     },
     "rgb_matrix": {
         "driver": "ws2812",
