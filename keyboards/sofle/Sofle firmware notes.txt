@@ -1,0 +1,7 @@
+sofle_rev1_via_20241101:
++ Chuyển handedness sang #define SPLIT_HAND_PIN D4
+
+sofle_rev1_via_20240927:
++ Thêm #define EE_HANDS, khi nạp firmware cần nạp file eeprom left/right cho từng bên
+-> Thêm cài đặt Bootmagic (do có EE_HANDS nên phải có cài đặt này)
++ Thêm vài cài đặt cho MouseKey (copy từ reddit)
