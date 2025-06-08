@@ -1,3 +1,6 @@
+sofle_rev1_via_20250608:
++ Hotfix RGBLight startup sync process, by editing "qmk_firmware\quantum\rgblight\rgblight.c" (line 505)
+
 sofle_rev1_via_20250606b:
 + Thêm 16 LEDs (mỗi bên 8 LEDs)
 

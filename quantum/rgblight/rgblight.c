@@ -502,7 +502,8 @@ void rgblight_sethsv_noeeprom_old(uint8_t hue, uint8_t sat, uint8_t val) {
 }
 
 void rgblight_sethsv_eeprom_helper(uint8_t hue, uint8_t sat, uint8_t val, bool write_to_eeprom) {
-    if (rgblight_config.enable) {
+    // if (rgblight_config.enable) {
+	if (1) {
 #ifdef RGBLIGHT_SPLIT
         if (rgblight_config.hue != hue || rgblight_config.sat != sat || rgblight_config.val != val) {
             RGBLIGHT_SPLIT_SET_CHANGE_HSVS;
