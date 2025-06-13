@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "2.0.241001"
+#define FW_VERSION "2.0.250613"
 
 #if defined(CONSOLE_ENABLE)
 	#define DEBUG_MATRIX_SCAN_RATE

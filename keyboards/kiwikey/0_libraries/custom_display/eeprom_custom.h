@@ -1,7 +1,13 @@
 #ifndef EEPROM_CUSTOM
 #define EEPROM_CUSTOM
 #pragma once
+
+#define EEPROM_SIZE 1024 // TODO: re-check this
+
 #include "quantum.h"
+#include "eeprom.h"
+#include "nvm_eeprom_via_internal.h"
+#include "nvm_eeprom_eeconfig_internal.h"
 
 typedef struct {
 	uint8_t active_layer;
