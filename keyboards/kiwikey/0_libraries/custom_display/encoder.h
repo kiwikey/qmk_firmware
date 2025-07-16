@@ -3,7 +3,7 @@
 
 #include "quantum.h"
 
-#define ENCODER_FUNC_MAX 4
+#define ENCODER_FUNC_MAX 5
 #define ENCODER_TAP_FN   SS_TAP(X_MUTE)
 
 /*** Encoder's rotating uses ***/
@@ -16,14 +16,18 @@
 #define ENCODER_FN3_CW  KC_DOWN
 #define ENCODER_FN3_CCW KC_UP
 
-#define ENCODER_FN4_CW  KC_BRIU
-#define ENCODER_FN4_CCW KC_BRID
+#define ENCODER_FN4_CW  MS_WHLU // Mouse wheel up
+#define ENCODER_FN4_CCW MS_WHLD // Mouse wheel down
+
+#define ENCODER_FN5_CW  KC_BRIU
+#define ENCODER_FN5_CCW KC_BRID
 
 static const char * const encoder_func_name[ENCODER_FUNC_MAX+1] = {
 	"    disabled    ",
 	"    - VOL +     ",
 	"  SCROLL (fast) ",
 	"  SCROLL (slow) ",
+	"  Mouse Scroll  ",
 	" - BRIGHTNESS + "
 };
 
@@ -32,6 +36,7 @@ static const char * const encoder_func_shortname[ENCODER_FUNC_MAX+1] = {
 	"VOL",
 	"SCR",
 	"SCR",
+	"MOU",
 	"BRT"
 };
 

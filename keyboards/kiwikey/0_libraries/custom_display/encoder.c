@@ -152,6 +152,9 @@ bool process_encoder_rotate(uint8_t index, bool clockwise) { // Rotating only, n
 				case 4:
 					tap_code(ENCODER_FN4_CW);
 					break;
+				case 5:
+					tap_code(ENCODER_FN5_CW);
+					break;
 				default:
 					break;
 			}
@@ -173,6 +176,9 @@ bool process_encoder_rotate(uint8_t index, bool clockwise) { // Rotating only, n
 					break;
 				case 4:
 					tap_code(ENCODER_FN4_CCW);
+					break;
+				case 5:
+					tap_code(ENCODER_FN5_CCW);
 					break;
 				default:
 					break;
