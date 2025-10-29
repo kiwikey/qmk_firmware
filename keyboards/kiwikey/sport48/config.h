@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "2025.03.29_01"
+#define FW_VERSION "2025.10.29_01"
 
 #if defined(CONSOLE_ENABLE)
 	// #define DEBUG_MATRIX_SCAN_RATE
