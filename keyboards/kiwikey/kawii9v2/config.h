@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "2.0.250716"
+#define FW_VERSION "2.0.251208"
 
 #if defined(CONSOLE_ENABLE)
 	#define DEBUG_MATRIX_SCAN_RATE
@@ -14,6 +14,8 @@
 #define OLED_DISPLAY_128X64
 #define OLED_TIMEOUT 0 // the OLED timeout is manually controlled by custom firmware
 #define OLED_FONT_H "../0_libraries/custom_display/oled/glcdfont.c"
+
+#define ENCODER_DIRECTION_FLIP
 
 // AVR firmware size reducing
 #define NO_ACTION_ONESHOT      // 636 bytes

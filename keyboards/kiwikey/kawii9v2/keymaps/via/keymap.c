@@ -48,9 +48,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX       // Encoder 2
     ),
     [_MOUSE] = LAYOUT(
-        KC_BTN1,   KC_MS_U,   KC_BTN2,
-        KC_MS_L,   KC_BTN1,   KC_MS_R,
-        MO(_RGB),  KC_MS_D,   XXXXXXX,
+        MS_BTN1,   MS_UP,     MS_BTN2,
+        MS_LEFT,   MS_BTN1,   MS_RGHT,
+        MO(_RGB),  MS_DOWN,   XXXXXXX,
         TD(_TD_MENU), // Encoder 1
         XXXXXXX       // Encoder 2
     ),
@@ -69,9 +69,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX       // Encoder 2
     ),
     [_RGB] = LAYOUT(
-        RGB_TOG,   RGB_RMOD,  RGB_MOD,    // RGB On/Off - Next mode - Prev mode
-        XXXXXXX,   RGB_HUD,   RGB_HUI,    //              Change "base" color
-        XXXXXXX,   RGB_VAD,   RGB_VAI,    //              Change brightness
+        UG_TOGG,   UG_PREV,   UG_NEXT,    // RGB On/Off - Prev mode - Next mode
+        XXXXXXX,   UG_HUED,   UG_HUEU,    //              Change "base" color
+        XXXXXXX,   UG_VALD,   UG_VALU,    //              Change brightness
         TD(_TD_MENU), // Encoder 1
         XXXXXXX       // Encoder 2
     )
