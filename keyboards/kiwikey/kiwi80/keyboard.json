@@ -3,10 +3,21 @@
     "manufacturer": "KiwiKey",
     "url": "https://kiwikey.vn/...",
     "maintainer": "KiwiKey",
+	"processor": "atmega32u4",
+    "bootloader": "atmel-dfu",
     "usb": {
         "vid": "0x4B57",
         "pid": "0x0080",
         "device_version": "0.0.1"
+    },
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+		"nkro": true,
+		"rgblight": true
     },
     "matrix_pins": {
         "cols": ["B3", "B2", "B1", "D2", "D7", "B4", "B5", "B6", "C6", "C7", "F7", "F6", "F5", "F4", "F1", "F0", "E6"],
@@ -16,11 +27,23 @@
     "qmk": {
         "tap_keycode_delay": 10
     },
+    "ws2812": {
+        "pin": "B7"
+    },
+    "indicators": {
+        "caps_lock":   "D0",
+		"num_lock":    "D2",
+		"scroll_lock": "D1",
+        "on_state": 1
+    },
     "rgblight": {
+        "led_count": 24,
+		"driver": "ws2812",
+		"sleep": true,
+		"max_brightness": 240,
+        "hue_steps": 8,
         "saturation_steps": 8,
         "brightness_steps": 8,
-		"max_brightness": 192,
-        "led_count": 24,
         "animations": {
             "breathing": true,
             "rainbow_mood": true,
@@ -33,12 +56,10 @@
             "alternating": true,
             "twinkle": true
         }
+		"default": {
+			"animation": "rainbow_swirl"
+		}
     },
-    "ws2812": {
-        "pin": "B7"
-    },
-    "processor": "atmega32u4",
-    "bootloader": "atmel-dfu",
     "layouts": {
         "LAYOUT": {
             "layout": [
@@ -138,7 +159,7 @@
                 {"label":"Left", "x":15.25, "y":5.25, "matrix": [5, 14]},
                 {"label":"Down", "x":16.25, "y":5.25, "matrix": [5, 15]},
                 {"label":"Right", "x":17.25, "y":5.25, "matrix": [5, 16]}
-            ]
+			]
         }
     }
 }
