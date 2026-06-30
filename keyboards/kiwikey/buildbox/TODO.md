@@ -1,0 +1,1 @@
+Magnetic encoder is using I2C_TIMEOUT_INFINITE for writing and reading AS5600, take a look at this to see potential problems.
