@@ -4,6 +4,7 @@
 #include "qp_widget_matrix.h"
 #include "../qp_custom_api.h"
 #include "../defines.h"
+#include "keycodes_list.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 	#include "display/qp_includes.h"
@@ -44,26 +45,30 @@ void widget_matrix_init(void) {
 }
 
 void widget_matrix_keymap_render(void) {
-	uint16_t keycode[16];
+	// uint16_t keycode[16];
 	char buf1[4] = {0};
 	
-	for (uint8_t i = 0;  i < MATRIX_ROWS; i++) {
-		for (uint8_t j = 0;  j < MATRIX_COLS; j++) {
-			keycode[i*4+j] = dynamic_keymap_get_keycode(0, i, j);
-		}
-	}
+	// for (uint8_t i = 0;  i < MATRIX_ROWS; i++) {
+		// for (uint8_t j = 0;  j < MATRIX_COLS; j++) {
+			// keycode[i*4+j] = dynamic_keymap_get_keycode(0, i, j);
+		// }
+	// }
 	
-	// uint8_t x_offset = WIDGET_MATRIX_POSX;
-	// uint8_t y_offset = WIDGET_MATRIX_POSY;
-	// printf("keycode = [");
+	uint8_t x_offset = WIDGET_MATRIX_POSX + WIDGET_MATRIX_KEY_WIDTH/2;
+	uint8_t y_offset = WIDGET_MATRIX_POSY + WIDGET_MATRIX_KEY_HEIGHT/2;
+	
 	for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
 		for (uint8_t j = 0;  j < MATRIX_COLS; j++) {
 			// printf("%d - ", keycode[i*4+j]); // debug print
-			sprintf(buf1, "%c", keycode[i*4+j] + 61); // "A" is 0x04, convert to ASCII character by +61
-			qp_drawtext(my_display, j*45 + 25, i*45 + 20, roboto20, buf1);
+			// sprintf(buf1, "%s", keycode[i*4+j] + 61); // "A" is 0x04, convert to ASCII character by +61
+			sprintf(buf1, "%s", keycode_to_string(dynamic_keymap_get_keycode(0, i, j)));
+			qp_drawtext(my_display,
+						j* (WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + x_offset - roboto20->line_height/4,
+						i* (WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + y_offset - roboto20->line_height/2,
+						roboto20,
+						buf1);
 		}
 	}
-	// printf("] \n");
 }
 
 void widget_matrix_update(uint8_t col, uint8_t row) {
@@ -83,6 +88,17 @@ void widget_matrix_update(uint8_t col, uint8_t row) {
 				true);
 	}
 	#endif /* SWAP_HANDS_ENABLE */
+}
+
+char *keycode_to_string(enum qk_keycode_defines kc)
+{
+    switch (kc) {
+#define X(keycode, hex, str) case keycode: return str;
+        KEYCODE_LIST;
+#undef X
+    default:
+        return "UNKNOWN";
+    }
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)

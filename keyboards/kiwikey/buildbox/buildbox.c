@@ -46,9 +46,13 @@ void keyboard_post_init_kb(void) {
     display_init();
 	
 	widget_matrix_init();
-	// widget_layer_init();
+	widget_layer_init();
 	widget_knob_init();
 	
+	// debug_enable=true;
+	// debug_matrix=true;
+	// debug_keyboard=true;
+	// debug_mouse=true;
 	keyboard_post_init_user();
 }
 
@@ -56,37 +60,29 @@ void housekeeping_task_kb(void) {
 	// char buf1[50] = {0};
 	// sprintf(buf1, "%d - %d - %d", data[0], data[1], data[2]);
 	// qp_drawtext(my_display, 0, 0, roboto20, buf1);
-	
-	// printf("VIA_EEPROM_MAGIC_ADDR         = %d \n", VIA_EEPROM_MAGIC_ADDR);
-	// printf("VIA_EEPROM_CUSTOM_CONFIG_ADDR = %d \n", VIA_EEPROM_CUSTOM_CONFIG_ADDR);
-	// printf("VIA_EEPROM_CUSTOM_CONFIG_SIZE = %d \n", VIA_EEPROM_CUSTOM_CONFIG_SIZE);
-	// printf("DYNAMIC_KEYMAP_EEPROM_ADDR    = %d \n", DYNAMIC_KEYMAP_EEPROM_ADDR);
 }
 
 void magnetic_encoder_update_user(magnetic_encoder_kind_t magnetic_encoder, bool direction) {
-	int16_t angle = as5600read_angle();
-	int16_t angle100 = angle/41;
+	// int16_t angle = as5600read_angle();
+	// int16_t angle100 = angle/41;
 	// int16_t angle360 = angle/(4096/360);
 	
 	// printf("+ direction = %s \n", direction? "DOWN" : "UP");
 	// printf("+ get_distance = %u \n", get_distance(magnetic_encoder));
 	// printf("+ get_movement = %u \n", get_movement(100, magnetic_encoder));
-	
-	// if (direction)
-		// SEND_STRING(SS_TAP(X_VOLU));
-	// else
-		// SEND_STRING(SS_TAP(X_VOLD));
-	
-	// char buf1[50] = {0}, buf2[50] = {0}, buf3[50] = {0};
-	// sprintf(buf1, "Angle %4d = %2d/100", angle, angle100);
-	// qp_drawtext(my_display, 0, 0, roboto20, buf1);
-	// sprintf(buf2, "Rad %5d", rad);
-	// qp_drawtext(my_display, 0, 20, roboto20, buf2);
-	// sprintf(buf3, "[%d,%d]", sin8(200), cos8(200));
-	// qp_drawtext(my_display, 0, 40, roboto20, buf3);
 
-	printf("--- DATA --- \n");
-	printf("Angle = %4d - %2d/100 \n", angle, angle100);
-	// printf("[%d,%d] \n", sin8(200), cos8(200));
-	// printf("[%d,%d] \n", sin8(), cos8(3.14/6*255));
+	printf("--- DATA1 --- \n");
+	for (uint8_t i = 0;  i < MATRIX_ROWS; i++) {
+		for (uint8_t j = 0;  j < MATRIX_COLS; j++) {
+			printf("  %s  ", get_keycode_string(dynamic_keymap_get_keycode(0, i, j)));
+		}
+		printf("\n");
+	}
+	printf("--- DATA2 --- \n");
+	for (uint8_t i = 0;  i < MATRIX_ROWS; i++) {
+		for (uint8_t j = 0;  j < MATRIX_COLS; j++) {
+			printf("  %s  ", keycode_to_string(dynamic_keymap_get_keycode(0, i, j)));
+		}
+		printf("\n");
+	}
 }
