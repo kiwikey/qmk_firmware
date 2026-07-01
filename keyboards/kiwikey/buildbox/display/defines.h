@@ -30,9 +30,9 @@
 
 static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	"Default",
-	" User1 ",
-	" User2 ",
-	"Configs"
+	"Layer 1",
+	"Layer 2",
+	"Macros "
 };
 
 #endif /* _DEFINES */
