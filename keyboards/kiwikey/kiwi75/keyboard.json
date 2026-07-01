@@ -7,10 +7,8 @@
     "usb": {
         "vid": "0x4B57",
         "pid": "0x0075",
-        "device_version": "1.1.0",
-        "suspend_wakeup_delay": 0
+        "device_version": "1.1.0"
     },
-    
     "features": {
         "bootmagic": true,
         "command": false,
@@ -19,6 +17,12 @@
         "extrakey": true,
         "mousekey": true,
 		"rgblight": true
+    },
+    "qmk": {
+        "locking": {
+            "enabled": true,
+            "resync": true
+        }
     },
     "diode_direction": "COL2ROW",
     "matrix_pins": {

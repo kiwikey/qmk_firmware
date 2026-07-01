@@ -15,39 +15,47 @@ enum tap_dance_kc {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT_ortho_5x5(
-		KC_NUM,  KC_PSLS,   KC_PAST,  KC_PMNS, MO(1),
-		KC_7,    KC_8,      KC_9,     KC_PPLS, MO(2),
-		KC_4,    KC_5,      KC_6,     KC_PENT, MO(3),
-        KC_1,    KC_2,      KC_3,     KC_UP,   KC_MUTE,
-        KC_0,    KC_KP_DOT, KC_LEFT,  KC_DOWN, KC_RIGHT,
+		KC_NUM,  KC_PSLS,   KC_PAST,  KC_PMNS, MO(1),XXXXXXX,
+		KC_P7,   KC_P8,     KC_P9,    KC_PPLS, MO(2),XXXXXXX,
+		KC_P4,   KC_P5,     KC_P6,    KC_PENT, MO(3),XXXXXXX,
+        KC_P1,   KC_P2,     KC_P3,    KC_UP,   KC_MUTE,XXXXXXX,
+        KC_P0,   KC_PDOT,   KC_LEFT,  KC_DOWN, KC_RIGHT,
 		TD(_TD_MENU) // Encoder
     ),
     [1] = LAYOUT_ortho_5x5(
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        SH_ON,   SH_OFF,  KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		TD(_TD_MENU) // Encoder
     ),
     [2] = LAYOUT_ortho_5x5(
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		TD(_TD_MENU) // Encoder
     ),
     [3] = LAYOUT_ortho_5x5(
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,XXXXXXX,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		TD(_TD_MENU) // Encoder
     )
 };
 
+
+const keypos_t PROGMEM hand_swap_config[MATRIX_ROWS][MATRIX_COLS] = { // Rotate 90 degree
+	{  {0, 5}, {0, 4}, {0, 3}, {0, 2}, {0, 1}, {0, 0} },
+	{  {1, 5}, {1, 4}, {1, 3}, {1, 2}, {1, 1}, {1, 0} },
+	{  {2, 5}, {2, 4}, {2, 3}, {2, 2}, {2, 1}, {2, 0} },
+	{  {3, 5}, {3, 4}, {3, 3}, {3, 2}, {3, 1}, {3, 0} },
+	{  {4, 5}, {4, 4}, {4, 3}, {4, 2}, {4, 1}, {4, 0} },
+};
 
 /*** TAP-DANCE THINGS ***/
 #if defined(TAP_DANCE_ENABLE)

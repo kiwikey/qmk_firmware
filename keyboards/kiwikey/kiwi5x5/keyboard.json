@@ -52,6 +52,11 @@
         "max_brightness": 240,
         "val_steps": 12,
         "sleep": true,
+		"default": {
+			"on": true,
+			"val": 168,
+			"animation": "cycle_up_down"
+		}
         "animations": {
 			"solid_color": true,
 			"alpha_mods": true,
@@ -141,9 +146,6 @@
 			{ "flags": 4, "x": 64, "y": 180, "matrix": [4, 4] }
         ]
     },
-	"default": {
-		"animation": "cycle_up_down"
-	}
     "layouts": {
         "LAYOUT_ortho_5x5": {
             "layout": [
@@ -152,24 +154,28 @@
 				{ "matrix": [0, 2], "x": 0, "y": 2 },
 				{ "matrix": [0, 3], "x": 0, "y": 3 },
 				{ "matrix": [0, 4], "x": 0, "y": 4 },
+				{ "matrix": [0, 5], "x": 0, "y": 5 },
 
 				{ "matrix": [1, 0], "x": 1, "y": 0 },
 				{ "matrix": [1, 1], "x": 1, "y": 1 },
 				{ "matrix": [1, 2], "x": 1, "y": 2 },
 				{ "matrix": [1, 3], "x": 1, "y": 3 },
 				{ "matrix": [1, 4], "x": 1, "y": 4 },
+				{ "matrix": [1, 5], "x": 1, "y": 5 },
 
 				{ "matrix": [2, 0], "x": 2, "y": 0 },
 				{ "matrix": [2, 1], "x": 2, "y": 1 },
 				{ "matrix": [2, 2], "x": 2, "y": 2 },
 				{ "matrix": [2, 3], "x": 2, "y": 3 },
 				{ "matrix": [2, 4], "x": 2, "y": 4 },
+				{ "matrix": [2, 5], "x": 2, "y": 5 },
 
 				{ "matrix": [3, 0], "x": 3, "y": 0 },
 				{ "matrix": [3, 1], "x": 3, "y": 1 },
 				{ "matrix": [3, 2], "x": 3, "y": 2 },
 				{ "matrix": [3, 3], "x": 3, "y": 3 },
 				{ "matrix": [3, 4], "x": 3, "y": 4 },
+				{ "matrix": [3, 5], "x": 3, "y": 5 },
 				
 				{ "matrix": [4, 0], "x": 4, "y": 0 },
 				{ "matrix": [4, 1], "x": 4, "y": 1 },

@@ -10,6 +10,7 @@
     #include "qp_graphics.h"	
 	#include "qp/qp_includes.h"
 	#include "qp/qp_menu.h"
+    #include "qp/qp_widget_matrix.h"
 	painter_device_t my_display;
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 

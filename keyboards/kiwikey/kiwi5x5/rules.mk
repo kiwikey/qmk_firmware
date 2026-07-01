@@ -1,5 +1,6 @@
 QUANTUM_PAINTER_DRIVERS += st7789_spi
 SEND_STRING_ENABLE = yes
+SWAP_HANDS_ENABLE = yes
 
 VPATH += keyboards/kiwikey/0_libraries/custom_display
 

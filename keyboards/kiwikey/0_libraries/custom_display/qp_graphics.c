@@ -57,6 +57,13 @@ bool display_task_kb(void) {
 	// char buf1[50] = {0};
 	// sprintf(buf1, "R=%2u  ", eepdata.display_rotation);
 	// qp_drawtext(my_display, 0, 0, roboto20, buf1);
+// #ifdef SWAP_HANDS_ENABLE
+	// uint8_t rot;
+	// if (is_swap_hands_on()) rot = 1;
+	// else rot =0;
+	// sprintf(buf1, "E=%2u  ", rot);
+	// qp_drawtext(my_display, 0, 10, roboto20, buf1);
+// #endif /* SWAP_HANDS_ENABLE */
 	
 	/* Manually turn off OLED, if OLED timeout reached & not "Always ON" (even in Menu) */
 	if (is_display_on) {

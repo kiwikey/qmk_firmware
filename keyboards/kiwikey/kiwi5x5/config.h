@@ -1,12 +1,13 @@
 #pragma once
 
-#define FW_VERSION "2024.09.25_01"
+#define FW_VERSION "2026.02.01_01"
 
 #if defined(CONSOLE_ENABLE)
 	// #define DEBUG_MATRIX_SCAN_RATE
 #endif // defined(CONSOLE_ENABLE)
 
 #define ENCODER_RESOLUTION 4
+#define ENCODER_DIRECTION_FLIP
 	
 #if defined(VIA_ENABLE)
 	#define DYNAMIC_KEYMAP_LAYER_COUNT 4
