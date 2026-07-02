@@ -1,5 +1,3 @@
-#ifndef EEPROM_CUSTOM
-#define EEPROM_CUSTOM
 #pragma once
 
 #define EEPROM_SIZE 1024 // TODO: re-check this
@@ -25,5 +23,3 @@ typedef struct {
 
 extern EEPROM_CUSTOM_DATA eepdata;
 extern EEPROM_CUSTOM_DATA eepdata_default;
-
-#endif /* EEPROM_CUSTOM */

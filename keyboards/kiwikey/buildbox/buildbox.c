@@ -13,6 +13,7 @@
 #include "nvm_eeprom_eeconfig_internal.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
+	#include "display/qp_graphics.h"
 	#include "display/qp_includes.h"
 	#include "display/qp_custom_api.h"
 	#include "display/eeprom_custom.h"

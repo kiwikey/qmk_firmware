@@ -69,9 +69,4 @@ void widget_layer_render(uint8_t layer) {
 	qp_drawtext_recolor(my_display, WIDGET_LAYER_POSX + 85, WIDGET_LAYER_POSY + 5, roboto20, layer_name[layer], UI_COLOR_TEXT_H2, layer_color_hue[layer], 255, 255);
 }
 
-layer_state_t layer_state_set_kb(layer_state_t state) {
-		widget_layer_render(get_highest_layer(state));
-	return state;
-}
-
 #endif // defined(QUANTUM_PAINTER_ENABLE)

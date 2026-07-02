@@ -1,5 +1,4 @@
-#ifndef QP_INCLUDES
-#define QP_INCLUDES
+#pragma once
 
 /* FONTS */
 	extern painter_font_handle_t thintel15;         // line_height = 28, width = 13 (not all characters)
@@ -34,5 +33,3 @@
 	extern painter_image_handle_t ico16_arrow_right;
 
 void qp_init_load_files(void);
-
-#endif /* QP_INCLUDES */

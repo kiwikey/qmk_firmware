@@ -1,4 +1,5 @@
 #pragma once
+
 #include "quantum.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)

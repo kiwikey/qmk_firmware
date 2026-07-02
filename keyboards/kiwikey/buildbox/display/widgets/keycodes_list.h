@@ -1,7 +1,8 @@
 /*
 	This file is generated from converted_data.xlsx
-	Raw data from qmk_firmware/quantum/keycodes.h
+	Original keycodes from qmk_firmware/quantum/keycodes.h
 */
+#pragma once
 
 //  X (  Keycode             , Hex   ,    Text String   )
 

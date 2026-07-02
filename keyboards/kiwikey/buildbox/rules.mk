@@ -9,6 +9,7 @@ QUANTUM_PAINTER_DRIVERS += ili9341_spi
 
 # SOURCE FILES
 SRC += \
+	display/qp_graphics.c              \
 	display/qp_custom_api.c            \
 	display/qp_includes.c              \
 	display/widgets/qp_widget_matrix.c \

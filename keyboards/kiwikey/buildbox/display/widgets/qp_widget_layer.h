@@ -1,8 +1,7 @@
-#ifndef QP_WIDGET_LAYER
-#define QP_WIDGET_LAYER
+#pragma once
 
 #include "quantum.h"
-#include "qp_widget_matrix.h"
+#include "qp_widget_matrix.h" // getting some defines from WIDGET_MATRIX
 
 #define WIDGET_LAYER_POSX      WIDGET_MATRIX_POSX
 #define WIDGET_LAYER_POSY      (WIDGET_MATRIX_POSY - WIDGET_LAYER_HEIGHT)
@@ -12,9 +11,7 @@
 #define ACTIVE_LAYER_MIN    0
 #define ACTIVE_LAYER_MAX    (DYNAMIC_KEYMAP_LAYER_COUNT-1) // TODO: -1 applied to Kiwi5x5 only
 
-extern bool qp_widget_layer_flag;
+extern bool qp_widget_layer_flag; // not used
 
 void widget_layer_init(void);
 void widget_layer_render(uint8_t layer);
-
-#endif /* QP_WIDGET_LAYER */

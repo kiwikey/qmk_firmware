@@ -1,5 +1,4 @@
-#ifndef _DEFINES
-#define _DEFINES
+#pragma once
 
 /*** Definitions of (almost) all positions, colors, texts,... ***/
 
@@ -35,5 +34,3 @@ static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	"Layer 2",
 	"Macros "
 };
-
-#endif /* _DEFINES */
