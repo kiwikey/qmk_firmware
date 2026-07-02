@@ -24,4 +24,13 @@ bool qp_roundrect(uint16_t left, uint16_t top, uint16_t right, uint16_t bottom, 
 	return true;
 }
 
+int16_t qp_drawtext_recolor_center(painter_device_t device, uint16_t x, uint16_t y, painter_font_handle_t font, const char *str,
+								   uint8_t hue_fg, uint8_t sat_fg, uint8_t val_fg, uint8_t hue_bg, uint8_t sat_bg, uint8_t val_bg) {
+	return qp_drawtext_recolor(device,
+							   x - qp_textwidth(font, str)/2,
+							   y - (font->line_height)/2,
+							   font, str,
+							   hue_fg, sat_fg, val_fg, hue_bg, sat_bg, val_bg);
+}
+
 #endif // defined(QUANTUM_PAINTER_ENABLE)

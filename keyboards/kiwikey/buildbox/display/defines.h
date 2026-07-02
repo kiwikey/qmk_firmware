@@ -16,8 +16,9 @@
 
 #define WIDGET_LAYER_COLOR1     HSV_WHITE // Color of the 1st line
 
-#define WIDGET_MATRIX_BACKGROUND 0,0,40
+#define WIDGET_MATRIX_BG         HSV_BLACK
 #define WIDGET_MATRIX_COLOR_OFF  HSV_WHITE
+#define WIDGET_MATRIX_COLOR_ON   HSV_RED
 // #define WIDGET_MATRIX_HUE_ON    HSV_RED
 
 #define WIDGET_RGB_COLOR1     HSV_WHITE // Color of the 1st line

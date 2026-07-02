@@ -8,10 +8,16 @@
 	#include "resources/roboto20.qff.h"
 	#include "resources/roboto25.qff.h"
 	#include "resources/robotobold25.qff.h"
-	painter_font_handle_t  thintel;
+	#include "resources/font_oled.qff.h"
+	#include "resources/font_proggy_clean.qff.h"
+	#include "resources/font_proggy_tiny.qff.h"
+	painter_font_handle_t  thintel15;
 	painter_font_handle_t  roboto20;
 	painter_font_handle_t  roboto25;
 	painter_font_handle_t  robotobold25;
+	painter_font_handle_t  font_oled;
+	painter_font_handle_t  font_proggy_clean;
+	painter_font_handle_t  font_proggy_tiny;
 
 /* IMAGES & GIFS */
 	// #include "resources/pikachu.qgf.h"
@@ -56,10 +62,13 @@
 
 void qp_init_load_files(void) {
 	/* FONTS */
-		thintel        = qp_load_font_mem(font_thintel15);
+		thintel15      = qp_load_font_mem(font_thintel15);
 		roboto20       = qp_load_font_mem(font_roboto20);
 		roboto25       = qp_load_font_mem(font_roboto25);
 		robotobold25   = qp_load_font_mem(font_robotobold25);
+		font_oled     = qp_load_font_mem(font_oled_font);
+		font_proggy_clean     = qp_load_font_mem(font_proggy_clean_15);
+		font_proggy_tiny     = qp_load_font_mem(font_ProggyTiny15);
 
 	/* IMAGES & GIFS */
 		// img_pikachu    = qp_load_image_mem(gfx_pikachu);

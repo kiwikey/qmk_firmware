@@ -3,37 +3,37 @@
 	Raw data from qmk_firmware/quantum/keycodes.h
 */
 
-//  KEY (  Keycode        , Hex   ,    Text String   )
+//  X (  Keycode             , Hex   ,    Text String   )
 
 #define KEYCODE_LIST \
     X (  KC_NO               , 0x0000,    "NO"     ) \
     X (  KC_TRANSPARENT      , 0x0001,    "TRANS"     ) \
-    X (  KC_A                , 0x0004,    "A"     ) \
-    X (  KC_B                , 0x0005,    "B"     ) \
-    X (  KC_C                , 0x0006,    "C"     ) \
-    X (  KC_D                , 0x0007,    "D"     ) \
-    X (  KC_E                , 0x0008,    "E"     ) \
-    X (  KC_F                , 0x0009,    "F"     ) \
-    X (  KC_G                , 0x000A,    "G"     ) \
-    X (  KC_H                , 0x000B,    "H"     ) \
-    X (  KC_I                , 0x000C,    "I"     ) \
-    X (  KC_J                , 0x000D,    "J"     ) \
-    X (  KC_K                , 0x000E,    "K"     ) \
-    X (  KC_L                , 0x000F,    "L"     ) \
-    X (  KC_M                , 0x0010,    "M"     ) \
-    X (  KC_N                , 0x0011,    "N"     ) \
-    X (  KC_O                , 0x0012,    "O"     ) \
-    X (  KC_P                , 0x0013,    "P"     ) \
-    X (  KC_Q                , 0x0014,    "Q"     ) \
-    X (  KC_R                , 0x0015,    "R"     ) \
-    X (  KC_S                , 0x0016,    "S"     ) \
-    X (  KC_T                , 0x0017,    "T"     ) \
-    X (  KC_U                , 0x0018,    "U"     ) \
-    X (  KC_V                , 0x0019,    "V"     ) \
-    X (  KC_W                , 0x001A,    "W"     ) \
-    X (  KC_X                , 0x001B,    "X"     ) \
-    X (  KC_Y                , 0x001C,    "Y"     ) \
-    X (  KC_Z                , 0x001D,    "Z"     ) \
+    X (  KC_A                , 0x0004,    "a"     ) \
+    X (  KC_B                , 0x0005,    "b"     ) \
+    X (  KC_C                , 0x0006,    "c"     ) \
+    X (  KC_D                , 0x0007,    "d"     ) \
+    X (  KC_E                , 0x0008,    "e"     ) \
+    X (  KC_F                , 0x0009,    "f"     ) \
+    X (  KC_G                , 0x000A,    "g"     ) \
+    X (  KC_H                , 0x000B,    "h"     ) \
+    X (  KC_I                , 0x000C,    "i"     ) \
+    X (  KC_J                , 0x000D,    "j"     ) \
+    X (  KC_K                , 0x000E,    "k"     ) \
+    X (  KC_L                , 0x000F,    "l"     ) \
+    X (  KC_M                , 0x0010,    "m"     ) \
+    X (  KC_N                , 0x0011,    "n"     ) \
+    X (  KC_O                , 0x0012,    "o"     ) \
+    X (  KC_P                , 0x0013,    "p"     ) \
+    X (  KC_Q                , 0x0014,    "q"     ) \
+    X (  KC_R                , 0x0015,    "r"     ) \
+    X (  KC_S                , 0x0016,    "s"     ) \
+    X (  KC_T                , 0x0017,    "t"     ) \
+    X (  KC_U                , 0x0018,    "u"     ) \
+    X (  KC_V                , 0x0019,    "v"     ) \
+    X (  KC_W                , 0x001A,    "w"     ) \
+    X (  KC_X                , 0x001B,    "x"     ) \
+    X (  KC_Y                , 0x001C,    "y"     ) \
+    X (  KC_Z                , 0x001D,    "z"     ) \
     X (  KC_1                , 0x001E,    "1"     ) \
     X (  KC_2                , 0x001F,    "2"     ) \
     X (  KC_3                , 0x0020,    "3"     ) \
@@ -63,6 +63,24 @@
     X (  KC_F10              , 0x0043,    "F10"     ) \
     X (  KC_F11              , 0x0044,    "F11"     ) \
     X (  KC_F12              , 0x0045,    "F12"     ) \
+    X (  KC_KP_1             , 0x0059,    "N1"     ) \
+    X (  KC_KP_2             , 0x005A,    "N2"     ) \
+    X (  KC_KP_3             , 0x005B,    "N3"     ) \
+    X (  KC_KP_4             , 0x005C,    "N4"     ) \
+    X (  KC_KP_5             , 0x005D,    "N5"     ) \
+    X (  KC_KP_6             , 0x005E,    "N6"     ) \
+    X (  KC_KP_7             , 0x005F,    "N7"     ) \
+    X (  KC_KP_8             , 0x0060,    "N8"     ) \
+    X (  KC_KP_9             , 0x0061,    "N9"     ) \
+    X (  KC_KP_0             , 0x0062,    "N0"     ) \
+    X (  KC_LEFT_CTRL        , 0x00E0,    "Cmd"     ) \
+    X (  KC_LEFT_SHIFT       , 0x00E1,    "Shf"     ) \
+    X (  KC_LEFT_ALT         , 0x00E2,    "Alt"     ) \
+    X (  KC_LEFT_GUI         , 0x00E3,    "Win"     ) \
+    X (  KC_RIGHT_CTRL       , 0x00E4,    "Cmd"     ) \
+    X (  KC_RIGHT_SHIFT      , 0x00E5,    "Shf"     ) \
+    X (  KC_RIGHT_ALT        , 0x00E6,    "Alt"     ) \
+    X (  KC_RIGHT_GUI        , 0x00E7,    "Win"     ) \
     X (  QK_MACRO_0          , 0x7700,    "M0"     ) \
     X (  QK_MACRO_1          , 0x7701,    "M1"     ) \
     X (  QK_MACRO_2          , 0x7702,    "M2"     ) \

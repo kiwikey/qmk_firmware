@@ -14,6 +14,7 @@
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 	#include "display/qp_includes.h"
+	#include "display/qp_custom_api.h"
 	#include "display/eeprom_custom.h"
 	#include "display/widgets/qp_widget_matrix.h"
 	#include "display/widgets/qp_widget_layer.h"
@@ -43,23 +44,35 @@ void display_init(void) {
 }
 
 void keyboard_post_init_kb(void) {
-    display_init();
-	
-	widget_matrix_init();
-	widget_layer_init();
-	widget_knob_init();
-	
 	// debug_enable=true;
 	// debug_matrix=true;
 	// debug_keyboard=true;
 	// debug_mouse=true;
+	
+    display_init();
+	widget_matrix_init();
+	widget_layer_init();
+	widget_knob_init();
+	
+	widget_layer_render(0);
+
 	keyboard_post_init_user();
 }
 
 void housekeeping_task_kb(void) {
-	// char buf1[50] = {0};
-	// sprintf(buf1, "%d - %d - %d", data[0], data[1], data[2]);
-	// qp_drawtext(my_display, 0, 0, roboto20, buf1);
+	widget_matrix_keymap_render();
+}
+
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+	process_record_display(keycode, record);
+	return process_record_user(keycode, record);
+}
+
+bool process_record_display(uint16_t keycode, keyrecord_t *record) {
+	#if defined(QP_WIDGET_MATRIX)
+		widget_matrix_update(record->event.key.col, record->event.key.row);
+	#endif // defined(QP_WIDGET_MATRIX)
+	return true;
 }
 
 void magnetic_encoder_update_user(magnetic_encoder_kind_t magnetic_encoder, bool direction) {
@@ -71,18 +84,26 @@ void magnetic_encoder_update_user(magnetic_encoder_kind_t magnetic_encoder, bool
 	// printf("+ get_distance = %u \n", get_distance(magnetic_encoder));
 	// printf("+ get_movement = %u \n", get_movement(100, magnetic_encoder));
 
-	printf("--- DATA1 --- \n");
+	printf("--- get_keycode_string --- \n");
 	for (uint8_t i = 0;  i < MATRIX_ROWS; i++) {
 		for (uint8_t j = 0;  j < MATRIX_COLS; j++) {
-			printf("  %s  ", get_keycode_string(dynamic_keymap_get_keycode(0, i, j)));
+			printf("%10s", get_keycode_string(dynamic_keymap_get_keycode(0, i, j)));
 		}
 		printf("\n");
 	}
-	printf("--- DATA2 --- \n");
+	printf("--- keycode_to_string --- \n");
 	for (uint8_t i = 0;  i < MATRIX_ROWS; i++) {
 		for (uint8_t j = 0;  j < MATRIX_COLS; j++) {
-			printf("  %s  ", keycode_to_string(dynamic_keymap_get_keycode(0, i, j)));
+			printf("%10s", keycode_to_string(dynamic_keymap_get_keycode(0, i, j)));
 		}
 		printf("\n");
 	}
+	printf("--- keycode --- \n");
+	for (uint8_t i = 0;  i < MATRIX_ROWS; i++) {
+		for (uint8_t j = 0;  j < MATRIX_COLS; j++) {
+			printf("%10x", dynamic_keymap_get_keycode(0, i, j));
+		}
+		printf("\n");
+	}
+	printf("\n");
 }

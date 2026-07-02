@@ -20,7 +20,10 @@ SRC += \
 	display/resources/thintel15.qff.c    \
 	display/resources/roboto20.qff.c     \
 	display/resources/roboto25.qff.c     \
-	display/resources/robotobold25.qff.c
+	display/resources/robotobold25.qff.c \
+	display/resources/font_oled.qff.c \
+	display/resources/font_proggy_clean.qff.c \
+	display/resources/font_proggy_tiny.qff.c
 
 # ICONS
 SRC += \

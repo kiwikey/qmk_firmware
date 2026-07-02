@@ -37,8 +37,9 @@
 
 	/*** QUANTUM PAINTER CONFIGURATION ***/
 	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT 0
+	#define QUANTUM_PAINTER_SUPPORTS_256_PALETTE   TRUE
 	#define QUANTUM_PAINTER_SUPPORTS_NATIVE_COLORS TRUE
-	#define QUANTUM_PAINTER_NUM_FONTS	    4	//The maximum number of fonts that can be loaded at any one time.
+	#define QUANTUM_PAINTER_NUM_FONTS	    8	//The maximum number of fonts that can be loaded at any one time.
 	#define QUANTUM_PAINTER_DEBUG	unset	//Prints out significant amounts of debugging information to CONSOLE output. Significant performance degradation, use only for debugging.
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 	
