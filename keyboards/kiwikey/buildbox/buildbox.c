@@ -3,14 +3,8 @@
 #include <qp.h>
 // #include <lib/lib8tion/lib8tion.h>
 #include "print.h"
-#include "color.h"
 
-#include "spi_master.h"
-#include "i2c_master.h"
 #include "magnetic_encoder.h"
-
-#include "nvm_eeprom_via_internal.h"
-#include "nvm_eeprom_eeconfig_internal.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 	#include "display/qp_graphics.h"
@@ -23,23 +17,12 @@
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 void keyboard_post_init_kb(void) {
-	// debug_enable=true;
-	// debug_matrix=true;
-	// debug_keyboard=true;
-	// debug_mouse=true;
-	
-    display_init();
-	widget_matrix_init();
-	widget_layer_init();
-	widget_knob_init();
-	
-	widget_layer_render(0); // temporarily 0, should be get from EEPROM
-
+	keyboard_post_init_display();
 	keyboard_post_init_user();
 }
 
 void housekeeping_task_kb(void) {
-	widget_matrix_keymap_render();
+	// widget_matrix_keymap_render();
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {

@@ -20,8 +20,8 @@ void widget_matrix_init(void);
 void widget_matrix_update(uint8_t col, uint8_t row);
 
 // RENDERING
+void widget_matrix_keymap_render(uint8_t layer);
 void widget_matrix_render_button(uint8_t x, uint8_t y, uint8_t hue, uint8_t sat, uint8_t val, bool filled);
-void widget_matrix_keymap_render(void);
 void widget_matrix_render_kc_layer(uint8_t posx, uint8_t posy, uint16_t keycode);
 void widget_matrix_render_kc_basic(uint8_t posx, uint8_t posy, uint16_t keycode);
 

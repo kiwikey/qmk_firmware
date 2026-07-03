@@ -33,7 +33,7 @@ void widget_matrix_init(void) {
 		}
 	}
 	// Render keymap
-	widget_matrix_keymap_render();
+	// widget_matrix_keymap_render(0); // No need, handled in keyboard_post_init_display()
 }
 
 void widget_matrix_update(uint8_t col, uint8_t row) {
@@ -46,11 +46,10 @@ void widget_matrix_update(uint8_t col, uint8_t row) {
 		}
 }
 
-void widget_matrix_keymap_render(void) {
-	// char buf1[4] = {0};
+void widget_matrix_keymap_render(uint8_t layer) {
 	for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) {
 		for (uint8_t y = 0;  y < MATRIX_COLS; y++) {
-			uint16_t keycode = dynamic_keymap_get_keycode(0, x, y);
+			uint16_t keycode = dynamic_keymap_get_keycode(layer, x, y);
 			uint16_t x_offset = WIDGET_MATRIX_POSX + y* (WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING);
 			uint16_t y_offset = WIDGET_MATRIX_POSY + x* (WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING);
 			// Draw keycode string

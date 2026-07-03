@@ -1,6 +1,6 @@
 #if defined(QUANTUM_PAINTER_ENABLE)
 
-#include "qp.h"
+#include <qp.h>
 #include "qp_includes.h"
 
 /* FONTS */
@@ -18,23 +18,6 @@
 	painter_font_handle_t  font_oled;
 	painter_font_handle_t  font_proggy_clean;
 	painter_font_handle_t  font_proggy_tiny;
-
-/* IMAGES & GIFS */
-	// #include "resources/pikachu.qgf.h"
-	// #include "resources/pusheen_240px.qgf.h"
-	// #include "resources/anya01.qgf.h"
-	// #include "resources/gif_nyan120px.qgf.h"
-	// #include "resources/gif_cat01.qgf.h"
-	// #include "resources/gif_cat02.qgf.h"
-	// #include "resources/gif_dog01.qgf.h"
-	// painter_image_handle_t img_pikachu;
-	// painter_image_handle_t img_anya01;
-	// painter_image_handle_t gif_pusheen;
-	// painter_image_handle_t gif_nyan120px;
-	// painter_image_handle_t gif_cat01;
-	// painter_image_handle_t gif_cat02;
-	// painter_image_handle_t gif_dog01;
-	// deferred_token         my_anim;
 
 /* ICONS */
 	// #include "resources/icons/lock-caps-ON.qgf.h"
@@ -60,25 +43,33 @@
 	painter_image_handle_t ico16_arrow_left;
 	painter_image_handle_t ico16_arrow_right;
 
+/* IMAGES & ANIMATIONS */
+	#include "resources/graphics/gif_bootup01.qgf.h"
+	// #include "resources/pusheen_240px.qgf.h"
+	#include "resources/graphics/anya01.qgf.h"
+	#include "resources/graphics/gif_nyan120px.qgf.h"
+	#include "resources/graphics/gif_cat01.qgf.h"
+	// #include "resources/gif_cat02.qgf.h"
+	// #include "resources/gif_dog01.qgf.h"
+	painter_image_handle_t gif_bootup01;
+	painter_image_handle_t img_anya01;
+	// painter_image_handle_t gif_pusheen;
+	painter_image_handle_t gif_nyan120px;
+	painter_image_handle_t gif_cat01;
+	// painter_image_handle_t gif_cat02;
+	// painter_image_handle_t gif_dog01;
+	deferred_token         my_anim;
+
 void qp_init_load_files(void) {
 	/* FONTS */
 		thintel15      = qp_load_font_mem(font_thintel15);
-		roboto20       = qp_load_font_mem(font_roboto20);
-		roboto25       = qp_load_font_mem(font_roboto25);
-		robotobold25   = qp_load_font_mem(font_robotobold25);
-		font_oled     = qp_load_font_mem(font_oled_font);
-		font_proggy_clean     = qp_load_font_mem(font_proggy_clean_15);
-		font_proggy_tiny     = qp_load_font_mem(font_ProggyTiny15);
+		roboto20          = qp_load_font_mem(font_roboto20);
+		roboto25          = qp_load_font_mem(font_roboto25);
+		robotobold25      = qp_load_font_mem(font_robotobold25);
+		font_oled         = qp_load_font_mem(font_oled_font);
+		font_proggy_clean = qp_load_font_mem(font_proggy_clean_15);
+		font_proggy_tiny  = qp_load_font_mem(font_ProggyTiny15);
 
-	/* IMAGES & GIFS */
-		// img_pikachu    = qp_load_image_mem(gfx_pikachu);
-		// img_anya01     = qp_load_image_mem(gfx_anya01);
-		// gif_pusheen    = qp_load_image_mem(gfx_pusheen_240px);
-		// gif_nyan120px  = qp_load_image_mem(gfx_gif_nyan120px);
-		// gif_cat01      = qp_load_image_mem(gfx_gif_cat01);
-		// gif_cat02      = qp_load_image_mem(gfx_gif_cat02);
-		// gif_dog01      = qp_load_image_mem(gfx_gif_dog01);
-	
 	/* ICONS */
 		// lock_caps_on     = qp_load_image_mem(gfx_lock_caps_ON);
 		// lock_caps_off    = qp_load_image_mem(gfx_lock_caps_OFF);
@@ -91,6 +82,15 @@ void qp_init_load_files(void) {
 		ico16_arrow_down  = qp_load_image_mem(gfx_ico16_arrow_down);
 		ico16_arrow_left  = qp_load_image_mem(gfx_ico16_arrow_left);
 		ico16_arrow_right = qp_load_image_mem(gfx_ico16_arrow_right);
+
+	/* IMAGES & ANIMATIONS */
+		gif_bootup01      = qp_load_image_mem(gfx_gif_bootup01);
+		img_anya01        = qp_load_image_mem(gfx_anya01);
+		// gif_pusheen    = qp_load_image_mem(gfx_pusheen_240px);
+		gif_nyan120px     = qp_load_image_mem(gfx_gif_nyan120px);
+		gif_cat01         = qp_load_image_mem(gif_cat01);
+		// gif_cat02      = qp_load_image_mem(gfx_gif_cat02);
+		// gif_dog01      = qp_load_image_mem(gfx_gif_dog01);
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)

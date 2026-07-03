@@ -2,6 +2,7 @@ I2C_DRIVER_REQUIRED   = yes
 SPI_DRIVER_REQUIRED   = yes
 SEND_STRING_ENABLE    = yes
 KEYCODE_STRING_ENABLE = yes
+DEFERRED_EXEC_ENABLE  = yes
 
 QUANTUM_PAINTER_ENABLE = yes
 # QUANTUM_PAINTER_DRIVERS += st7789_spi
@@ -37,3 +38,10 @@ SRC += \
 	display/resources/icons/ico16_arrow_down.qgf.c  \
 	display/resources/icons/ico16_arrow_left.qgf.c  \
 	display/resources/icons/ico16_arrow_right.qgf.c
+
+# IMAGES & ANIMATIONS
+SRC += \
+	display/resources/graphics/gif_bootup01.qgf.c   \
+	display/resources/graphics/gif_cat01.qgf.c      \
+	display/resources/graphics/anya01.qgf.c         \
+	display/resources/graphics/gif_nyan120px.qgf.c

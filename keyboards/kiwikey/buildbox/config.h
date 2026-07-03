@@ -42,8 +42,12 @@
 	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT 0
 	#define QUANTUM_PAINTER_SUPPORTS_256_PALETTE   TRUE
 	#define QUANTUM_PAINTER_SUPPORTS_NATIVE_COLORS TRUE
-	#define QUANTUM_PAINTER_NUM_FONTS	    8	//The maximum number of fonts that can be loaded at any one time.
-	#define QUANTUM_PAINTER_DEBUG	unset	//Prints out significant amounts of debugging information to CONSOLE output. Significant performance degradation, use only for debugging.
+	#define QUANTUM_PAINTER_NUM_IMAGES      16   // The maximum number of images/animations that can be loaded at any one time.
+	#define QUANTUM_PAINTER_NUM_FONTS	    8	// The maximum number of fonts that can be loaded at any one time.
+	#define QUANTUM_PAINTER_CONCURRENT_ANIMATIONS 2 //The maximum number of animations that can be executed at the same time.
+	#define QUANTUM_PAINTER_DEBUG	     unset  // Prints out significant amounts of debugging information to CONSOLE output. Significant performance degradation, use only for debugging.
+	#define QUANTUM_PAINTER_PIXDATA_BUFFER_SIZE	1024	//The limit of the amount of pixel data that can be transmitted in one transaction to the display. Higher values require more RAM on the MCU.
+
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 	
 /*** PWM DRIVER DEFINITIONS ***/

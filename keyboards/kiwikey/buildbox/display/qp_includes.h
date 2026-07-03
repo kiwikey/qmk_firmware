@@ -9,16 +9,6 @@
 	extern painter_font_handle_t font_proggy_clean; // line_height = 13, width = 7
 	extern painter_font_handle_t font_proggy_tiny;  // line_height = 10, width = 6
 
-/* IMAGES & GIFS */
-	// extern painter_image_handle_t img_pikachu;
-	// extern painter_image_handle_t img_anya01;
-	// extern painter_image_handle_t gif_pusheen;
-	// extern painter_image_handle_t gif_nyan120px;
-	// extern painter_image_handle_t gif_cat01;
-	// extern painter_image_handle_t gif_cat02;
-	// extern painter_image_handle_t gif_dog01;
-	// extern deferred_token         my_anim;
-
 /* ICONS */
 	// extern painter_image_handle_t lock_caps_on;
 	// extern painter_image_handle_t lock_caps_off;
@@ -31,5 +21,15 @@
 	extern painter_image_handle_t ico16_arrow_down; // color inverted BLACK <-> WHITE
 	extern painter_image_handle_t ico16_arrow_left;
 	extern painter_image_handle_t ico16_arrow_right;
+
+/* IMAGES & ANIMATIONS */
+	extern painter_image_handle_t gif_bootup01;
+	extern painter_image_handle_t img_anya01;
+	// extern painter_image_handle_t gif_pusheen;
+	extern painter_image_handle_t gif_nyan120px;
+	extern painter_image_handle_t gif_cat01;
+	// extern painter_image_handle_t gif_cat02;
+	// extern painter_image_handle_t gif_dog01;
+	extern deferred_token         my_anim;
 
 void qp_init_load_files(void);
