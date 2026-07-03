@@ -7,7 +7,11 @@ QUANTUM_PAINTER_ENABLE = yes
 # QUANTUM_PAINTER_DRIVERS += st7789_spi
 QUANTUM_PAINTER_DRIVERS += ili9341_spi
 
-# SOURCE FILES
+# CUSTOM MATRIX
+CUSTOM_MATRIX = lite
+SRC += matrix.c
+
+# QP SOURCE FILES
 SRC += \
 	display/qp_graphics.c              \
 	display/qp_custom_api.c            \

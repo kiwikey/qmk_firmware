@@ -27,7 +27,7 @@ void widget_matrix_init(void) {
 				 // WIDGET_MATRIX_POSY + (WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING)*4 - WIDGET_MATRIX_KEY_SPACING + WIDGET_MATRIX_BORDER,
 				 // WIDGET_MATRIX_BACKGROUND, true, 5, true, true);
 	// Draw all buttons
-    for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
+    for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) { // ROW4 is for direct pin buttons, so need to -1
         for (uint8_t y = 0; y < MATRIX_COLS; y++) {
 			widget_matrix_render_button(x, y, WIDGET_MATRIX_COLOR_OFF, false);
 		}
@@ -38,15 +38,17 @@ void widget_matrix_init(void) {
 
 void widget_matrix_update(uint8_t col, uint8_t row) {
 		bool on = (matrix_get_row(row) & (1 << col)) > 0; // The matrix position [x,y] is being pressed
-		if (on)
-			widget_matrix_render_button(row, col, WIDGET_MATRIX_COLOR_ON, false);
-		else
-			widget_matrix_render_button(row, col, WIDGET_MATRIX_COLOR_OFF, false);
+		if (row != 4) { // Not direct pin buttons
+			if (on)
+				widget_matrix_render_button(row, col, WIDGET_MATRIX_COLOR_ON, false);
+			else
+				widget_matrix_render_button(row, col, WIDGET_MATRIX_COLOR_OFF, false);
+		}
 }
 
 void widget_matrix_keymap_render(void) {
 	// char buf1[4] = {0};
-	for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
+	for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) {
 		for (uint8_t y = 0;  y < MATRIX_COLS; y++) {
 			uint16_t keycode = dynamic_keymap_get_keycode(0, x, y);
 			uint16_t x_offset = WIDGET_MATRIX_POSX + y* (WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING);

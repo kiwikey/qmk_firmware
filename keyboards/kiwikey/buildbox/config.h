@@ -1,6 +1,9 @@
 #pragma once
 
-#define FW_VERSION "2026.07.01_a"
+#define FW_VERSION "2026.07.03_a"
+
+#define MATRIX_COLS 4
+#define MATRIX_ROWS 5
 
 #define I2C_DRIVER I2CD1
 #define I2C1_SDA_PIN GP10
