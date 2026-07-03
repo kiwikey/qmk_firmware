@@ -3,7 +3,7 @@
 #include "qp.h"
 #include "qp_custom_api.h"
 
-extern painter_device_t my_display;
+#include "display/qp_graphics.h"
 
 bool qp_roundrect(uint16_t left, uint16_t top, uint16_t right, uint16_t bottom, uint8_t hue, uint8_t sat, uint8_t val, bool filled, uint16_t corner, bool roundtop, bool roundbottom) {	
 	qp_rect(my_display, left, top+corner, right, bottom-corner, hue, sat, val, filled);

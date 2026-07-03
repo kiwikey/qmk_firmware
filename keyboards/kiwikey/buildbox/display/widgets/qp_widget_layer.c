@@ -1,11 +1,12 @@
 #if defined(QUANTUM_PAINTER_ENABLE)
 
+#include "quantum.h"
 #include "qp_widget_layer.h"
-#include "../qp_includes.h"
-#include "../qp_custom_api.h"
-#include "../defines.h"
 
-extern painter_device_t my_display;
+#include "display/qp_graphics.h"
+#include "display/qp_includes.h"
+#include "display/qp_custom_api.h"
+#include "display/defines.h"
 
 bool qp_widget_layer_flag = false;
 uint8_t layer_color_hue[DYNAMIC_KEYMAP_LAYER_COUNT] = { 128, 213, 43, 85 }; // TODO

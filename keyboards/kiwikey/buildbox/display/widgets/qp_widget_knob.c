@@ -1,10 +1,9 @@
 #if defined(QUANTUM_PAINTER_ENABLE)
 
-#include <qp.h>
+#include "quantum.h"
 #include "qp_widget_knob.h"
-#include "display/defines.h"
 
-extern painter_device_t my_display;
+#include "display/qp_graphics.h"
 
 void widget_knob_init(void) {
 	qp_circle(my_display, 256, 140, 50, HSV_GOLD, true);	
