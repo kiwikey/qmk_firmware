@@ -12,6 +12,9 @@ QUANTUM_PAINTER_DRIVERS += ili9341_spi
 CUSTOM_MATRIX = lite
 SRC += matrix.c
 
+# MAGNETIC SENSOR
+SRC += sensor/as5600.c
+
 # QP SOURCE FILES
 SRC += \
 	display/qp_graphics.c              \
