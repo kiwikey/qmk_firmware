@@ -54,14 +54,6 @@ bool as5600_read(uint8_t* out) {
     return true;
 }
 
-int8_t get_direction(magnetic_encoder_t magnetic_encoder) {
-    if(magnetic_encoder.new_angle > magnetic_encoder.prev_angle)
-        return 1;
-    if(magnetic_encoder.prev_angle > magnetic_encoder.new_angle)
-        return -1;
-    return 0;
-}
-
 uint16_t get_distance(magnetic_encoder_t magnetic_encoder) {
     if(magnetic_encoder.prev_angle > magnetic_encoder.new_angle)
         return magnetic_encoder.prev_angle - magnetic_encoder.new_angle;
@@ -72,10 +64,9 @@ uint16_t get_distance(magnetic_encoder_t magnetic_encoder) {
 }
 
 int8_t get_movement(int max_distance, magnetic_encoder_t magnetic_encoder) {
-    int direction = get_direction(magnetic_encoder);
     uint16_t distance = get_distance(magnetic_encoder);
 
-    if(direction == 1) {
+    if(magnetic_encoder.new_angle > magnetic_encoder.prev_angle) {
         if(distance < max_distance) {
             magnetic_encoder.prev_movement = 1;
             return 1;
@@ -84,7 +75,7 @@ int8_t get_movement(int max_distance, magnetic_encoder_t magnetic_encoder) {
         }
     }
 
-    if(direction == -1) {
+    if(magnetic_encoder.prev_angle > magnetic_encoder.new_angle) {
         if(distance < max_distance) {
             magnetic_encoder.prev_movement = -1;
             return -1;
@@ -104,7 +95,6 @@ void process_magnetic_encoder(void) {
         }
         if(get_distance(magnetic_encoders) >= DEG_MARGIN_AS5600) {
             magnetic_encoders.movement = get_movement(MAX_DISTANCE_AS5600, magnetic_encoders);
-            printf("movement = %d \n", magnetic_encoders.movement);
             if(magnetic_encoders.movement == -1) {                       
                 magnetic_encoder_update_user(false);
             }

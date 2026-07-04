@@ -30,11 +30,10 @@ int16_t as5600read_angle(void);
 bool as5600_write(uint8_t reg_addr);
 bool as5600_read(uint8_t* data);
 
-int8_t get_direction(magnetic_encoder_t magnetic_encoder);
 uint16_t get_distance(magnetic_encoder_t magnetic_encoder);
 int8_t get_movement(int magnetic_encoder_kind, magnetic_encoder_t magnetic_encoder);
 
 void process_magnetic_encoder(void);
-void magnetic_encoder_update_user(bool);
+void magnetic_encoder_update_user(bool direction);
 void housekeeping_task_magnetic_encoder(void);
 void keyboard_post_init_magnetic_encoder(void);
