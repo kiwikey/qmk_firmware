@@ -1,7 +1,7 @@
 #pragma once
 
 #include "quantum.h"
-#include "magnetic_encoder.h"
+#include "as5600.h"
 
 #define AS5600_MAX 4096
 

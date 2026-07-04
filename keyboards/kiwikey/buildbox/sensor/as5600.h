@@ -5,28 +5,19 @@
 // #define DEG_MARGIN_AS5600 25
 #define DEG_MARGIN_AS5600 16
 #define MAX_DISTANCE_AS5600 500
-#define DEG_MARGIN_MT6701 500
-#define MAX_DISTANCE_MT6701 2500
 
 #define AS5600_ADDRESS (0x36 << 1)
-#define MT6701_ADDRESS (0x6 << 1)
 
 #define MAGNET_DETECTED_MASK 0b00100000
 
 typedef enum {
     AS5600,
-    MT6701,
     NUM_MAGNETIC_ENCODERS
 } magnetic_encoder_kind_t;
 
 enum REG_AS5600 {
     REG_STATUS = 0x0B,
     REG_ANGLE = 0x0E
-};
-
-enum REG_MT6701 { 
-    REG_ANGA = 0x3,
-    REG_ANGB = 0x4
 };
 
 typedef struct {
@@ -39,7 +30,6 @@ typedef struct {
 
 bool ping_as5600(void);
 
-int16_t mt6701read_angle(void);
 int16_t as5600read_angle(void);
 
 bool as5600_write(uint8_t reg_addr);

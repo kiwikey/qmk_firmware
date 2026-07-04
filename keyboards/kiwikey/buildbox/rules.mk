@@ -17,7 +17,7 @@ SRC += matrix.c
 QUANTUM_LIB_SRC += i2c_master.c
 SRC += \
 	sensor/sensors_handler.c            \
-	sensor/magnetic_encoder.c
+	sensor/as5600.c
 
 # QP SOURCE FILES
 SRC += \
