@@ -13,12 +13,9 @@ void housekeeping_task_sensors_handler(void) {
 void magnetic_encoder_update_user(bool direction) {
 	// int16_t angle = as5600read_angle();
 	uint16_t pos = as5600read_angle();
-	int16_t delta = (int16_t)pos - (int16_t)last_pos;
-
-	// Handle wrap-around
-	// if ()
+	// int16_t delta = (int16_t)pos - (int16_t)last_pos;
 	
-	printf("+ last_pos = %5d  pos = %5d  delta = %5d \n", last_pos, pos, delta);
+	// printf("+ last_pos = %5d  pos = %5d  delta = %5d \n", last_pos, pos, delta);
 
 	last_pos = pos;
 

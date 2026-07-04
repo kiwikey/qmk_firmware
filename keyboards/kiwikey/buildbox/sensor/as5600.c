@@ -103,12 +103,13 @@ void process_magnetic_encoder(void) {
             return;
         }
         if(get_distance(magnetic_encoders) >= DEG_MARGIN_AS5600) {
-            magnetic_encoders.movement = get_movement(MAX_DISTANCE_AS5600, magnetic_encoders);       
+            magnetic_encoders.movement = get_movement(MAX_DISTANCE_AS5600, magnetic_encoders);
+            printf("movement = %d \n", magnetic_encoders.movement);
             if(magnetic_encoders.movement == -1) {                       
                 magnetic_encoder_update_user(false);
             }
 
-            if(magnetic_encoders.movement == 1) {            
+            if(magnetic_encoders.movement == 1) {
                 magnetic_encoder_update_user(true);
             }
             magnetic_encoders.prev_angle = magnetic_encoders.new_angle;
