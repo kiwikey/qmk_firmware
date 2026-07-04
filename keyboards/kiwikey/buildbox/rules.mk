@@ -4,6 +4,7 @@ SEND_STRING_ENABLE    = yes
 KEYCODE_STRING_ENABLE = yes
 DEFERRED_EXEC_ENABLE  = yes
 
+# QUANTUM PAINTER
 QUANTUM_PAINTER_ENABLE = yes
 # QUANTUM_PAINTER_DRIVERS += st7789_spi
 QUANTUM_PAINTER_DRIVERS += ili9341_spi
@@ -13,7 +14,10 @@ CUSTOM_MATRIX = lite
 SRC += matrix.c
 
 # MAGNETIC SENSOR
-SRC += sensor/as5600.c
+QUANTUM_LIB_SRC += i2c_master.c
+SRC += \
+	sensor/sensors_handler.c            \
+	sensor/magnetic_encoder.c
 
 # QP SOURCE FILES
 SRC += \

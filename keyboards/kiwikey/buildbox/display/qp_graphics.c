@@ -8,7 +8,7 @@
 #include "display/widgets/qp_widget_knob.h"
 
 painter_device_t my_display;
-bool booting = false; // will be TRUE during animation
+bool     booting = false; // will be TRUE during boot animation
 uint32_t bootup_time = 0;
 
 void display_init(void) {
@@ -47,9 +47,18 @@ uint32_t finish_boot_animation(uint32_t trigger_time, void *cb_arg) {
 
 void keyboard_post_init_display(void) {
 	display_init();
-	booting = true;
-	my_anim = qp_animate(my_display, 0, 90, gif_bootup01);
-	defer_exec(BOOT_DURATION, finish_boot_animation, NULL);
+	// booting = true;
+	// my_anim = qp_animate(my_display, 0, 90, gif_bootup01);
+	// defer_exec(BOOT_DURATION, finish_boot_animation, NULL);
+
+	qp_rect(my_display, 0, 0, 319, 239, HSV_BLACK, true); // Fill screen by black color
+	qp_flush(my_display);
+	widget_matrix_init();
+	widget_layer_init();
+	widget_knob_init();
+	
+	widget_layer_render(0); // temporarily 0, should be get from EEPROM
+	widget_matrix_keymap_render(0);
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {

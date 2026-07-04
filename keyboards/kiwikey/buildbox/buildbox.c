@@ -3,6 +3,7 @@
 #include <qp.h>
 // #include <lib/lib8tion/lib8tion.h>
 #include "print.h"
+#include "sensor/sensors_handler.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 	#include "display/qp_graphics.h"
@@ -16,11 +17,12 @@
 
 void keyboard_post_init_kb(void) {
 	keyboard_post_init_display();
+	keyboard_post_init_sensors_handler();
 	keyboard_post_init_user();
 }
 
 void housekeeping_task_kb(void) {
-
+	housekeeping_task_sensors_handler();
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {

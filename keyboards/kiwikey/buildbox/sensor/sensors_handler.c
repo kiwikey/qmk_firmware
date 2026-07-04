@@ -1,7 +1,14 @@
-#include "as5600.h"
-#include "magnetic_encoder.h"
+#include "sensors_handler.h"
 
 static uint16_t last_pos = 0;
+
+void keyboard_post_init_sensors_handler(void) {
+	keyboard_post_init_magnetic_encoder();
+}
+
+void housekeeping_task_sensors_handler(void) {
+	housekeeping_task_magnetic_encoder();
+}
 
 void magnetic_encoder_update_user(magnetic_encoder_kind_t magnetic_encoder, bool direction) {
 	// int16_t angle = as5600read_angle();
