@@ -10,7 +10,7 @@ void housekeeping_task_sensors_handler(void) {
 	housekeeping_task_magnetic_encoder();
 }
 
-void magnetic_encoder_update_user(magnetic_encoder_kind_t magnetic_encoder, bool direction) {
+void magnetic_encoder_update_user(bool direction) {
 	// int16_t angle = as5600read_angle();
 	uint16_t pos = as5600read_angle();
 	int16_t delta = (int16_t)pos - (int16_t)last_pos;

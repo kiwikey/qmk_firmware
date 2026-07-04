@@ -2,7 +2,7 @@
 #include "as5600.h"
 #include "print.h"
 
-magnetic_encoder_t magnetic_encoders[NUM_MAGNETIC_ENCODERS];
+magnetic_encoder_t magnetic_encoders;
 
 int16_t as5600read_angle(void) {
     uint8_t data = 0;
@@ -96,38 +96,37 @@ int8_t get_movement(int max_distance, magnetic_encoder_t magnetic_encoder) {
 }
 
 void process_magnetic_encoder(void) {
-    for(magnetic_encoder_kind_t i=0;i<NUM_MAGNETIC_ENCODERS;i++) {
-        if(magnetic_encoders[i].is_present) {
-            magnetic_encoders[i].new_angle = as5600read_angle();
-            if(magnetic_encoders[i].new_angle == -1) {
-                magnetic_encoders[i].is_present = false;
-                return;
+    if(magnetic_encoders.is_present) {
+        magnetic_encoders.new_angle = as5600read_angle();
+        if(magnetic_encoders.new_angle == -1) {
+            magnetic_encoders.is_present = false;
+            return;
+        }
+        if(get_distance(magnetic_encoders) >= DEG_MARGIN_AS5600) {
+            magnetic_encoders.movement = get_movement(MAX_DISTANCE_AS5600, magnetic_encoders);       
+            if(magnetic_encoders.movement == -1) {                       
+                magnetic_encoder_update_user(false);
             }
-            if(get_distance(magnetic_encoders[i]) >= DEG_MARGIN_AS5600) {
-                magnetic_encoders[i].movement = get_movement(MAX_DISTANCE_AS5600, magnetic_encoders[i]);       
-                if(magnetic_encoders[i].movement == -1) {                       
-                    magnetic_encoder_update_user(i, false);
-                }
 
-                if(magnetic_encoders[i].movement == 1) {            
-                    magnetic_encoder_update_user(i, true);
-                }
-                magnetic_encoders[i].prev_angle = magnetic_encoders[i].new_angle;
-            }   
-        } 
-    }
+            if(magnetic_encoders.movement == 1) {            
+                magnetic_encoder_update_user(true);
+            }
+            magnetic_encoders.prev_angle = magnetic_encoders.new_angle;
+        }   
+    } 
+
 }
 
 void housekeeping_task_magnetic_encoder(void) {
     process_magnetic_encoder();
 	if(ping_as5600()) {
-        magnetic_encoders[AS5600].is_present = true;
+        magnetic_encoders.is_present = true;
     }
 }
 
 void keyboard_post_init_magnetic_encoder(void) {
     i2c_init();
     if(ping_as5600()) {
-        magnetic_encoders[AS5600].is_present = true;
+        magnetic_encoders.is_present = true;
     }
 }

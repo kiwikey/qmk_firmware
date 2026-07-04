@@ -10,11 +10,6 @@
 
 #define MAGNET_DETECTED_MASK 0b00100000
 
-typedef enum {
-    AS5600,
-    NUM_MAGNETIC_ENCODERS
-} magnetic_encoder_kind_t;
-
 enum REG_AS5600 {
     REG_STATUS = 0x0B,
     REG_ANGLE = 0x0E
@@ -40,6 +35,6 @@ uint16_t get_distance(magnetic_encoder_t magnetic_encoder);
 int8_t get_movement(int magnetic_encoder_kind, magnetic_encoder_t magnetic_encoder);
 
 void process_magnetic_encoder(void);
-void magnetic_encoder_update_user(magnetic_encoder_kind_t magnetic_encoder, bool);
+void magnetic_encoder_update_user(bool);
 void housekeeping_task_magnetic_encoder(void);
 void keyboard_post_init_magnetic_encoder(void);

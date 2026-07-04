@@ -7,4 +7,4 @@
 
 void housekeeping_task_sensors_handler(void);
 void keyboard_post_init_sensors_handler(void);
-void magnetic_encoder_update_user(magnetic_encoder_kind_t magnetic_encoder, bool direction);
+void magnetic_encoder_update_user(bool direction);
