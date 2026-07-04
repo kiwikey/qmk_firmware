@@ -2,38 +2,39 @@
 #include "as5600.h"
 #include "print.h"
 
-magnetic_encoder_t magnetic_encoders;
+magnetic_encoder_t magnetic_encoder;
 
-int16_t as5600read_angle(void) {
+int16_t as5600_read_angle(void) {
     uint8_t data = 0;
-    int16_t angle = 0;
+    uint16_t angle = 0;
 
-    as5600_write(REG_STATUS);
-    if(as5600_read(&data)) {
-        if(data & MAGNET_DETECTED_MASK) {
-            as5600_write(REG_ANGLE);
+    if (!as5600_write(REG_STATUS)) return -1;
+    if (as5600_read(&data)) {
+        if (data & MAGNET_DETECTED_MASK) {
+            if (!as5600_write(REG_ANGLE)) return -1;
             if(as5600_read(&data)) {
-                angle = data;
-                angle <<= 8;
-                as5600_read(&data);
+                angle = ((uint16_t)data << 8);
+                if (!as5600_read(&data)) return -1;
                 angle |= data;
-                }else {
+                } else {
                     return -1;
                 }
-        }else {
+        } else {
             print("\nMagnet not present!\n");
         }    
-    }else {
+    } else {
         return -1;   
     }
     return angle;
 }
 
-bool ping_as5600(void) {
+bool is_magnet_detected(void) {
     uint8_t response = 0;
-    as5600_write(REG_STATUS);
-    as5600_read(&response);
-    return response & MAGNET_DETECTED_MASK;
+    if (!as5600_write(REG_STATUS))
+        return false;
+    if (!as5600_read(&response))
+        return false;
+    return (response & MAGNET_DETECTED_MASK) != 0;
 }
 
 bool as5600_write(uint8_t reg_addr) {
@@ -55,69 +56,62 @@ bool as5600_read(uint8_t* out) {
 }
 
 uint16_t get_distance(magnetic_encoder_t magnetic_encoder) {
-    if(magnetic_encoder.prev_angle > magnetic_encoder.new_angle)
-        return magnetic_encoder.prev_angle - magnetic_encoder.new_angle;
-    if(magnetic_encoder.prev_angle < magnetic_encoder.new_angle)
-        return magnetic_encoder.new_angle - magnetic_encoder.prev_angle;   
+    int16_t delta = magnetic_encoder.new_angle - magnetic_encoder.prev_angle;
+
+    if (delta > AS5600_HALF_VALUE)
+        delta -= AS5600_MAX_VALUE;
+    else if (delta < -AS5600_HALF_VALUE)
+        delta += AS5600_MAX_VALUE;
     
-    return 0;
+    return (delta >= 0) ? delta : -delta; // just abs()
 }
 
-int8_t get_movement(int max_distance, magnetic_encoder_t magnetic_encoder) {
-    uint16_t distance = get_distance(magnetic_encoder);
+int8_t get_direction(magnetic_encoder_t magnetic_encoder) {
+    int16_t delta = magnetic_encoder.new_angle - magnetic_encoder.prev_angle;
 
-    if(magnetic_encoder.new_angle > magnetic_encoder.prev_angle) {
-        if(distance < max_distance) {
-            magnetic_encoder.prev_movement = 1;
-            return 1;
-        }else {
-            return magnetic_encoder.prev_movement;
-        }
+    if (delta > AS5600_HALF_VALUE)
+        delta -= AS5600_MAX_VALUE;
+    else if (delta < -AS5600_HALF_VALUE)
+        delta += AS5600_MAX_VALUE;
+
+    // TODO: check if delta > max_distance
+
+    if (delta > 0) { // CW
+        return 1;
     }
-
-    if(magnetic_encoder.prev_angle > magnetic_encoder.new_angle) {
-        if(distance < max_distance) {
-            magnetic_encoder.prev_movement = -1;
-            return -1;
-        }else {
-            return magnetic_encoder.prev_movement;
-        }
+    else if (delta < 0) { // CCW
+        return -1;
     }
     return 0;
 }
 
 void process_magnetic_encoder(void) {
-    if(magnetic_encoders.is_present) {
-        magnetic_encoders.new_angle = as5600read_angle();
-        if(magnetic_encoders.new_angle == -1) {
-            magnetic_encoders.is_present = false;
+    if(magnetic_encoder.is_present) {
+        magnetic_encoder.new_angle = as5600_read_angle();
+        if(magnetic_encoder.new_angle == -1) {
+            magnetic_encoder.is_present = false;
             return;
         }
-        if(get_distance(magnetic_encoders) >= DEG_MARGIN_AS5600) {
-            magnetic_encoders.movement = get_movement(MAX_DISTANCE_AS5600, magnetic_encoders);
-            if(magnetic_encoders.movement == -1) {                       
+        if(get_distance(magnetic_encoder) >= DEG_MARGIN_AS5600) {
+            magnetic_encoder.movement = get_direction(magnetic_encoder);
+            if(magnetic_encoder.movement == -1) {
                 magnetic_encoder_update_user(false);
             }
-
-            if(magnetic_encoders.movement == 1) {
+            if(magnetic_encoder.movement == 1) {
                 magnetic_encoder_update_user(true);
             }
-            magnetic_encoders.prev_angle = magnetic_encoders.new_angle;
-        }   
-    } 
-
+            magnetic_encoder.prev_angle = magnetic_encoder.new_angle;
+        }
+    }
 }
 
 void housekeeping_task_magnetic_encoder(void) {
-    process_magnetic_encoder();
-	if(ping_as5600()) {
-        magnetic_encoders.is_present = true;
-    }
+    magnetic_encoder.is_present = is_magnet_detected();
+    if (magnetic_encoder.is_present)
+        process_magnetic_encoder();
 }
 
 void keyboard_post_init_magnetic_encoder(void) {
     i2c_init();
-    if(ping_as5600()) {
-        magnetic_encoders.is_present = true;
-    }
+    magnetic_encoder.is_present = is_magnet_detected();
 }

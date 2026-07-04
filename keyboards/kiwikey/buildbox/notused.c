@@ -20,3 +20,14 @@
 		printf("\n");
 	}
 	printf("\n");
+
+// USING IN: int16_t as5600read_angle(void)
+    if(as5600_read(&data)) {
+        if(!(data & MAGNET_DETECTED_MASK)) {
+            print("\nMagnet not present!\n");
+        } else if(data & MAGNET_WEAK_MASK) {
+            print("\nMagnet too weak!\n");
+        } else if(data & MAGNET_STRONG_MASK) {
+            print("\nMagnet too strong!\n");
+        }
+    }
