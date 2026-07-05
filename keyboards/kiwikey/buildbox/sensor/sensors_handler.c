@@ -35,8 +35,6 @@ void magnetic_encoder_update_user(bool direction) {
 
 	widget_knob_update(last_pos, pos);
 
-	printf("+ last_pos = %5d  pos = %5d  delta = %5d  accu = %5d \n", last_pos, pos, delta, accumulator);
-
     // while (accumulator >= STEP_SIZE) {
     //     tap_code(KC_VOLU);
     //     accumulator -= STEP_SIZE;
@@ -45,6 +43,8 @@ void magnetic_encoder_update_user(bool direction) {
     //     tap_code(KC_VOLD);
     //     accumulator += STEP_SIZE;
     // }
+
+	printf("+ last_pos = %5d  pos = %5d  delta = %5d  accu = %5d \n", last_pos, pos, delta, accumulator);
 
 	last_pos = pos;
 }

@@ -69,6 +69,7 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 
 layer_state_t layer_state_set_kb(layer_state_t state) {
 	if (!booting) {
+		widget_matrix_bgclear();
 		widget_layer_render(get_highest_layer(state));
 		widget_matrix_keymap_render(get_highest_layer(state));
 	}

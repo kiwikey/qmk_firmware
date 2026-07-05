@@ -2,7 +2,7 @@
 
 // The Knob itself
 #define WIDGET_KNOB_CENTERX           256
-#define WIDGET_KNOB_CENTERY           140
+#define WIDGET_KNOB_CENTERY           100
 #define WIDGET_KNOB_RADIUS            50
 #define WIDGET_KNOB_IS_FILLED         FALSE
 

@@ -15,34 +15,55 @@
 
 void widget_matrix_init(void) {
 	// Draw shadow
-	// qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
-				 // WIDGET_MATRIX_POSY - WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW + 1,
-				 // WIDGET_MATRIX_POSX + 95 + WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
-				 // WIDGET_MATRIX_POSY + 95 + WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
-				 // UI_COLOR_SHADOW, true, 5, true, true);
+	qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
+				 WIDGET_LAYER_POSY + UI_WIDGET_SHADOW - 5 + 1,
+				//  WIDGET_MATRIX_POSY - WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW + 1 - WIDGET_LAYER_HEIGHT,
+				 WIDGET_MATRIX_POSX + WIDGET_MATRIX_KEY_WIDTH*4  + WIDGET_MATRIX_KEY_SPACING*3 + WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
+				 WIDGET_MATRIX_POSY + WIDGET_MATRIX_KEY_HEIGHT*4 + WIDGET_MATRIX_KEY_SPACING*3 + WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
+				 UI_COLOR_SHADOW, true, 5, true, true);
 	// Draw background
-	// qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER,
-				 // WIDGET_MATRIX_POSY - WIDGET_MATRIX_BORDER + 1,
-				 // WIDGET_MATRIX_POSX + (WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING)*4 - WIDGET_MATRIX_KEY_SPACING + WIDGET_MATRIX_BORDER,
-				 // WIDGET_MATRIX_POSY + (WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING)*4 - WIDGET_MATRIX_KEY_SPACING + WIDGET_MATRIX_BORDER,
-				 // WIDGET_MATRIX_BACKGROUND, true, 5, true, true);
+	qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER,
+				 WIDGET_LAYER_POSY - 5 + 1,
+				 WIDGET_MATRIX_POSX + WIDGET_MATRIX_KEY_WIDTH*4  + WIDGET_MATRIX_KEY_SPACING*3 + WIDGET_MATRIX_BORDER,
+				 WIDGET_MATRIX_POSY + WIDGET_MATRIX_KEY_HEIGHT*4 + WIDGET_MATRIX_KEY_SPACING*3 + WIDGET_MATRIX_BORDER,
+				 WIDGET_MATRIX_BG, true, 5, true, true);
 	// Draw all buttons
     for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) { // ROW4 is for direct pin buttons, so need to -1
         for (uint8_t y = 0; y < MATRIX_COLS; y++) {
-			widget_matrix_render_button(x, y, WIDGET_MATRIX_COLOR_OFF, false);
+			widget_matrix_render_singlebutton(x, y, WIDGET_MATRIX_BUTTON_OFF, false);
 		}
 	}
-	// Render keymap
-	// widget_matrix_keymap_render(0); // No need, handled in keyboard_post_init_display()
+	// 2 FREE BUTTONS
+	// Shadows
+	qp_circle(my_display,
+			  WIDGET_MATRIX_BTN1_POSX + UI_WIDGET_SHADOW, WIDGET_MATRIX_BTN1_POSY + UI_WIDGET_SHADOW,
+			  WIDGET_MATRIX_BTN_RADIUS, UI_COLOR_SHADOW, true);
+	qp_circle(my_display,
+			  WIDGET_MATRIX_BTN2_POSX + UI_WIDGET_SHADOW, WIDGET_MATRIX_BTN2_POSY + UI_WIDGET_SHADOW,
+			  WIDGET_MATRIX_BTN_RADIUS, UI_COLOR_SHADOW, true);
+	// Inner
+	qp_circle(my_display,
+			  WIDGET_MATRIX_BTN1_POSX, WIDGET_MATRIX_BTN1_POSY,
+			  WIDGET_MATRIX_BTN_RADIUS, WIDGET_MATRIX_BUTTON_BG, true);
+	qp_circle(my_display,
+			  WIDGET_MATRIX_BTN2_POSX, WIDGET_MATRIX_BTN2_POSY,
+			  WIDGET_MATRIX_BTN_RADIUS, WIDGET_MATRIX_BUTTON_BG, true);
+	// Outline
+	qp_circle(my_display,
+			  WIDGET_MATRIX_BTN1_POSX, WIDGET_MATRIX_BTN1_POSY,
+			  WIDGET_MATRIX_BTN_RADIUS, WIDGET_MATRIX_BUTTON_OFF, false);
+	qp_circle(my_display,
+			  WIDGET_MATRIX_BTN2_POSX, WIDGET_MATRIX_BTN2_POSY,
+			  WIDGET_MATRIX_BTN_RADIUS, WIDGET_MATRIX_BUTTON_OFF, false);
 }
 
 void widget_matrix_update(uint8_t col, uint8_t row) {
 		bool on = (matrix_get_row(row) & (1 << col)) > 0; // The matrix position [x,y] is being pressed
 		if (row != 4) { // Not direct pin buttons
 			if (on)
-				widget_matrix_render_button(row, col, WIDGET_MATRIX_COLOR_ON, false);
+				widget_matrix_render_singlebutton(row, col, WIDGET_MATRIX_BUTTON_ON, false);
 			else
-				widget_matrix_render_button(row, col, WIDGET_MATRIX_COLOR_OFF, false);
+				widget_matrix_render_singlebutton(row, col, WIDGET_MATRIX_BUTTON_OFF, false);
 		}
 }
 
@@ -69,25 +90,6 @@ void widget_matrix_keymap_render(uint8_t layer) {
 	}
 }
 
-void widget_matrix_render_button(uint8_t x, uint8_t y, uint8_t hue, uint8_t sat, uint8_t val, bool filled) { // x and y are matrix [x,y], not pixel-related
-	// Button background
-	// qp_rect(my_display,
-	// 		WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING), // left
-	// 		WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING), // top
-	// 		WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH, // right
-	// 		WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT, // bottom
-	// 		WIDGET_MATRIX_BG,
-	// 		true);
-	// Button outline
-	qp_rect(my_display,
-			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING), // left
-			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING), // top
-			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH, // right
-			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT, // bottom
-			hue, sat, val,
-			filled);
-}
-
 void widget_matrix_render_kc_basic(uint8_t posx, uint8_t posy, uint16_t keycode) {
 	char buf1[4] = {0};
 	sprintf(buf1, "%s", keycode_to_string(keycode));
@@ -95,7 +97,7 @@ void widget_matrix_render_kc_basic(uint8_t posx, uint8_t posy, uint16_t keycode)
 								posx + WIDGET_MATRIX_KEY_WIDTH/2,
 								posy + WIDGET_MATRIX_KEY_HEIGHT/2,
 								WIDGET_MATRIX_KC_BASIC_FONT,
-								buf1, WIDGET_MATRIX_KC_BASIC_COLOR, WIDGET_MATRIX_KC_BASIC_BG);
+								buf1, WIDGET_MATRIX_KC_COLOR, WIDGET_MATRIX_KC_BG);
 }
 
 void widget_matrix_render_kc_layer(uint8_t posx, uint8_t posy, uint16_t keycode) {
@@ -105,7 +107,7 @@ void widget_matrix_render_kc_layer(uint8_t posx, uint8_t posy, uint16_t keycode)
 			posy + 1,
 			posx + 16,
 			posy + WIDGET_MATRIX_LABEL_FONT->line_height + 2,
-			WIDGET_MATRIX_LABEL_LAYER_BG, true);
+			WIDGET_MATRIX_LABEL_BG, true);
 	// Type of layer-keycode
 	char buf1[4], buf2[10]; // TODO: optimize buf1 buf2 length
 	switch (keycode) {
@@ -122,12 +124,42 @@ void widget_matrix_render_kc_layer(uint8_t posx, uint8_t posy, uint16_t keycode)
 			sprintf(buf2, "??");
 	}
 	// Top-left label
-	qp_drawtext_recolor(my_display, posx+3, posy+3, WIDGET_MATRIX_LABEL_FONT, buf1, HSV_BLACK, WIDGET_MATRIX_LABEL_LAYER_BG);
+	qp_drawtext_recolor(my_display, posx+3, posy+3, WIDGET_MATRIX_LABEL_FONT, buf1, HSV_BLACK, WIDGET_MATRIX_LABEL_BG);
 	qp_drawtext_recolor_center( my_display,
 								posx + WIDGET_MATRIX_KEY_WIDTH/2,
 								posy + WIDGET_MATRIX_KEY_HEIGHT/2 + 5, // +5 for better alignment
 								WIDGET_MATRIX_KC_BASIC_FONT,
-								buf2, WIDGET_MATRIX_KC_BASIC_COLOR, WIDGET_MATRIX_KC_BASIC_BG);
+								buf2, WIDGET_MATRIX_KC_COLOR, WIDGET_MATRIX_KC_BG);
+}
+
+void widget_matrix_bgclear_singlebutton(uint8_t x, uint8_t y) {
+	qp_rect(my_display,
+			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + 1, // left
+			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + 1, // top
+			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH - 1, // right
+			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT - 1, // bottom
+			WIDGET_MATRIX_BUTTON_BG,
+			true);
+}
+
+void widget_matrix_bgclear(void) {
+    for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) { // ROW4 is for direct pin buttons, so need to -1
+        for (uint8_t y = 0; y < MATRIX_COLS; y++) {
+			widget_matrix_bgclear_singlebutton(x, y);
+		}
+	}
+}
+
+void widget_matrix_render_singlebutton(uint8_t x, uint8_t y, uint8_t hue, uint8_t sat, uint8_t val, bool filled) {
+	widget_matrix_bgclear_singlebutton(x, y),
+	// Button outline
+	qp_rect(my_display,
+			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING), // left
+			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING), // top
+			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH, // right
+			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT, // bottom
+			hue, sat, val,
+			filled);
 }
 
 char *keycode_to_string(enum qk_keycode_defines kc)
