@@ -114,4 +114,8 @@ void housekeeping_task_magnetic_encoder(void) {
 void keyboard_post_init_magnetic_encoder(void) {
     i2c_init();
     magnetic_encoder.is_present = is_magnet_detected();
+    if (magnetic_encoder.is_present) {
+        magnetic_encoder.prev_angle = as5600_read_angle();
+        magnetic_encoder.new_angle = magnetic_encoder.prev_angle;
+    }
 }

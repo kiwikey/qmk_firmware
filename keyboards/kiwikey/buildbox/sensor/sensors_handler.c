@@ -1,6 +1,17 @@
 #include "sensors_handler.h"
 
+#include <lib/lib8tion/lib8tion.h>
+
+#include "display/qp_graphics.h"
+#include "display/qp_includes.h"
+#include "display/qp_custom_api.h"
+#include "display/eeprom_custom.h"
+#include "display/widgets/qp_widget_matrix.h"
+#include "display/widgets/qp_widget_layer.h"
+#include "display/widgets/qp_widget_knob.h"
+
 static uint16_t last_pos = 0;
+static int16_t  accumulator = 0;
 
 void keyboard_post_init_sensors_handler(void) {
 	keyboard_post_init_magnetic_encoder();
@@ -11,15 +22,29 @@ void housekeeping_task_sensors_handler(void) {
 }
 
 void magnetic_encoder_update_user(bool direction) {
-	// int16_t angle = as5600read_angle();
 	uint16_t pos = as5600_read_angle();
 	int16_t delta = (int16_t)pos - (int16_t)last_pos;
-	
-	printf("+ last_pos = %5d  pos = %5d  delta = %5d \n", last_pos, pos, delta);
+
+    // Handle wrap-around
+    if (delta > 2048)
+        delta -= 4096;
+    else if (delta < -2048)
+        delta += 4096;
+
+    accumulator += delta;
+
+	widget_knob_update(last_pos, pos);
+
+	printf("+ last_pos = %5d  pos = %5d  delta = %5d  accu = %5d \n", last_pos, pos, delta, accumulator);
+
+    // while (accumulator >= STEP_SIZE) {
+    //     tap_code(KC_VOLU);
+    //     accumulator -= STEP_SIZE;
+    // }
+    // while (accumulator <= -STEP_SIZE) {
+    //     tap_code(KC_VOLD);
+    //     accumulator += STEP_SIZE;
+    // }
 
 	last_pos = pos;
-
-	// printf("+ direction = %5s", direction? "DOWN" : "UP");
-	// printf("+ get_distance = %u \n", get_distance(magnetic_encoder));
-	// printf("+ get_movement = %u \n", get_movement(100, magnetic_encoder));
 }

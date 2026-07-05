@@ -6,7 +6,7 @@
 #define AS5600_HALF_VALUE  (AS5600_MAX_VALUE/2)
 
 // #define DEG_MARGIN_AS5600 25
-#define DEG_MARGIN_AS5600 16
+#define DEG_MARGIN_AS5600 32
 #define MAX_DISTANCE_AS5600 500 // filter error/abnormal reads
 
 #define AS5600_ADDRESS (0x36 << 1)
