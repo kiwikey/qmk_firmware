@@ -1,5 +1,6 @@
 #pragma once
 
+#define BOOT_ENABLE            FALSE
 #define BOOT_DURATION          4000 // ms
 
 #define DISPLAY_TIMEOUT_MIN    30	// seconds
@@ -11,6 +12,7 @@ extern painter_device_t my_display;
 
 void display_init(void);
 void display_bootup(void);
+void ui_refresh(void);
 
 void keyboard_post_init_display(void);
 bool display_task_kb(void);

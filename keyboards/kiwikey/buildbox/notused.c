@@ -1,3 +1,4 @@
+// USED IN: process_record_kb
 	printf("--- get_keycode_string --- \n");
 	for (uint8_t i = 0;  i < MATRIX_ROWS; i++) {
 		for (uint8_t j = 0;  j < MATRIX_COLS; j++) {
@@ -21,7 +22,7 @@
 	}
 	printf("\n");
 
-// USING IN: int16_t as5600read_angle(void)
+// USED IN: int16_t as5600read_angle(void)
     if(as5600_read(&data)) {
         if(!(data & MAGNET_DETECTED_MASK)) {
             print("\nMagnet not present!\n");

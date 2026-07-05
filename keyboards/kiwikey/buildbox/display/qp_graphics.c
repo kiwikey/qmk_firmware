@@ -32,33 +32,30 @@ void display_init(void) {
 uint32_t finish_boot_animation(uint32_t trigger_time, void *cb_arg) {
     booting = false;
 	qp_stop_animation(my_anim);
-
-	qp_rect(my_display, 0, 0, 319, 239, HSV_BLACK, true); // Fill screen by black color
-	qp_flush(my_display);
-	widget_matrix_init();
-	widget_layer_init();
-	widget_knob_init();
-	
-	widget_layer_render(0); // temporarily 0, should be get from EEPROM
-	widget_matrix_keymap_render(0);
-
+	ui_refresh();
     return 0;   // Don't schedule again
 }
 
 void keyboard_post_init_display(void) {
 	display_init();
-	// booting = true;
-	// my_anim = qp_animate(my_display, 0, 90, gif_bootup01);
-	// defer_exec(BOOT_DURATION, finish_boot_animation, NULL);
+	if (BOOT_ENABLE) {
+		booting = true;
+		my_anim = qp_animate(my_display, 0, 90, gif_bootup01);
+		defer_exec(BOOT_DURATION, finish_boot_animation, NULL);
+	} else {
+		ui_refresh();
+	}
+}
 
+void ui_refresh(void) {
 	qp_rect(my_display, 0, 0, 319, 239, HSV_BLACK, true); // Fill screen by black color
 	qp_flush(my_display);
 	widget_matrix_init();
 	widget_layer_init();
 	widget_knob_init();
-	
-	widget_layer_render(0); // temporarily 0, should be get from EEPROM
-	widget_matrix_keymap_render(0);
+	widget_layer_render(get_highest_layer(layer_state));
+	widget_matrix_keymap_render(get_highest_layer(layer_state));
+	qp_flush(my_display);
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {

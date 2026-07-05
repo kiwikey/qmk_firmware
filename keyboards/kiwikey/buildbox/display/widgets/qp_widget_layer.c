@@ -30,17 +30,19 @@ void widget_layer_render(uint8_t layer) {
 		sprintf(buf1, "%d", i);
 		if (layer == i) { // This IF should be shorten
 			qp_rect(my_display,
-					 WIDGET_LAYER_POSX + i*WIDGET_LAYER_WIDTH/4,
-					 WIDGET_LAYER_POSY,
-					 WIDGET_LAYER_POSX + (i+1)*WIDGET_LAYER_WIDTH/4,
-					 WIDGET_LAYER_POSY + WIDGET_LAYER_HEIGHT,
-					 WIDGET_LAYER_OUTLINE, true);
+					 WIDGET_LAYER_POSX + i*WIDGET_LAYER_WIDTH/4 + 1,
+					 WIDGET_LAYER_POSY + 1,
+					 WIDGET_LAYER_POSX + (i+1)*WIDGET_LAYER_WIDTH/4, // no need -1
+					 WIDGET_LAYER_POSY + WIDGET_LAYER_HEIGHT - 1,
+					 layer_color_hue[i], 255, 255,
+					 true);
+					//  WIDGET_LAYER_OUTLINE, true);
 			qp_drawtext_recolor(my_display,
 								WIDGET_LAYER_POSX + i*WIDGET_LAYER_WIDTH/4 + 3,
 								WIDGET_LAYER_POSY + 3,
 								robotobold25, buf1,
 								WIDGET_LAYER_ON_TEXT,
-								WIDGET_LAYER_OUTLINE);
+								layer_color_hue[i], 255, 255);
 		} else {
 			qp_rect(my_display,
 					 WIDGET_LAYER_POSX + i*WIDGET_LAYER_WIDTH/4,
