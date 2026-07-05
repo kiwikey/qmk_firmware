@@ -1,3 +1,5 @@
+/*** JUST CODES THAT ARE NOT USED, FOR TESTING SOMEWHERE, IF NEEDED ***/
+
 // USED IN: process_record_kb
 	printf("--- get_keycode_string --- \n");
 	for (uint8_t i = 0;  i < MATRIX_ROWS; i++) {

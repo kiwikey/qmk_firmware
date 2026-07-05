@@ -11,6 +11,11 @@
 
 void widget_knob_init(void) {
 	qp_circle(my_display,
+			  WIDGET_KNOB_CENTERX + UI_WIDGET_SHADOW,
+			  WIDGET_KNOB_CENTERY + UI_WIDGET_SHADOW,
+			  WIDGET_KNOB_RADIUS,
+			  UI_COLOR_SHADOW, true);
+	qp_circle(my_display,
 			  WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
 			  WIDGET_KNOB_RADIUS,
 			  WIDGET_KNOB_BG_COLOR, WIDGET_KNOB_IS_FILLED);
@@ -29,7 +34,7 @@ void widget_knob_update(uint16_t last_pos, uint16_t new_pos) {
 	qp_circle(my_display, x, y,
 			  WIDGET_KNOB_DOT_SIZE,
 			  WIDGET_KNOB_BG_COLOR,
-			  false);
+			  WIDGET_KNOB_IS_FILLED);
 	// draw the new DOT
 	angle = 255 - (new_pos >> 4);
 	x = WIDGET_KNOB_CENTERX + (WIDGET_KNOB_DOT_ORBIT_RADIUS * (cos8(angle)-128)) / 128;
@@ -37,7 +42,7 @@ void widget_knob_update(uint16_t last_pos, uint16_t new_pos) {
 	qp_circle(my_display, x, y,
 			  WIDGET_KNOB_DOT_SIZE,
 			  WIDGET_KNOB_DOT_COLOR,
-			  false);
+			  WIDGET_KNOB_IS_FILLED);
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)

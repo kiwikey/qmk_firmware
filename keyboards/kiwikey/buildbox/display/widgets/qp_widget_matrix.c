@@ -76,9 +76,15 @@ void widget_matrix_keymap_render(uint8_t layer) {
 			uint16_t x_offset, y_offset;
 			// 2 free buttons
 			if (x == MATRIX_ROWS-1) {
-				if (y == 0) {
+				if (y == 0) { // BUTTON1
 					x_offset = WIDGET_MATRIX_BTN1_POSX;
 					y_offset = WIDGET_MATRIX_BTN1_POSY + 2; // HOTFIX: +2 for better alignment
+				} else if (y == 1) { // BUTTON2
+					x_offset = WIDGET_MATRIX_BTN2_POSX;
+					y_offset = WIDGET_MATRIX_BTN2_POSY + 2; // HOTFIX: +2 for better alignment
+				} else { // with matrix positions that are "blank", their keycode will be 0x0000, same as KC_NO, so must not process them
+					x_offset = NULL_VALUE;
+					y_offset = NULL_VALUE;
 				}
 			// matrix keys
 			} else {
@@ -97,13 +103,15 @@ void widget_matrix_keymap_render(uint8_t layer) {
 					widget_matrix_render_kc_basic(x_offset, y_offset, keycode);
 					break;
 				default:
-					;
+					widget_matrix_render_kc_basic(x_offset, y_offset, keycode);
+					// ;
 			}
 		}
 	}
 }
 
 void widget_matrix_render_kc_basic(uint8_t posx, uint8_t posy, uint16_t keycode) {
+	if (posx == NULL_VALUE) return; // with matrix positions that are "blank", their keycode will be 0x0000, same as KC_NO, so must not process them
 	char buf1[4] = {0};
 	sprintf(buf1, "%s", keycode_to_string(keycode));
 	qp_drawtext_recolor_center(my_display, posx, posy,

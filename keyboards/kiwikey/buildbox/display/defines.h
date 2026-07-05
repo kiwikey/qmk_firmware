@@ -1,5 +1,7 @@
 #pragma once
 
+#define NULL_VALUE 0
+
 /*** Definitions of (almost) all positions, colors, texts,... ***/
 
 // #define UI_COLOR_BACKGROUND     HSV_BLACK
