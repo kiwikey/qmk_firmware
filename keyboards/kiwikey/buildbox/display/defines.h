@@ -26,6 +26,6 @@
 static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	"Default",
 	"Media",
-	"Custom",
-	"Macros"
+	"Mouse",
+	"RGB LED"
 };

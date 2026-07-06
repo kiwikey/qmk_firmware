@@ -5,7 +5,6 @@
 #define AS5600_MAX_VALUE   4096
 #define AS5600_HALF_VALUE  (AS5600_MAX_VALUE/2)
 
-// #define DEG_MARGIN_AS5600 25
 #define DEG_MARGIN_AS5600 32
 #define MAX_DISTANCE_AS5600 500 // filter error/abnormal reads
 
@@ -27,6 +26,7 @@ typedef struct {
     int8_t movement;
     int8_t prev_movement;
 } magnetic_encoder_t;
+extern magnetic_encoder_t magnetic_encoder;
 
 bool is_magnet_detected(void);
 
@@ -39,6 +39,6 @@ uint16_t get_distance(magnetic_encoder_t magnetic_encoder);
 int8_t   get_direction(magnetic_encoder_t magnetic_encoder);
 
 void process_magnetic_encoder(void);
-void magnetic_encoder_update_user(bool direction);
+void magnetic_encoder_update_kb(bool direction);
 void housekeeping_task_magnetic_encoder(void);
 void keyboard_post_init_magnetic_encoder(void);

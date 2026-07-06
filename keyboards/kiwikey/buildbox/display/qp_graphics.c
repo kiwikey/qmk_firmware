@@ -55,6 +55,7 @@ void ui_refresh(void) {
 	widget_knob_init();
 	widget_layer_render(get_highest_layer(layer_state));
 	widget_matrix_keymap_render(get_highest_layer(layer_state));
+	
 	qp_flush(my_display);
 }
 

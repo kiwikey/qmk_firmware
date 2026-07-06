@@ -8,6 +8,7 @@
 #include "display/qp_includes.h"
 #include "display/qp_custom_api.h"
 #include "display/defines.h"
+#include "sensor/as5600.h"
 
 void widget_knob_init(void) {
 	qp_circle(my_display,
@@ -23,6 +24,7 @@ void widget_knob_init(void) {
 			  WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
 			  WIDGET_KNOB_RADIUS,
 			  HSV_YELLOW, FALSE);
+	widget_knob_update(magnetic_encoder.prev_angle, magnetic_encoder.new_angle);
 }
 
 void widget_knob_update(uint16_t last_pos, uint16_t new_pos) {
@@ -34,7 +36,7 @@ void widget_knob_update(uint16_t last_pos, uint16_t new_pos) {
 	qp_circle(my_display, x, y,
 			  WIDGET_KNOB_DOT_SIZE,
 			  WIDGET_KNOB_BG_COLOR,
-			  WIDGET_KNOB_IS_FILLED);
+			  WIDGET_KNOB_DOT_IS_FILLED);
 	// draw the new DOT
 	angle = 255 - (new_pos >> 4);
 	x = WIDGET_KNOB_CENTERX + (WIDGET_KNOB_DOT_ORBIT_RADIUS * (cos8(angle)-128)) / 128;
@@ -42,7 +44,7 @@ void widget_knob_update(uint16_t last_pos, uint16_t new_pos) {
 	qp_circle(my_display, x, y,
 			  WIDGET_KNOB_DOT_SIZE,
 			  WIDGET_KNOB_DOT_COLOR,
-			  WIDGET_KNOB_IS_FILLED);
+			  WIDGET_KNOB_DOT_IS_FILLED);
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)

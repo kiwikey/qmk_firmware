@@ -21,7 +21,7 @@ void housekeeping_task_sensors_handler(void) {
 	housekeeping_task_magnetic_encoder();
 }
 
-void magnetic_encoder_update_user(bool direction) {
+void magnetic_encoder_update_kb(bool direction) {
 	uint16_t pos = as5600_read_angle();
 	int16_t delta = (int16_t)pos - (int16_t)last_pos;
 
@@ -43,8 +43,6 @@ void magnetic_encoder_update_user(bool direction) {
     //     tap_code(KC_VOLD);
     //     accumulator += STEP_SIZE;
     // }
-
-	printf("+ last_pos = %5d  pos = %5d  delta = %5d  accu = %5d \n", last_pos, pos, delta, accumulator);
 
 	last_pos = pos;
 }

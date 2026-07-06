@@ -1,5 +1,5 @@
-#include "i2c_master.h"
 #include "as5600.h"
+#include "i2c_master.h"
 #include "print.h"
 
 magnetic_encoder_t magnetic_encoder;
@@ -95,10 +95,10 @@ void process_magnetic_encoder(void) {
         if(get_distance(magnetic_encoder) >= DEG_MARGIN_AS5600) {
             magnetic_encoder.movement = get_direction(magnetic_encoder);
             if(magnetic_encoder.movement == -1) {
-                magnetic_encoder_update_user(false);
+                magnetic_encoder_update_kb(false);
             }
             if(magnetic_encoder.movement == 1) {
-                magnetic_encoder_update_user(true);
+                magnetic_encoder_update_kb(true);
             }
             magnetic_encoder.prev_angle = magnetic_encoder.new_angle;
         }

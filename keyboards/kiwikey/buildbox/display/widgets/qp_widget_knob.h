@@ -8,7 +8,7 @@
 
 // Knob's indicator, aka the "DOT"
 #define WIDGET_KNOB_DOT_SIZE          10
-#define WIDGET_KNOB_IS_FILLED         TRUE
+#define WIDGET_KNOB_DOT_IS_FILLED     FALSE
 #define WIDGET_KNOB_DOT_ORBIT_RADIUS  (WIDGET_KNOB_RADIUS - 15)
 #define WIDGET_KNOB_BG_COLOR          HSV_BLACK
 #define WIDGET_KNOB_DOT_COLOR         HSV_RED
