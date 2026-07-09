@@ -14,7 +14,6 @@
 #define WIDGET_MATRIX_BTN2_POSY    WIDGET_MATRIX_BTN1_POSY
 #define WIDGET_MATRIX_BTN_RADIUS   20
 
-
 #define WIDGET_MATRIX_LABEL_FONT      font_proggy_tiny
 #define WIDGET_MATRIX_KC_BASIC_FONT   roboto20
 
@@ -33,8 +32,8 @@ void widget_matrix_update(uint8_t col, uint8_t row);
 
 // RENDERING
 void widget_matrix_keymap_render(uint8_t layer);
-void widget_matrix_render_kc_layer(uint8_t posx, uint8_t posy, uint16_t keycode);
-void widget_matrix_render_kc_basic(uint8_t posx, uint8_t posy, uint16_t keycode);
+void widget_matrix_render_kc_layer(uint16_t posx, uint16_t posy, uint16_t keycode);
+void widget_matrix_render_kc_basic(uint16_t posx, uint16_t posy, uint16_t keycode);
 
 void widget_matrix_bgclear_singlebutton(uint8_t x, uint8_t y);  // x and y are matrix [x,y], not pixel-related
 void widget_matrix_render_singlebutton(uint8_t x, uint8_t y, uint8_t hue, uint8_t sat, uint8_t val, bool filled);  // x and y are matrix [x,y], not pixel-related

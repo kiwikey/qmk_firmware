@@ -6,8 +6,8 @@ DEFERRED_EXEC_ENABLE  = yes
 
 # QUANTUM PAINTER
 QUANTUM_PAINTER_ENABLE = yes
-# QUANTUM_PAINTER_DRIVERS += st7789_spi
-QUANTUM_PAINTER_DRIVERS += ili9341_spi
+QUANTUM_PAINTER_DRIVERS += st7789_spi
+# QUANTUM_PAINTER_DRIVERS += ili9341_spi
 
 # CUSTOM MATRIX
 CUSTOM_MATRIX = lite
@@ -21,12 +21,14 @@ SRC += \
 
 # QP SOURCE FILES
 SRC += \
+	display/via_custom.c               \
 	display/qp_graphics.c              \
 	display/qp_custom_api.c            \
 	display/qp_includes.c              \
 	display/widgets/qp_widget_matrix.c \
 	display/widgets/qp_widget_layer.c  \
 	display/widgets/qp_widget_knob.c
+# 		display/widgets/qp_menu.c          \
 
 # FONTS
 SRC += \

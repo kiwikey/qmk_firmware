@@ -92,7 +92,6 @@ void widget_matrix_keymap_render(uint8_t layer) {
 				y_offset = WIDGET_MATRIX_POSY + x* (WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT/2;
 			}
 			// Draw keycode string
-			printf("keycode = %d  x_offset = %d  y_offset = %d \n", keycode,x_offset,y_offset);
 			switch (keycode) {
 				case QK_MOMENTARY ... QK_PERSISTENT_DEF_LAYER_MAX: // All layer-related keycodes (0x5220 to 0x52FF)
 					widget_matrix_render_kc_layer(x_offset, y_offset, keycode);
@@ -110,7 +109,7 @@ void widget_matrix_keymap_render(uint8_t layer) {
 	}
 }
 
-void widget_matrix_render_kc_basic(uint8_t posx, uint8_t posy, uint16_t keycode) {
+void widget_matrix_render_kc_basic(uint16_t posx, uint16_t posy, uint16_t keycode) {
 	if (posx == NULL_VALUE) return; // with matrix positions that are "blank", their keycode will be 0x0000, same as KC_NO, so must not process them
 	char buf1[4] = {0};
 	sprintf(buf1, "%s", keycode_to_string(keycode));
@@ -119,7 +118,7 @@ void widget_matrix_render_kc_basic(uint8_t posx, uint8_t posy, uint16_t keycode)
 							   buf1, WIDGET_MATRIX_KC_COLOR, WIDGET_MATRIX_KC_BG);
 }
 
-void widget_matrix_render_kc_layer(uint8_t posx, uint8_t posy, uint16_t keycode) {
+void widget_matrix_render_kc_layer(uint16_t posx, uint16_t posy, uint16_t keycode) {
 	// Top-left label background, TODO: clean this up
 	qp_rect(my_display,
 			posx - WIDGET_MATRIX_KEY_WIDTH/2 + 1,

@@ -1,8 +1,9 @@
 #include "quantum.h"
 
-static const pin_t col_pins[4] = { GP0, GP1, GP2, GP3 };
-static const pin_t row_pins[4] = { GP4, GP5, GP6, GP7 };
-#define DIRECT_PIN GP24
+static const pin_t col_pins[4] = { GP4, GP5, GP6, GP7 };
+static const pin_t row_pins[4] = { GP0, GP1, GP2, GP3 };
+#define DIRECT_PIN_1 GP23
+#define DIRECT_PIN_2 GP24
 
 void matrix_init_custom(void) {
     // Configure row pins as outputs (inactive = HIGH)
@@ -17,7 +18,8 @@ void matrix_init_custom(void) {
     }
 
     // Configure direct key as pull-up input
-    gpio_set_pin_input_high(DIRECT_PIN);
+    gpio_set_pin_input_high(DIRECT_PIN_1);
+    gpio_set_pin_input_high(DIRECT_PIN_2);
 }
 
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
@@ -48,9 +50,12 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
 
     matrix_row_t row4_value = 0;
 
-    // Extra direct key on ROW4 COL0
-    if (!gpio_read_pin(DIRECT_PIN)) {
-        row4_value |= 1;
+    // Extra direct keys on ROW4
+    if (!gpio_read_pin(DIRECT_PIN_1)) {
+        row4_value |= 0x01;
+    }
+    if (!gpio_read_pin(DIRECT_PIN_2)) {
+        row4_value |= 0x02;
     }
 
     if (current_matrix[4] != row4_value) {

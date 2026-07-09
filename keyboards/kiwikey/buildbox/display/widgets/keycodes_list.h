@@ -154,5 +154,5 @@
     X (  QK_RGB_MATRIX_HUE_UP                         , 0x7845,    "C>"     ) \
     X (  QK_RGB_MATRIX_HUE_DOWN                       , 0x7846,    "<C"     ) \
     X (  QK_RGB_MATRIX_VALUE_UP                       , 0x7849,    "Br+"     ) \
-    X (  QK_RGB_MATRIX_VALUE_DOWN                     , 0x784A,    "Br-"     ) \
-    X (  QK_USER_0                                    , 0x7E40,    "#"     )
+    X (  QK_USER_0                                    , 0x7E40,    "#"     ) \
+    X (  QK_USER_1                                    , 0x7E41,    "="     )

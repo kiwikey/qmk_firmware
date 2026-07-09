@@ -12,9 +12,18 @@ bool     booting = false; // will be TRUE during boot animation
 uint32_t bootup_time = 0;
 
 void display_init(void) {
-	my_display = qp_ili9341_make_spi_device(
-		ILI9341_WIDTH,
-		ILI9341_HEIGHT,
+	// my_display = qp_ili9341_make_spi_device(
+	// 	ILI9341_WIDTH,
+	// 	ILI9341_HEIGHT,
+	// 	DISPLAY_CS_PIN,
+	// 	DISPLAY_DC_PIN,
+	// 	DISPLAY_RST_PIN,
+	// 	DISPLAY_SPI_DIVISOR,
+	// 	DISPLAY_SPI_MODE
+	// );
+	my_display = qp_st7789_make_spi_device(
+		ST7789_WIDTH,
+		ST7789_HEIGHT,
 		DISPLAY_CS_PIN,
 		DISPLAY_DC_PIN,
 		DISPLAY_RST_PIN,
@@ -45,6 +54,7 @@ void keyboard_post_init_display(void) {
 	} else {
 		ui_refresh();
 	}
+	print("Display init done!  \n");
 }
 
 void ui_refresh(void) {
@@ -63,13 +73,4 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 	if (!booting)
 		widget_matrix_update(record->event.key.col, record->event.key.row);
 	return true;
-}
-
-layer_state_t layer_state_set_kb(layer_state_t state) {
-	if (!booting) {
-		widget_matrix_bgclear();
-		widget_layer_render(get_highest_layer(state));
-		widget_matrix_keymap_render(get_highest_layer(state));
-	}
-	return state;
 }

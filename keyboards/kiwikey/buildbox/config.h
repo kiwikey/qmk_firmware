@@ -11,10 +11,6 @@
 
 #define TAP_CODE_DELAY 10
 
-// support %f in printf
-#undef  PRINTF_SUPPORT_DECIMAL_SPECIFIERS
-#define PRINTF_SUPPORT_DECIMAL_SPECIFIERS 1
-
 #if defined(VIA_ENABLE)
 	#define DYNAMIC_KEYMAP_LAYER_COUNT 4
 	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 17
@@ -34,11 +30,11 @@
 	#define DISPLAY_DC_PIN       GP12
 	#define DISPLAY_RST_PIN      GP9
 
-	#define DISPLAY_SPI_DIVISOR  4
+	#define DISPLAY_SPI_DIVISOR 4
 	#define DISPLAY_SPI_MODE    3 // ST7789 240*240 works with mode 2 or 3 only, not sure why
 	
 	/*** TFT DISPLAY CONFIGURATIONS ***/
-	#define ST7789_WIDTH  240
+	#define ST7789_WIDTH  320
 	#define ST7789_HEIGHT 240
 	
 	#define ILI9341_WIDTH  320
@@ -57,4 +53,10 @@
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 	
 /*** PWM DRIVER DEFINITIONS ***/
-#define LCD_BLK_PIN GP19
+// There is no official API for PWM, so PWM Backlight is used
+// GPIO8 - PWM4 A
+#define BACKLIGHT_PWM_DRIVER    PWMD4
+#define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_A
+// #define BACKLIGHT_PAL_MODE      (PAL_MODE_ALTERNATE_PWM | PAL_RP_PAD_DRIVE12 | PAL_RP_GPIO_OE)
+#define BACKLIGHT_PAL_MODE      2
+// #define BACKLIGHT_DEFAULT_LEVEL 10 // defined in keyboard.json

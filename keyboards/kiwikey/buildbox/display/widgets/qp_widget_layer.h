@@ -12,9 +12,6 @@
 #define WIDGET_LAYER_ON_TEXT   HSV_BLACK
 #define WIDGET_LAYER_OFF_TEXT  HSV_WHITE
 
-// #define ACTIVE_LAYER_MIN    0
-// #define ACTIVE_LAYER_MAX    (DYNAMIC_KEYMAP_LAYER_COUNT-1) // TODO: -1 applied to Kiwi5x5 only
-
 void widget_layer_init(void);
 void widget_layer_render(uint8_t layer);
 void widget_layer_render_layername(uint8_t layer);

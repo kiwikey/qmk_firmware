@@ -2,7 +2,6 @@
 
 #include "qp.h"
 #include "qp_custom_api.h"
-
 #include "display/qp_graphics.h"
 
 bool qp_roundrect(uint16_t left, uint16_t top, uint16_t right, uint16_t bottom, uint8_t hue, uint8_t sat, uint8_t val, bool filled, uint16_t corner, bool roundtop, bool roundbottom) {	
@@ -34,3 +33,9 @@ int16_t qp_drawtext_recolor_center(painter_device_t device, uint16_t x, uint16_t
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)
+
+void rgb_matrix_set_color_hsv(uint8_t index, hsv_t hsv) {
+	hsv.v = rgb_matrix_get_val(); // sync brightness to system's brightness, if not, max brightness (255) will be set
+    rgb_t rgb = hsv_to_rgb(hsv);
+    rgb_matrix_set_color(index, rgb.r, rgb.g, rgb.b);
+}

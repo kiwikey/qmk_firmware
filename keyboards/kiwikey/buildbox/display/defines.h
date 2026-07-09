@@ -23,9 +23,16 @@
 // #define WIDGET_ENCODER_KNOBCOLORIN      HSV_YELLOW
 // #define WIDGET_ENCODER_KNOBCOLOROUT     HSV_GOLDENROD
 
-static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
+static const char * const layer_names[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	"Default",
 	"Media",
 	"Mouse",
 	"RGB LED"
+};
+
+static const hsv_t layer_colors[] = {
+    [0] = { HSV_CYAN },
+    [1] = { HSV_MAGENTA },
+    [2] = { HSV_YELLOW },
+    [3] = { HSV_GREEN },
 };
