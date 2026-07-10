@@ -9,7 +9,12 @@
 
 painter_device_t my_display;
 bool     booting = false; // will be TRUE during boot animation
-uint32_t bootup_time = 0;
+
+// flag_display_keycode_changed: contains layer, row, col of changed key
+// Mask:     00          00      00       00
+//       is changed?   layer     row      col
+// Example: 0x1231 = changed, layer 2, row 3, col 1
+uint16_t flag_display_keycode_changed = 0x0000;
 
 void display_init(void) {
 	// my_display = qp_ili9341_make_spi_device(
@@ -54,7 +59,6 @@ void keyboard_post_init_display(void) {
 	} else {
 		ui_refresh();
 	}
-	print("Display init done!  \n");
 }
 
 void ui_refresh(void) {
@@ -67,6 +71,23 @@ void ui_refresh(void) {
 	widget_matrix_keymap_render(get_highest_layer(layer_state));
 	
 	qp_flush(my_display);
+}
+
+void housekeeping_task_display(void) {
+	// Check all flags
+	if (flag_display_keycode_changed & 0x1000) {
+		uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
+		if (layer == get_highest_layer(layer_state)) { // only process if that changed layer is being activated
+			uint16_t row = (flag_display_keycode_changed & 0x00F0) >> 4;
+			uint16_t col = flag_display_keycode_changed & 0x00F;
+			widget_matrix_render_singlebutton(row,
+											  col,
+											  WIDGET_MATRIX_BUTTON_OFF,
+											  true,
+											  layer);
+		}
+		flag_display_keycode_changed = 0x0000;
+	}
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {

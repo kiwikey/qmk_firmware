@@ -46,7 +46,9 @@ SRC += \
 	display/resources/icons/ico16_arrow_up.qgf.c    \
 	display/resources/icons/ico16_arrow_down.qgf.c  \
 	display/resources/icons/ico16_arrow_left.qgf.c  \
-	display/resources/icons/ico16_arrow_right.qgf.c
+	display/resources/icons/ico16_arrow_right.qgf.c \
+	display/resources/icons/ico16_layer.qgf.c       \
+	display/resources/icons/ico32_menu.qgf.c
 
 # IMAGES & ANIMATIONS
 SRC += \

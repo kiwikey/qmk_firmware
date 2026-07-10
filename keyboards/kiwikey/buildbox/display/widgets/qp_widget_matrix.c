@@ -13,6 +13,12 @@
 #include "display/widgets/qp_widget_knob.h"
 #include "keycodes_list.h"
 
+/***  Render all initialization things for the Matrix Widget:
+	+ widget shadow
+	+ widget background
+	+ widget buttons (4x4 = 16)
+	+ widget free buttons (2 buttons)
+***/
 void widget_matrix_init(void) {
 	// Draw shadow
 	qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
@@ -31,7 +37,7 @@ void widget_matrix_init(void) {
     for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) { // ROW4 is for direct pin buttons, so need to -1
         for (uint8_t y = 0; y < MATRIX_COLS; y++) {
 			widget_matrix_bgclear_singlebutton(x, y);
-			widget_matrix_render_singlebutton(x, y, WIDGET_MATRIX_BUTTON_OFF, false);
+			widget_matrix_render_singlebutton(x, y, WIDGET_MATRIX_BUTTON_OFF, false, 0); // as long as text_on = false, layer is ignored
 		}
 	}
 	// 2 FREE BUTTONS
@@ -56,59 +62,47 @@ void widget_matrix_init(void) {
 	qp_circle(my_display,
 			  WIDGET_MATRIX_BTN2_POSX, WIDGET_MATRIX_BTN2_POSY,
 			  WIDGET_MATRIX_BTN_RADIUS, WIDGET_MATRIX_BUTTON_OFF, false);
+	// Button icons
+	qp_drawimage(my_display,
+				 WIDGET_MATRIX_BTN1_POSX - (ico16_layer->width)/2,
+				 WIDGET_MATRIX_BTN1_POSY - (ico16_layer->height)/2,
+				 ico16_layer);
+	qp_drawimage(my_display,
+				 WIDGET_MATRIX_BTN2_POSX - (ico32_menu->width)/2,
+				 WIDGET_MATRIX_BTN2_POSY - (ico32_menu->height)/2,
+				 ico32_menu);
 }
 
+/***  Render "interactive effect" when a key is being pressed
+	The current effect: outline of key (a square) change color from WIDGET_MATRIX_BUTTON_OFF to WIDGET_MATRIX_BUTTON_ON
+	This is called during:
+		+ process_record_display()
+***/
 void widget_matrix_update(uint8_t col, uint8_t row) {
-		bool on = (matrix_get_row(row) & (1 << col)) > 0; // The matrix position [x,y] is being pressed
+		bool on = (matrix_get_row(row) & (1 << col)) > 0; // The matrix position [x,y] is being pressed or released
 		if (row != 4) { // Not direct pin buttons
 			if (on)
-				widget_matrix_render_singlebutton(row, col, WIDGET_MATRIX_BUTTON_ON, false);
+				widget_matrix_render_singlebutton(row, col, WIDGET_MATRIX_BUTTON_ON, false, 0); // pressed
 			else
-				widget_matrix_render_singlebutton(row, col, WIDGET_MATRIX_BUTTON_OFF, false);
+				widget_matrix_render_singlebutton(row, col, WIDGET_MATRIX_BUTTON_OFF, false, 0); // released
 		}
 		// else if (row == 4) // TODO
 }
 
+/***  Render keycode string of the whole matrix (4x4)
+	This is called during:
+		+ ui_refresh()
+		+ layer changes (layer_state_set_kb)
+***/
 void widget_matrix_keymap_render(uint8_t layer) {
-	for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
+	for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) {
 		for (uint8_t y = 0;  y < MATRIX_COLS; y++) {
-			uint16_t keycode = dynamic_keymap_get_keycode(layer, x, y);
-			uint16_t x_offset, y_offset;
-			// 2 free buttons
-			if (x == MATRIX_ROWS-1) {
-				if (y == 0) { // BUTTON1
-					x_offset = WIDGET_MATRIX_BTN1_POSX;
-					y_offset = WIDGET_MATRIX_BTN1_POSY + 2; // HOTFIX: +2 for better alignment
-				} else if (y == 1) { // BUTTON2
-					x_offset = WIDGET_MATRIX_BTN2_POSX;
-					y_offset = WIDGET_MATRIX_BTN2_POSY + 2; // HOTFIX: +2 for better alignment
-				} else { // with matrix positions that are "blank", their keycode will be 0x0000, same as KC_NO, so must not process them
-					x_offset = NULL_VALUE;
-					y_offset = NULL_VALUE;
-				}
-			// matrix keys
-			} else {
-				x_offset = WIDGET_MATRIX_POSX + y* (WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH/2;
-				y_offset = WIDGET_MATRIX_POSY + x* (WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT/2;
-			}
-			// Draw keycode string
-			switch (keycode) {
-				case QK_MOMENTARY ... QK_PERSISTENT_DEF_LAYER_MAX: // All layer-related keycodes (0x5220 to 0x52FF)
-					widget_matrix_render_kc_layer(x_offset, y_offset, keycode);
-					break;
-				case BASIC_KEYCODE_RANGE:
-				case MODIFIER_KEYCODE_RANGE:
-				case USER_KEYCODE_RANGE:
-					widget_matrix_render_kc_basic(x_offset, y_offset, keycode);
-					break;
-				default:
-					widget_matrix_render_kc_basic(x_offset, y_offset, keycode);
-					// ;
-			}
+				widget_matrix_render_singlebutton(x, y, WIDGET_MATRIX_KC_COLOR, true, layer);
 		}
 	}
 }
 
+/***  Render the keycode string for "basic keycodes" ***/
 void widget_matrix_render_kc_basic(uint16_t posx, uint16_t posy, uint16_t keycode) {
 	if (posx == NULL_VALUE) return; // with matrix positions that are "blank", their keycode will be 0x0000, same as KC_NO, so must not process them
 	char buf1[4] = {0};
@@ -118,6 +112,11 @@ void widget_matrix_render_kc_basic(uint16_t posx, uint16_t posy, uint16_t keycod
 							   buf1, WIDGET_MATRIX_KC_COLOR, WIDGET_MATRIX_KC_BG);
 }
 
+/***  Render the keycode string for "layer keycodes"
+	PLEASE NOTE : moving between layers means to be handled by free button, not the matrix key
+				  this will run only when user sets a matrix key to layer keycode
+	There is a yellow label in top-left corner of the key, with: "MO" / "LT" / "TG" / ...
+***/
 void widget_matrix_render_kc_layer(uint16_t posx, uint16_t posy, uint16_t keycode) {
 	// Top-left label background, TODO: clean this up
 	qp_rect(my_display,
@@ -146,6 +145,7 @@ void widget_matrix_render_kc_layer(uint16_t posx, uint16_t posy, uint16_t keycod
 						posx - WIDGET_MATRIX_KEY_WIDTH/2 +3,
 						posy - WIDGET_MATRIX_KEY_WIDTH/2 +3,
 						WIDGET_MATRIX_LABEL_FONT, buf1, HSV_BLACK, WIDGET_MATRIX_LABEL_BG);
+	// Layer number
 	qp_drawtext_recolor_center(my_display,
 							   posx,
 							   posy + 5, // HOTFIX: +5 for better alignment
@@ -153,6 +153,58 @@ void widget_matrix_render_kc_layer(uint16_t posx, uint16_t posy, uint16_t keycod
 							   buf2, WIDGET_MATRIX_KC_COLOR, WIDGET_MATRIX_KC_BG);
 }
 
+/***  Render one single key to the screen, at [x,y] position, with HSV color
+	If filled = TRUE, then draw the whole key with:
+				+ background = WIDGET_MATRIX_BUTTON_BG
+				+ outline = HSV
+				+ keycode
+	if not, draw the outline only
+***/
+void widget_matrix_render_singlebutton(uint8_t x, uint8_t y, uint8_t hue, uint8_t sat, uint8_t val, bool text_on, uint8_t layer) {
+	// Button outline
+	qp_rect(my_display,
+			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING), // left
+			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING), // top
+			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH, // right
+			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT, // bottom
+			hue, sat, val,
+			false);
+	// Inner text
+	if (text_on) {
+		widget_matrix_bgclear_singlebutton(x, y);
+		uint16_t x_offset = WIDGET_MATRIX_POSX + y* (WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH/2;
+		uint16_t y_offset = WIDGET_MATRIX_POSY + x* (WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT/2;
+		uint16_t keycode = dynamic_keymap_get_keycode(layer, x, y);
+		switch (keycode) {
+			case QK_MOMENTARY ... QK_PERSISTENT_DEF_LAYER_MAX: // All layer-related keycodes (0x5220 to 0x52FF)
+				widget_matrix_render_kc_layer(x_offset, y_offset, keycode);
+				break;
+			case BASIC_KEYCODE_RANGE:
+			case MODIFIER_KEYCODE_RANGE:
+			case USER_KEYCODE_RANGE:
+				widget_matrix_render_kc_basic(x_offset, y_offset, keycode);
+				break;
+			default:
+				widget_matrix_render_kc_basic(x_offset, y_offset, keycode);
+				// ;
+		}
+	}
+}
+
+/***  Clear the background of the whole matrix (4x4)
+	Nothing from the old keycode is left
+***/
+// void widget_matrix_bgclear(void) {
+//     for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) { // ROW4 is for direct pin buttons, so need to -1
+//         for (uint8_t y = 0; y < MATRIX_COLS; y++) {
+// 			widget_matrix_bgclear_singlebutton(x, y);
+// 		}
+// 	}
+// }
+
+/***  Clear the background of a single key to WIDGET_MATRIX_BUTTON_BG
+	Nothing from the old keycode is left
+***/
 void widget_matrix_bgclear_singlebutton(uint8_t x, uint8_t y) { // just inner button, has no effect to button's outline
 	qp_rect(my_display,
 			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + 1, // left
@@ -163,29 +215,11 @@ void widget_matrix_bgclear_singlebutton(uint8_t x, uint8_t y) { // just inner bu
 			true);
 }
 
-void widget_matrix_render_singlebutton(uint8_t x, uint8_t y, uint8_t hue, uint8_t sat, uint8_t val, bool filled) {
-	if (filled)
-		widget_matrix_bgclear_singlebutton(x, y);
-	// Button outline
-	qp_rect(my_display,
-			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING), // left
-			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING), // top
-			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH, // right
-			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT, // bottom
-			hue, sat, val,
-			filled);
-}
-
-void widget_matrix_bgclear(void) {
-    for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) { // ROW4 is for direct pin buttons, so need to -1
-        for (uint8_t y = 0; y < MATRIX_COLS; y++) {
-			widget_matrix_bgclear_singlebutton(x, y);
-		}
-	}
-}
-
-char *keycode_to_string(enum qk_keycode_defines kc)
-{
+/***  Custom function for converting keycode (eg. 0x0004) to text (eg. "a")
+	Keycode strings are get from 'keycodes_list.h'
+	If not defined, return "!?"
+***/
+char *keycode_to_string(enum qk_keycode_defines kc) {
     switch (kc) {
 #define X(keycode, hex, str) case keycode: return str;
         KEYCODE_LIST;

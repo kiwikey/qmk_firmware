@@ -21,6 +21,8 @@
 	extern painter_image_handle_t ico16_arrow_down; // color inverted BLACK <-> WHITE
 	extern painter_image_handle_t ico16_arrow_left;
 	extern painter_image_handle_t ico16_arrow_right;
+	extern painter_image_handle_t ico16_layer;
+	extern painter_image_handle_t ico32_menu;
 
 /* IMAGES & ANIMATIONS */
 	extern painter_image_handle_t gif_bootup01;

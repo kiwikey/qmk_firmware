@@ -2,6 +2,8 @@
 #include "eeprom_custom.h"
 #include "qp_graphics.h"
 
+extern uint16_t flag_display_keycode_changed;
+
 #if defined(QUANTUM_PAINTER_ENABLE)
     #include "qp_graphics.h"
 	// #include "qp/qp_menu.h"
@@ -12,9 +14,6 @@
 
 void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
     print("via_custom_value_command_kb");
-	#if defined(OLED_ENABLE)
-	oled_on();
-	#endif // defined(OLED_ENABLE)
 	
 #if defined(CONSOLE_ENABLE)
 	printf("via_custom_value_command_kb: %d %d %d %d - %d %d - %d %d \n", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
@@ -53,56 +52,49 @@ void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
     // DO NOT call raw_hid_send(data,length) here, let caller do this
 }
 
-// bool via_command_kb(uint8_t *data, uint8_t length) {
-    // // data = [ command_id, channel_id, value_id, value_data ]
-    // uint8_t *command_id        = &(data[0]);
-    // uint8_t *channel_id        = &(data[1]);
-    // // // uint8_t *value_id_and_data = &(data[2]);
+bool via_command_kb(uint8_t *data, uint8_t length) {
+    uint8_t *command_id   = &(data[0]);
+    uint8_t *command_data = &(data[1]); // aka via_channel_id
 
-    // // printf("channel_id = %d   command_id = %d", *channel_id, *command_id);
-    // if ( *channel_id == 0 ) { // id_custom_channel = 0
-    //     switch ( *command_id ) {
-    //         case 0x05: { // id_custom_set_value = 0x07
-    //             ui_refresh();
-    //             break;
-    //         }
-    //         default: {
-    //             // Unhandled message.
-    //             // *command_id = id_unhandled;
-    //             break;
-    //         }
-    //     }
+    /* DEBUG: printout full rawHID packet */
+        // NOTE: a packet of setting keycode in VIA: [0x05 - layer - row - col - ??? - keycode]
+        //       that ??? is unsure, for setting basic keycodes it is 0x00, for macro it is 0x77, for RGB it is 0x78
+        //       dig more in 'via.c' line 405
+    // printf("command_id = %2d  command_data = [ ", *command_id);
+    // for (uint8_t i = 0; i < 5; i++) {
+    //     printf("%4d ", command_data[i]);
     // }
+    // printf(" ] \n");
+    // */
 
-    // if ( *channel_id == id_custom_channel ) { // id_custom_channel = 0
-    //     switch ( *command_id ) {
-    //         case id_custom_set_value: { // id_custom_set_value = 0x07
-    //             // via_config_set_value(value_id_and_data);
-    //             break;
-    //         }
-    //         case id_custom_get_value: { // id_custom_get_value = 0x08
-    //             // via_config_get_value(value_id_and_data);
-    //             break;
-    //         }
-    //         case id_custom_save: { // id_custom_save = 0x09
-    //             // via_config_save();
-    //             break;
-    //         }
-    //         default: {
-    //             // Unhandled message.
-    //             *command_id = id_unhandled;
-    //             break;
-    //         }
-    //     }
-    //     return;
-    // }
+    switch ( *command_id ) {
+        case id_dynamic_keymap_set_keycode: { // 0x05 : keymap is changed (on VIA app)
+            flag_display_keycode_changed = ( 0x1000 | (command_data[0]<<8) | (command_data[1]<<4) | command_data[2]);
+            break;
+        }
+        case id_custom_set_value: {
+            // via_config_set_value(value_id_and_data);
+            break;
+        }
+        case id_custom_get_value: {
+            // via_config_get_value(value_id_and_data);
+            break;
+        }
+        case id_custom_save: { // id_custom_save = 0x09
+            // via_config_save();
+            break;
+        }
+        default: {
+            // Unhandled message.
+            // *command_id = id_unhandled;
+            break;
+        }
+    return false;
+    }
     // Return the unhandled state
     // *command_id = id_unhandled;
-
-    // ui_refresh();
-// 	return false;
-// }
-
+	return false;
+}
 
 void via_config_set_value( uint8_t *data )
 {
