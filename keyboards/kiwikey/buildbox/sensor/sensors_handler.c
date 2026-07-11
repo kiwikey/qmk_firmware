@@ -2,10 +2,10 @@
 
 #include <lib/lib8tion/lib8tion.h>
 
+#include "features/eeprom_custom.h"
 #include "display/qp_graphics.h"
 #include "display/qp_includes.h"
 #include "display/qp_custom_api.h"
-#include "display/eeprom_custom.h"
 #include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
 #include "display/widgets/qp_widget_knob.h"

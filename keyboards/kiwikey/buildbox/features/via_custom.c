@@ -1,11 +1,11 @@
 #include "via_custom.h"
 #include "eeprom_custom.h"
-#include "qp_graphics.h"
+#include "display/qp_graphics.h"
 
 extern uint16_t flag_display_keycode_changed;
 
 #if defined(QUANTUM_PAINTER_ENABLE)
-    #include "qp_graphics.h"
+    #include "display/qp_graphics.h"
 	// #include "qp/qp_menu.h"
 	// #include "qp/qp_ui.h"
 	// extern painter_device_t my_display;

@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "2026.07.05_a"
+#define FW_VERSION "2026.07.11_a"
 
 #define MATRIX_COLS 4
 #define MATRIX_ROWS 5
@@ -41,7 +41,7 @@
 	#define ILI9341_HEIGHT 240
 
 	/*** QUANTUM PAINTER CONFIGURATION ***/
-	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT 30000
+	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT 60000
 	#define QUANTUM_PAINTER_SUPPORTS_256_PALETTE   TRUE
 	#define QUANTUM_PAINTER_SUPPORTS_NATIVE_COLORS TRUE
 	#define QUANTUM_PAINTER_NUM_IMAGES      16   // The maximum number of images/animations that can be loaded at any one time.

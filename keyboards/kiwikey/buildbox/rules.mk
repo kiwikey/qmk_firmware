@@ -13,15 +13,15 @@ QUANTUM_PAINTER_DRIVERS += st7789_spi
 CUSTOM_MATRIX = lite
 SRC += matrix.c
 
-# MAGNETIC SENSOR
+# OTHERS
 QUANTUM_LIB_SRC += i2c_master.c
 SRC += \
-	sensor/sensors_handler.c            \
+	features/via_custom.c              \
+	sensor/sensors_handler.c           \
 	sensor/as5600.c
 
 # QP SOURCE FILES
 SRC += \
-	display/via_custom.c               \
 	display/qp_graphics.c              \
 	display/qp_custom_api.c            \
 	display/qp_includes.c              \
@@ -32,13 +32,13 @@ SRC += \
 
 # FONTS
 SRC += \
-	display/resources/thintel15.qff.c    \
-	display/resources/roboto20.qff.c     \
-	display/resources/roboto25.qff.c     \
-	display/resources/robotobold25.qff.c \
-	display/resources/font_oled.qff.c \
-	display/resources/font_proggy_clean.qff.c \
-	display/resources/font_proggy_tiny.qff.c
+	display/resources/fonts/thintel15.qff.c         \
+	display/resources/fonts/roboto20.qff.c          \
+	display/resources/fonts/roboto25.qff.c          \
+	display/resources/fonts/robotobold25.qff.c      \
+	display/resources/fonts/font_oled.qff.c         \
+	display/resources/fonts/font_proggy_clean.qff.c \
+	display/resources/fonts/font_proggy_tiny.qff.c
 
 # ICONS
 SRC += \

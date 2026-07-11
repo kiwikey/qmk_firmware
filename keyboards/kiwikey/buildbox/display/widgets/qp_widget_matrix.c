@@ -3,15 +3,15 @@
 #include "quantum.h"
 #include "qp_widget_matrix.h"
 
+#include "features/eeprom_custom.h"
+#include "features/keycodes_list.h"
 #include "display/qp_graphics.h"
 #include "display/qp_includes.h"
 #include "display/qp_custom_api.h"
 #include "display/defines.h"
-#include "display/eeprom_custom.h"
 #include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
 #include "display/widgets/qp_widget_knob.h"
-#include "keycodes_list.h"
 
 /***  Render all initialization things for the Matrix Widget:
 	+ widget shadow

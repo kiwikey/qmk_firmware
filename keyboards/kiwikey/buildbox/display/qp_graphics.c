@@ -1,8 +1,8 @@
 #include QMK_KEYBOARD_H
 #include "qp_graphics.h"
 
+#include "features/eeprom_custom.h"
 #include "display/qp_includes.h"
-#include "display/eeprom_custom.h"
 #include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
 #include "display/widgets/qp_widget_knob.h"

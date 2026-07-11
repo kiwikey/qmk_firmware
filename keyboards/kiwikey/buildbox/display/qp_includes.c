@@ -4,13 +4,13 @@
 #include "qp_includes.h"
 
 /* FONTS */
-	#include "resources/thintel15.qff.h"
-	#include "resources/roboto20.qff.h"
-	#include "resources/roboto25.qff.h"
-	#include "resources/robotobold25.qff.h"
-	#include "resources/font_oled.qff.h"
-	#include "resources/font_proggy_clean.qff.h"
-	#include "resources/font_proggy_tiny.qff.h"
+	#include "resources/fonts/thintel15.qff.h"
+	#include "resources/fonts/roboto20.qff.h"
+	#include "resources/fonts/roboto25.qff.h"
+	#include "resources/fonts/robotobold25.qff.h"
+	#include "resources/fonts/font_oled.qff.h"
+	#include "resources/fonts/font_proggy_clean.qff.h"
+	#include "resources/fonts/font_proggy_tiny.qff.h"
 	painter_font_handle_t  thintel15;
 	painter_font_handle_t  roboto20;
 	painter_font_handle_t  roboto25;
