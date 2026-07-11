@@ -1,16 +1,24 @@
-#ifndef QP_MENU
-#define QP_MENU
+#pragma once
 
 #include "quantum.h"
 #include "display/defines.h"
 
+#define MENU_COLOR_BACKGROUND   HSV_BLACK
+#define MENU_POSX               0
+#define MENU_POSY               40
+#define MENU_WIDTH              320
+
+#define MAINMENU_1STLINE_POS  1 // OLED: from 0 to 7
+#define MAINMENU_MAXITEMS     11
+#define MAINMENU_LINESPERPAGE 9
+
 /* GLOBAL VARIATIONS - common use */
-	/*** current_menu definition:
+	/*** menu_state definition:
 		0: not in menu
 		1: in main menu
 		2: in sub menu
 	*****************/
-	extern uint8_t current_menu, menu_cursor;
+	extern uint8_t menu_state, menu_cursor;
 	#define NOT_IN_MENU 0
 	#define MAIN_MENU   1
 	#define SUB_MENU    2
@@ -25,10 +33,6 @@
 	void menu_action(void);
 	void eeprom_update_custom(void); // TODO
 /**********************************/
-
-#define MAINMENU_1STLINE_POS  1 // OLED: from 0 to 7
-#define MAINMENU_MAXITEMS     11
-#define MAINMENU_LINESPERPAGE 6
 
 enum menu_list_references {
 	__DUMP = 0,
@@ -94,5 +98,3 @@ void action_aboutkiwi5x5(void);
 void action_factoryreset(void);
 void action_resettodfu(void);
 void action_debug(void);
-
-#endif /* QP_MENU */

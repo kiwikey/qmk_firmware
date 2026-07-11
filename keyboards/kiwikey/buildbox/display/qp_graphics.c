@@ -6,6 +6,7 @@
 #include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
 #include "display/widgets/qp_widget_knob.h"
+#include "display/widgets/qp_menu.h"
 
 painter_device_t my_display;
 bool     booting = false; // will be TRUE during boot animation
@@ -69,7 +70,6 @@ void ui_refresh(void) {
 	widget_knob_init();
 	widget_layer_render(get_highest_layer(layer_state));
 	widget_matrix_keymap_render(get_highest_layer(layer_state));
-	
 	qp_flush(my_display);
 }
 
@@ -91,7 +91,30 @@ void housekeeping_task_display(void) {
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
-	if (!booting)
-		widget_matrix_update(record->event.key.col, record->event.key.row);
+	if (booting) return false;
+
+	switch (keycode) {
+		case KC_NEXT_LAYER:
+			if (record->event.pressed) {
+				if (get_highest_layer(layer_state) >= DYNAMIC_KEYMAP_LAYER_COUNT-1)
+					layer_move(0);
+				else
+					layer_move(get_highest_layer(layer_state)+1);
+			}
+			break;
+		case KC_MY_MENU:
+			if (record->event.pressed) {
+				if (menu_state == NOT_IN_MENU) {
+					menu_init();
+				}
+				else if (menu_state == MAIN_MENU) {
+					menu_exit();
+				}
+			}
+			break;
+		default:
+			break; // Process all other keycodes normally
+	}
+	widget_matrix_update(record->event.key.col, record->event.key.row);
 	return true;
 }

@@ -21,9 +21,10 @@ int16_t as5600_read_angle(void) {
                 }
         } else {
             print("\nMagnet not present!\n");
+            return -1;
         }    
     } else {
-        return -1;   
+        return -1;
     }
     return angle;
 }

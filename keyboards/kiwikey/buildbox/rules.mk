@@ -25,10 +25,10 @@ SRC += \
 	display/qp_graphics.c              \
 	display/qp_custom_api.c            \
 	display/qp_includes.c              \
+	display/widgets/qp_menu.c          \
 	display/widgets/qp_widget_matrix.c \
 	display/widgets/qp_widget_layer.c  \
 	display/widgets/qp_widget_knob.c
-# 		display/widgets/qp_menu.c          \
 
 # FONTS
 SRC += \

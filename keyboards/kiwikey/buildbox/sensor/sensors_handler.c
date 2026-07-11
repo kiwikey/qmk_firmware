@@ -32,17 +32,17 @@ void magnetic_encoder_update_kb(bool direction) {
         delta += 4096;
 
     accumulator += delta;
-
+    printf("accumulator = %d \n", accumulator);
 	widget_knob_update(last_pos, pos);
 
-    // while (accumulator >= STEP_SIZE) {
-    //     tap_code(KC_VOLU);
-    //     accumulator -= STEP_SIZE;
-    // }
-    // while (accumulator <= -STEP_SIZE) {
-    //     tap_code(KC_VOLD);
-    //     accumulator += STEP_SIZE;
-    // }
+    while (accumulator >= STEP_SIZE) {
+        tap_code16(dynamic_keymap_get_keycode(0, 0, 0));
+        accumulator -= STEP_SIZE;
+    }
+    while (accumulator <= -STEP_SIZE) {
+        tap_code16(dynamic_keymap_get_keycode(0, 0, 1));
+        accumulator += STEP_SIZE;
+    }
 
 	last_pos = pos;
 }

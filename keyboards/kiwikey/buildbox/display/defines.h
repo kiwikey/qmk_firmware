@@ -10,11 +10,6 @@
 // #define UI_COLOR_TEXT_H2        HSV_BLACK
 #define UI_WIDGET_SHADOW        3 // shadow of widgets, in pixel
 
-// #define MENU_COLOR_BACKGROUND   HSV_BLACK
-// #define MENU_POSX               0
-// #define MENU_POSY               40
-// #define MENU_WIDTH              240
-
 // #define WIDGET_RGB_COLOR1     HSV_WHITE // Color of the 1st line
 // #define WIDGET_RGB_COLOR2     HSV_GREEN // Color of the 2st line
 
@@ -35,4 +30,9 @@ static const hsv_t layer_colors[] = {
     [1] = { HSV_MAGENTA },
     [2] = { HSV_YELLOW },
     [3] = { HSV_GREEN },
+};
+
+enum custom_keycodes {
+	KC_NEXT_LAYER = SAFE_RANGE, // keycode 0x7E40
+	KC_MY_MENU
 };
