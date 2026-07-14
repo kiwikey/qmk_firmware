@@ -33,7 +33,6 @@
 	void menu_exit(void);
 	void menu_printlist(void);
 	void menu_set_cursor(uint8_t cursor_pos);
-	void menu_quick_view(void);
 	void menu_action(void);
 	void eeprom_update_custom(void); // TODO
 /**********************************/

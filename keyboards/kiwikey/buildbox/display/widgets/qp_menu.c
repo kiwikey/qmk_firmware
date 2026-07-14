@@ -57,64 +57,62 @@ void menu_printlist(void) { // Print the menu list, total MAINMENU_LINESPERPAGE 
 	        MENU_WIDTH, MENU_POSY + MAINMENU_LINESPERPAGE * MENU_LINE_HEIGHT,
 			MENU_COLOR_BACKGROUND,
 			true);
-	// Print the list based on menu_cursor
-	if (menu_cursor <= MAINMENU_LINESPERPAGE) {
-		for (uint8_t i = 0; i < MAINMENU_LINESPERPAGE; i++) {
-			qp_drawtext(my_display,
-						MENU_POSX,
-						MENU_POSY + i*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
-						MENU_FONT,
-						menu_list[i]);
-		}
-	}
-	else if (menu_cursor > MAINMENU_LINESPERPAGE) {
-		for (uint8_t i = MAINMENU_LINESPERPAGE; i < MAINMENU_MAXITEMS; i++) {
-			qp_drawtext(my_display,
-						MENU_POSX,
-						MENU_POSY + (i%MAINMENU_LINESPERPAGE)*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
-						MENU_FONT,
-						menu_list[i]);
-		}
+	// Print the page that contains menu_cursor (handles any item count / page size)
+	uint8_t page_start = ((menu_cursor - 1) / MAINMENU_LINESPERPAGE) * MAINMENU_LINESPERPAGE;
+	uint8_t page_end   = page_start + MAINMENU_LINESPERPAGE;
+	if (page_end > MAINMENU_MAXITEMS) page_end = MAINMENU_MAXITEMS;
+
+	for (uint8_t i = page_start; i < page_end; i++) {
+		qp_drawtext(my_display,
+					MENU_POSX,
+					MENU_POSY + (i - page_start)*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
+					MENU_FONT,
+					menu_list[i]);
 	}
 }
 
-void menu_set_cursor(uint8_t cursor_pos) {
-	static uint8_t last_cursor_pos = 0;
-	while (cursor_pos > MAINMENU_LINESPERPAGE) {
-		cursor_pos -= MAINMENU_LINESPERPAGE;
-	}
+void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item position (1..MAINMENU_MAXITEMS)
+	static uint8_t last_cursor_pos = 0; // 0 = none drawn yet; also absolute
 
-    // Erase the old cursor rectangle (if any)
+	uint8_t page = (cursor_pos - 1) / MAINMENU_LINESPERPAGE;
+	uint8_t row  = (cursor_pos - 1) % MAINMENU_LINESPERPAGE; // 0-based row on the current page
+
+    // Erase the old cursor rectangle, but only if it's still on the same page.
+    // A page change is already handled by a full menu_printlist() redraw.
     if (last_cursor_pos != 0 && last_cursor_pos != cursor_pos) {
-        qp_rect(my_display,
-                MENU_POSX,
-                MENU_POSY + (last_cursor_pos-1)*MENU_LINE_HEIGHT,
-                319,
-                MENU_POSY + last_cursor_pos*MENU_LINE_HEIGHT,
-                MENU_COLOR_BACKGROUND,
-                true
-        );
-		qp_drawtext_recolor(my_display,
-							MENU_POSX,
-							MENU_POSY + (last_cursor_pos-1)*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
-							MENU_FONT,
-							menu_list[last_cursor_pos-1],
-							HSV_WHITE,
-							MENU_COLOR_BACKGROUND
-						);
+		uint8_t last_page = (last_cursor_pos - 1) / MAINMENU_LINESPERPAGE;
+		uint8_t last_row  = (last_cursor_pos - 1) % MAINMENU_LINESPERPAGE;
+		if (last_page == page) {
+			qp_rect(my_display,
+			        MENU_POSX,
+			        MENU_POSY + last_row*MENU_LINE_HEIGHT,
+			        319,
+			        MENU_POSY + (last_row+1)*MENU_LINE_HEIGHT,
+			        MENU_COLOR_BACKGROUND,
+			        true
+			);
+			qp_drawtext_recolor(my_display,
+			                    MENU_POSX,
+			                    MENU_POSY + last_row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
+			                    MENU_FONT,
+			                    menu_list[last_cursor_pos-1],
+			                    HSV_WHITE,
+			                    MENU_COLOR_BACKGROUND
+			                );
+		}
     }
 	// Draw new cursor rectangle
 	qp_rect(my_display,
 			MENU_POSX,
-			MENU_POSY + (cursor_pos-1)*MENU_LINE_HEIGHT,
+			MENU_POSY + row*MENU_LINE_HEIGHT,
 			319,
-			MENU_POSY + cursor_pos*MENU_LINE_HEIGHT,
+			MENU_POSY + (row+1)*MENU_LINE_HEIGHT,
 			MENU_CURSOR_OUTLINE,
 			true
 	);
 	qp_drawtext_recolor(my_display,
 						MENU_POSX,
-						MENU_POSY + (cursor_pos-1)*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
+						MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
 						MENU_FONT,
 						menu_list[cursor_pos-1],
 						HSV_BLACK,
@@ -123,94 +121,6 @@ void menu_set_cursor(uint8_t cursor_pos) {
 
 	last_cursor_pos = cursor_pos;
 }
-
-// void menu_quick_view(void) {
-// 	// Clear the 2 bottom lines
-// 	qp_rect(my_display, 0, ST7789_HEIGHT-MENU_FONT_HEIGHT*2, ST7789_WIDTH, ST7789_HEIGHT, MENU_COLOR_BACKGROUND, true);
-// 	// Render the quick-view
-// 	char buf1[50] = {0};
-// 	switch (menu_cursor) {
-// 		case MENU_ACTIVATELAYER:
-// 			qp_drawtext(my_display, 10, ST7789_HEIGHT-MENU_FONT_HEIGHT*2, MENU_FONT, "Turn on Layer:");
-// 			sprintf(buf1, "[%u] %s", eepdata.active_layer, layer_names[eepdata.active_layer]);
-// 			qp_drawtext(my_display, 40, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, buf1);
-// 			break;
-// 		case MENU_ANIMATION:
-// 			// sprintf(buf1, "Animation #%u", eepdata.display_anim);
-// 			// qp_drawtext(my_display, 40, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, buf1);
-// 			qp_drawtext(my_display, 50, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, "unavailable");
-// 			break;
-// 		case MENU_DISPLAYTIMEOUT:
-// 			qp_drawtext(my_display, 10, ST7789_HEIGHT-MENU_FONT_HEIGHT*2, MENU_FONT, "Turn off LCD after");
-// 			if (eepdata.display_timeout == DISPLAY_TIMEOUT_NEVER) {
-// 				qp_drawtext(my_display, 50, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, "Always ON");
-// 				break;
-// 			}
-// 			sprintf(buf1, "%u seconds", eepdata.display_timeout);
-// 			qp_drawtext(my_display, 50, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, buf1);
-// 			break;
-// 		case MENU_DISPLAYBRIGHTNESS:
-// 			sprintf(buf1, "%3u%%  ", eepdata.display_brightness*10);
-// 			qp_drawtext(my_display, 90, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, buf1);
-// 			break;
-// 		case MENU_DISPLAYROTATION:
-// 			sprintf(buf1, "Rotation: %u", eepdata.display_rotation*90);
-// 			qp_drawtext(my_display, 40, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, buf1);
-// 			break;
-// 		case MENU_KNOBFUNCTION:
-// 			// qp_drawtext(my_display, 10, ST7789_HEIGHT-MENU_FONT_HEIGHT*2, MENU_FONT, "Rotate knob to");
-// 			sprintf(buf1, "%s", encoder_func_name[eepdata.knob_func]);
-// 			qp_drawtext(my_display, 20, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, buf1);
-// 			break;
-// 		case MENU_LIGHTINGLAYERS:
-// 			oled_set_cursor(3,7);
-// 			if (!eepdata.lighting_layers) {
-// 				oled_write("(unavailable)", false);
-// 				break;
-// 			}
-// 			if (menu_state == MAIN_MENU) {
-// 				oled_write(" of Layer (", false);
-// 				oled_write_char(get_highest_layer(layer_state)+0x30, false);
-// 				oled_write_char(0x29, false); // ')'
-// 			}
-// 			else if (menu_state == SUB_MENU) {
-// 				oled_write("Layer (", false);
-// 				oled_write_char(get_highest_layer(layer_state)+0x30, false);
-// 				oled_write(") color", false);
-// 			}
-// 			break;
-// 		case MENU_FWVERSION:
-// 			qp_drawtext(my_display, 40, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, FW_VERSION);
-// 			break;
-// 		case MENU_ABOUT:
-// 			// oled_write_P(PSTR("..."), false);
-// 			break;
-// 		case MENU_FACTORYRESET:
-// 			qp_drawtext(my_display, 0, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, " clear all settings");
-// 			break;
-// 		case MENU_BOOTTODFU:
-// 			qp_drawtext(my_display, 0, ST7789_HEIGHT-MENU_FONT_HEIGHT*2, MENU_FONT, "    for updating   ");
-// 			qp_drawtext(my_display, 0, ST7789_HEIGHT-MENU_FONT_HEIGHT*1, MENU_FONT, "      firmware     ");
-// 			break;
-// 		case MENU_DEBUG:
-// 			// qp_drawtext(my_display, 0, ST7789_HEIGHT-MENU_FONT_HEIGHT*2, MENU_FONT, "    for updating   ");
-// 			qp_drawtext(my_display, 0, ST7789_HEIGHT-MENU_FONT_HEIGHT*1, MENU_FONT, "      for nerds    ");
-// 			break;
-//         default:
-//             break;
-// 	}
-// 	// Render 2 arrows (left & right) for "changable" settings
-//     if ((menu_state == SUB_MENU) && menu_list_ischangeable[menu_cursor]) {
-// 		qp_drawtext(my_display, 0, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, "<");
-// 		qp_drawtext(my_display, ST7789_WIDTH-MENU_FONT_HEIGHT, ST7789_HEIGHT-MENU_FONT_HEIGHT, MENU_FONT, ">");
-// 		qp_drawimage_recolor(my_display,
-// 							0, (239 - ico16_arrow_left->height),
-// 							ico16_arrow_left,  HSV_BLACK, HSV_WHITE);
-// 		qp_drawimage_recolor(my_display,
-// 							(239 - ico16_arrow_right->width), (239 - ico16_arrow_right->height),
-// 							ico16_arrow_right, HSV_BLACK, HSV_WHITE);
-// 	}
-// }
 
 void menu_action(void) {
     if (menu_list_ischangeable[menu_cursor]) {
