@@ -4,13 +4,17 @@
 #include "display/defines.h"
 
 #define MENU_COLOR_BACKGROUND   HSV_BLACK
+#define MENU_CURSOR_OUTLINE     HSV_WHITE
+#define MENU_FONT               roboto20
+#define MENU_FONT_HEIGHT        (MENU_FONT->line_height)
+#define MENU_LINE_HEIGHT        30
 #define MENU_POSX               0
 #define MENU_POSY               40
 #define MENU_WIDTH              320
 
-#define MAINMENU_1STLINE_POS  1 // OLED: from 0 to 7
-#define MAINMENU_MAXITEMS     11
-#define MAINMENU_LINESPERPAGE 9
+#define MAINMENU_1STLINE_POS  1
+#define MAINMENU_MAXITEMS     12
+#define MAINMENU_LINESPERPAGE 6
 
 /* GLOBAL VARIATIONS - common use */
 	/*** menu_state definition:
@@ -46,22 +50,24 @@ enum menu_list_references {
 	MENU_ABOUT,
 	MENU_FACTORYRESET,
 	MENU_BOOTTODFU,
-	MENU_DEBUG
+	MENU_DEBUG,
+	MENU_BREAKOUT
 	// MENU_LIGHTINGLAYERS,
 };
 
 static const char * const menu_list[MAINMENU_MAXITEMS] = {
-	" 1.Active Layer",
-	" 2.Animation",
-	" 3.LCD Timeout",
-	" 4.LCD Brightness",
-	" 5.Rotate Keyboard",
-	" 6.Knob Rotation Fn",
-	" 7.FW Version",
-	" 8.About Kiwi5x5",
-	" 9.Factory Reset",
-	" 10.Boot to DFU",
-	" 11.Debug",
+	" Active Layer",
+	" Animation",
+	" LCD Timeout",
+	" LCD Brightness",
+	" Rotate Keyboard",
+	" Knob Rotation Fn",
+	" FW Version",
+	" About BuildBox",
+	" Factory Reset",
+	" Boot to DFU",
+	" Debug",
+	" Breakout Game",
 };
 
 static const bool menu_list_ischangeable[MAINMENU_MAXITEMS+1] = {
@@ -76,7 +82,9 @@ static const bool menu_list_ischangeable[MAINMENU_MAXITEMS+1] = {
 	false, // 7
 	false, // 8
 	false, // 9
-	false  // 10
+	false, // 10
+	false, // 11 (Debug)
+	false  // 12 (Breakout Game - triggers immediately, no sub-menu)
 };
 
 #define DISPLAY_ANIM_QTY  3
@@ -94,7 +102,8 @@ void action_displaytimeout(void);
 void action_displaybrightness(void);
 void action_displayrotation(void);
 void action_lightingconfig(void);
-void action_aboutkiwi5x5(void);
+void action_aboutbuildbox(void);
 void action_factoryreset(void);
 void action_resettodfu(void);
 void action_debug(void);
+void action_breakout(void);

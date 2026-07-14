@@ -14,22 +14,67 @@
 	#include "display/widgets/qp_widget_matrix.h"
 	#include "display/widgets/qp_widget_layer.h"
 	#include "display/widgets/qp_widget_knob.h"
+	#include "display/widgets/qp_menu.h"
+	#include "display/widgets/qp_widget_breakout.h"
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
+EEPROM_CUSTOM_DATA eepdata;
+EEPROM_CUSTOM_DATA eepdata_default = {
+	0,                           // Layer 0
+	1,                           // Animation #1
+	DISPLAY_TIMEOUT_MIN,         // LCD Timeout 30s
+	BACKLIGHT_DEFAULT_LEVEL,     // LCD Brightness default (10 = max)
+	QP_ROTATION_0,               // Default rotation
+	0,                           // Lighting Layers OFF
+	0,                           // Lighting Layers applied to Underglow LEDs
+	{ 126, 210,  42,  84 },      // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
+	{ 255, 255, 255, 255 },      // Lighting Layers' SATs: maximum (255)
+	1,                           // Knob: Volume
+	7                            // Checksum is always 7
+};
+
 void keyboard_post_init_kb(void) {
+	// Reading all EEPROM custom datas, refer to 'eeprom_custom.h' for detail
+    eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
+
+	/*** Validation check ***/
+	/* This runs everytime the EEPROM is corrupted, or right after 'factory_reset' or 'bootmagic_reset' */
+	if (eepdata.checksum != 7) {
+		eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
+		// Reading all EEPROM custom datas, again
+		eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
+	}
+
+	layer_move(eepdata.active_layer);
+	// #if defined(BACKLIGHT_ENABLE)
+	// 	backlight_enable(); // TFT backlight
+	// 	backlight_level(eepdata.display_brightness);
+	// #endif // defined(BACKLIGHT_ENABLE)
+	backlight_enable();
+
 	keyboard_post_init_display();
 	keyboard_post_init_sensors_handler();
 	keyboard_post_init_user();
-	backlight_enable();
 }
 
 void housekeeping_task_kb(void) {
 	housekeeping_task_display();
 	housekeeping_task_sensors_handler();
+	housekeeping_task_breakout();
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-	process_record_display(keycode, record);
+	// printf("layer=%d anim=%d timeout=%d bright=%d rot=%d ll=%d llflags=%d "
+	// 	"hue=[%d %d %d %d] sat=[%d %d %d %d] knob=%d chk=%d\n",
+	// 	eepdata.active_layer, eepdata.display_anim, eepdata.display_timeout,
+	// 	eepdata.display_brightness, eepdata.display_rotation,
+	// 	eepdata.lighting_layers, eepdata.lighting_flags,
+	// 	eepdata.layer_hue[0], eepdata.layer_hue[1], eepdata.layer_hue[2], eepdata.layer_hue[3],
+	// 	eepdata.layer_sat[0], eepdata.layer_sat[1], eepdata.layer_sat[2], eepdata.layer_sat[3],
+	// 	eepdata.knob_func, eepdata.checksum);
+	if (!process_record_display(keycode, record)) {
+		return false;
+	}
 	return process_record_user(keycode, record);
 }
 

@@ -105,7 +105,7 @@ void widget_matrix_keymap_render(uint8_t layer) {
 /***  Render the keycode string for "basic keycodes" ***/
 void widget_matrix_render_kc_basic(uint16_t posx, uint16_t posy, uint16_t keycode) {
 	if (posx == NULL_VALUE) return; // with matrix positions that are "blank", their keycode will be 0x0000, same as KC_NO, so must not process them
-	char buf1[4] = {0};
+	char buf1[5] = {0}; // maximum 4 characters + null terminator = 5 bytes
 	sprintf(buf1, "%s", keycode_to_string(keycode));
 	qp_drawtext_recolor_center(my_display, posx, posy,
 							   WIDGET_MATRIX_KC_BASIC_FONT,

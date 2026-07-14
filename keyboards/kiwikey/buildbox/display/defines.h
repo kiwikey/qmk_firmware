@@ -2,6 +2,9 @@
 
 #define NULL_VALUE 0
 
+#define CW              true
+#define CCW             false
+
 /*** Definitions of (almost) all positions, colors, texts,... ***/
 
 // #define UI_COLOR_BACKGROUND     HSV_BLACK
@@ -33,6 +36,6 @@ static const hsv_t layer_colors[] = {
 };
 
 enum custom_keycodes {
-	KC_NEXT_LAYER = SAFE_RANGE, // keycode 0x7E40
-	KC_MY_MENU
+	KC_BUTTON_1 = SAFE_RANGE, // keycode 0x7E40
+	KC_BUTTON_2
 };

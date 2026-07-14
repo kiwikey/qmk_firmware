@@ -59,4 +59,4 @@
 #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_A
 // #define BACKLIGHT_PAL_MODE      (PAL_MODE_ALTERNATE_PWM | PAL_RP_PAD_DRIVE12 | PAL_RP_GPIO_OE)
 #define BACKLIGHT_PAL_MODE      2
-// #define BACKLIGHT_DEFAULT_LEVEL 10 // defined in keyboard.json
+#define BACKLIGHT_DEFAULT_LEVEL 10 // defined in keyboard.json

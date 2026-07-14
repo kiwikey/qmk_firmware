@@ -7,6 +7,7 @@
 #include "display/widgets/qp_widget_layer.h"
 #include "display/widgets/qp_widget_knob.h"
 #include "display/widgets/qp_menu.h"
+#include "display/widgets/qp_widget_breakout.h"
 
 painter_device_t my_display;
 bool     booting = false; // will be TRUE during boot animation
@@ -74,6 +75,12 @@ void ui_refresh(void) {
 }
 
 void housekeeping_task_display(void) {
+	char buf1[10] = {0};
+	sprintf(buf1, "cur=%2d", menu_cursor);
+	qp_drawtext(my_display, 250, 0, font_proggy_tiny, buf1);
+	sprintf(buf1, "men=%2d", menu_state);
+	qp_drawtext(my_display, 250, 10, font_proggy_tiny, buf1);
+
 	// Check all flags
 	if (flag_display_keycode_changed & 0x1000) {
 		uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
@@ -93,28 +100,83 @@ void housekeeping_task_display(void) {
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 	if (booting) return false;
 
-	switch (keycode) {
-		case KC_NEXT_LAYER:
-			if (record->event.pressed) {
+	/*** If playing Breakout :
+		+ Pressing Button 1 -> exit the game (back to default screen)
+		+ Pressing Button 2 -> launch the ball / restart after game over or win
+	***/
+	if (breakout_is_active()) {
+		if (record->event.pressed) {
+			switch (keycode) {
+				case KC_BUTTON_1:
+					breakout_exit();
+					return false;
+				case KC_BUTTON_2:
+					breakout_button_action();
+					return false;
+				default:
+					return false; // During the game, no keycode is processed
+			}
+		} else return false;
+	}
+
+	/*** If being in MENU :
+	MAIN MENU :
+		+ Pressing Button 1 -> quit Main Menu (back to default screen)
+		+ Pressing Button 2 -> choose cursor_pos function
+	SUB MENU :
+		+ Pressing Button 1 -> quit Sub Menu without saving
+		+ Pressing Button 2 -> quit Sub Menu and save the setting
+	***/
+	if (menu_state == MAIN_MENU) {
+		if (record->event.pressed) {
+			switch (keycode) {
+				case KC_BUTTON_1:
+					menu_exit();
+					return false;
+				case KC_BUTTON_2:
+					menu_action();
+					return false;
+				default:
+					return false; // During Menu, no keycode is processed
+			}
+		} else return false;
+	} else if (menu_state == SUB_MENU) {
+		if (record->event.pressed) {
+			switch (keycode) {
+				case KC_BUTTON_1:
+					menu_init();
+					return false;
+				case KC_BUTTON_2:
+					menu_init();
+					return false;
+				default:
+					return false; // During Menu, no keycode is processed
+			}
+		} else return false;
+	}
+
+	/*** If not in MENU ***/
+	if (record->event.pressed) {
+		switch (keycode) {
+			case KC_BUTTON_1:
 				if (get_highest_layer(layer_state) >= DYNAMIC_KEYMAP_LAYER_COUNT-1)
 					layer_move(0);
 				else
 					layer_move(get_highest_layer(layer_state)+1);
-			}
-			break;
-		case KC_MY_MENU:
-			if (record->event.pressed) {
-				if (menu_state == NOT_IN_MENU) {
-					menu_init();
-				}
-				else if (menu_state == MAIN_MENU) {
-					menu_exit();
-				}
-			}
-			break;
-		default:
-			break; // Process all other keycodes normally
+				return false;
+			case KC_BUTTON_2:
+					if (menu_state == NOT_IN_MENU) {
+						menu_init();
+					}
+					else if (menu_state == MAIN_MENU) {
+						menu_exit();
+					}
+				return false;
+			default:
+				break; // Process all other keycodes normally
+		}
 	}
+
 	widget_matrix_update(record->event.key.col, record->event.key.row);
 	return true;
 }
