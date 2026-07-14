@@ -46,11 +46,12 @@ void keyboard_post_init_kb(void) {
 	}
 
 	layer_move(eepdata.active_layer);
-	// #if defined(BACKLIGHT_ENABLE)
-	// 	backlight_enable(); // TFT backlight
-	// 	backlight_level(eepdata.display_brightness);
-	// #endif // defined(BACKLIGHT_ENABLE)
-	backlight_enable();
+	#if defined(BACKLIGHT_ENABLE)
+		backlight_enable(); // TFT backlight
+		// backlight_level(eepdata.display_brightness);
+		backlight_level(10);
+	#endif // defined(BACKLIGHT_ENABLE)
+	// backlight_enable();
 
 	keyboard_post_init_display();
 	keyboard_post_init_sensors_handler();
@@ -64,14 +65,6 @@ void housekeeping_task_kb(void) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-	// printf("layer=%d anim=%d timeout=%d bright=%d rot=%d ll=%d llflags=%d "
-	// 	"hue=[%d %d %d %d] sat=[%d %d %d %d] knob=%d chk=%d\n",
-	// 	eepdata.active_layer, eepdata.display_anim, eepdata.display_timeout,
-	// 	eepdata.display_brightness, eepdata.display_rotation,
-	// 	eepdata.lighting_layers, eepdata.lighting_flags,
-	// 	eepdata.layer_hue[0], eepdata.layer_hue[1], eepdata.layer_hue[2], eepdata.layer_hue[3],
-	// 	eepdata.layer_sat[0], eepdata.layer_sat[1], eepdata.layer_sat[2], eepdata.layer_sat[3],
-	// 	eepdata.knob_func, eepdata.checksum);
 	if (!process_record_display(keycode, record)) {
 		return false;
 	}
