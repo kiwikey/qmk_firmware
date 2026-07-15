@@ -37,6 +37,22 @@ void menu_init(void) {
 	qp_flush(my_display);
 }
 
+void menu_submenu_exit(void) { // Return from Sub Menu to Main Menu without a full-screen redraw
+	menu_state = MAIN_MENU;
+	// Erase only the arrow icons drawn when entering the sub menu
+	qp_rect(my_display,
+	        0, (239 - ico16_arrow_left->height),
+	        ico16_arrow_left->width, 239,
+	        MENU_COLOR_BACKGROUND, true);
+	qp_rect(my_display,
+	        (239 - ico16_arrow_right->width), (239 - ico16_arrow_right->height),
+	        239, 239,
+	        MENU_COLOR_BACKGROUND, true);
+	// Refresh just the current row, in case its value changed in the sub menu
+	menu_set_cursor(menu_cursor);
+	qp_flush(my_display);
+}
+
 void menu_exit(void) {
     menu_state  = NOT_IN_MENU;
 	accumulator = 0;

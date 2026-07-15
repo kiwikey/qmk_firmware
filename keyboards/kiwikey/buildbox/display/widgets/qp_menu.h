@@ -31,6 +31,7 @@
 /* GLOBAL PROCEDURES - common use */
 	void menu_init(void);
 	void menu_exit(void);
+	void menu_submenu_exit(void);
 	void menu_printlist(void);
 	void menu_set_cursor(uint8_t cursor_pos);
 	void menu_action(void);

@@ -144,10 +144,10 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 		if (record->event.pressed) {
 			switch (keycode) {
 				case KC_BUTTON_1:
-					menu_init();
+					menu_submenu_exit();
 					return false;
 				case KC_BUTTON_2:
-					menu_init();
+					menu_submenu_exit();
 					return false;
 				default:
 					return false; // During Menu, no keycode is processed

@@ -53,8 +53,8 @@ void keyboard_post_init_kb(void) {
 	#endif // defined(BACKLIGHT_ENABLE)
 	// backlight_enable();
 
-	keyboard_post_init_display();
 	keyboard_post_init_sensors_handler();
+	keyboard_post_init_display();
 	keyboard_post_init_user();
 }
 
