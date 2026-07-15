@@ -19,101 +19,110 @@ extern painter_device_t my_display;
 // extern bool    rgboff_flag;
 
 uint8_t menu_state  = NOT_IN_MENU;
-uint8_t menu_cursor = MAINMENU_1STLINE_POS;
+uint8_t menu_cursor = MENU_1STLINE_POS;
+
+static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen);
+static void menu_truncate_to_width(char *str, painter_font_handle_t font, uint16_t max_width);
 
 void menu_init(void) {
 	menu_state = MAIN_MENU;
-	accumulator = 0;
-	qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_COLOR_BACKGROUND, true); // Clear screen
+	accumulator = 0; // clear this to avoid "weird cursor jump"
+	qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
 	qp_drawtext_recolor_center(my_display,
 							   ST7789_WIDTH/2,
 							   20,
 							   robotobold25,
 							   "SETTINGS",
-							   HSV_CYAN, HSV_BLACK); // Menu title
-	menu_printlist();               // Print the menu list
-	menu_set_cursor(menu_cursor);   // Print the cursor
-	// menu_quick_view();              // Print the default quick view
-	qp_flush(my_display);
-}
-
-void menu_submenu_exit(void) { // Return from Sub Menu to Main Menu without a full-screen redraw
-	menu_state = MAIN_MENU;
-	// Erase only the arrow icons drawn when entering the sub menu
-	qp_rect(my_display,
-	        0, (239 - ico16_arrow_left->height),
-	        ico16_arrow_left->width, 239,
-	        MENU_COLOR_BACKGROUND, true);
-	qp_rect(my_display,
-	        (239 - ico16_arrow_right->width), (239 - ico16_arrow_right->height),
-	        239, 239,
-	        MENU_COLOR_BACKGROUND, true);
-	// Refresh just the current row, in case its value changed in the sub menu
-	menu_set_cursor(menu_cursor);
+							   MENU_TITLE_COLOR,
+							   MENU_BACKGROUND); // Menu title
+	menu_printlist();               // Print the menu list and sidebar (value)
+	menu_set_cursor(menu_cursor);   // Set the cursor
 	qp_flush(my_display);
 }
 
 void menu_exit(void) {
     menu_state  = NOT_IN_MENU;
 	accumulator = 0;
-    menu_cursor = MAINMENU_1STLINE_POS;
+    menu_cursor = MENU_1STLINE_POS; // ignore cursor's latest position, reset to 1st menu line
     // eeprom_update_custom(); // update all custom EEPROM values (if necessary)
-    /* Special cases handling */
-    if (menu_cursor == 1) { // when exit "Active layer", move to that chosen layer
+
+    /* Handle special cases */
+    if (menu_cursor == MENU_ACTIVATELAYER) { // when exit "Active layer", move to that chosen layer
         // layer_move(eepdata.active_layer);
     }
-    /*************************/
+
     ui_refresh();
 }
 
-void menu_printlist(void) { // Print the menu list, total MAINMENU_LINESPERPAGE lines
-	// Clear the old list
+void menu_submenu_exit(void) { // Return from Sub Menu to Main Menu without a full-screen redraw
+	menu_state = MAIN_MENU;
+	accumulator = 0;
+	// Erase only the arrow icons drawn when entering the sub menu
+	uint8_t row = (menu_cursor - 1) % MENU_LINESPERPAGE;
+	uint16_t arrow_y = MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_SIDEBAR_ARROW_HEIGHT)/2;
+	qp_rect(my_display,
+	        MENU_SIDEBAR_ARROW_LEFT_X, arrow_y,
+	        MENU_SIDEBAR_ARROW_LEFT_X + MENU_SIDEBAR_ARROW_WIDTH, arrow_y + MENU_SIDEBAR_ARROW_HEIGHT,
+	        MENU_BACKGROUND, true);
+	qp_rect(my_display,
+	        MENU_SIDEBAR_ARROW_RIGHT_X, arrow_y,
+	        MENU_SIDEBAR_ARROW_RIGHT_X + MENU_SIDEBAR_ARROW_WIDTH, arrow_y + MENU_SIDEBAR_ARROW_HEIGHT,
+	        MENU_BACKGROUND, true);
+	// menu_set_cursor(menu_cursor);
+	qp_flush(my_display);
+}
+
+void menu_printlist(void) { // Print the menu list, total MENU_LINESPERPAGE lines
+	// Clear the old list + sidebar
 	qp_rect(my_display,
 	        MENU_POSX, MENU_POSY,
-	        MENU_WIDTH, MENU_POSY + MAINMENU_LINESPERPAGE * MENU_LINE_HEIGHT,
-			MENU_COLOR_BACKGROUND,
+	        MENU_WIDTH, MENU_POSY + MENU_LINESPERPAGE * MENU_LINE_HEIGHT,
+			MENU_BACKGROUND,
 			true);
-	// Print the page that contains menu_cursor (handles any item count / page size)
-	uint8_t page_start = ((menu_cursor - 1) / MAINMENU_LINESPERPAGE) * MAINMENU_LINESPERPAGE;
-	uint8_t page_end   = page_start + MAINMENU_LINESPERPAGE;
-	if (page_end > MAINMENU_MAXITEMS) page_end = MAINMENU_MAXITEMS;
+	// Print the menu-page that contains menu_cursor (handles any item count / page size)
+	uint8_t page_start = ((menu_cursor - 1) / MENU_LINESPERPAGE) * MENU_LINESPERPAGE;
+	uint8_t page_end   = page_start + MENU_LINESPERPAGE;
+	if (page_end > MENU_MAXITEMS) page_end = MENU_MAXITEMS;
 
 	for (uint8_t i = page_start; i < page_end; i++) {
+		// Menu label
 		qp_drawtext(my_display,
 					MENU_POSX,
 					MENU_POSY + (i - page_start)*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
 					MENU_FONT,
-					menu_list[i]);
+					menu_label_list[i]);
+		// Its value in sidebar
+		menu_render_sidebar(i + 1, i - page_start); // item_pos is 1-based; row is 0-based on this page
 	}
 }
 
-void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item position (1..MAINMENU_MAXITEMS)
+void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item position (1..MENU_MAXITEMS)
 	static uint8_t last_cursor_pos = 0; // 0 = none drawn yet; also absolute
 
-	uint8_t page = (cursor_pos - 1) / MAINMENU_LINESPERPAGE;
-	uint8_t row  = (cursor_pos - 1) % MAINMENU_LINESPERPAGE; // 0-based row on the current page
+	uint8_t page = (cursor_pos - 1) / MENU_LINESPERPAGE;
+	uint8_t row  = (cursor_pos - 1) % MENU_LINESPERPAGE; // 0-based row on the current page
 
     // Erase the old cursor rectangle, but only if it's still on the same page.
     // A page change is already handled by a full menu_printlist() redraw.
     if (last_cursor_pos != 0 && last_cursor_pos != cursor_pos) {
-		uint8_t last_page = (last_cursor_pos - 1) / MAINMENU_LINESPERPAGE;
-		uint8_t last_row  = (last_cursor_pos - 1) % MAINMENU_LINESPERPAGE;
+		uint8_t last_page = (last_cursor_pos - 1) / MENU_LINESPERPAGE;
+		uint8_t last_row  = (last_cursor_pos - 1) % MENU_LINESPERPAGE;
 		if (last_page == page) {
 			qp_rect(my_display,
 			        MENU_POSX,
 			        MENU_POSY + last_row*MENU_LINE_HEIGHT,
-			        319,
+			        MENU_LABEL_WIDTH - 1,
 			        MENU_POSY + (last_row+1)*MENU_LINE_HEIGHT,
-			        MENU_COLOR_BACKGROUND,
+			        MENU_BACKGROUND,
 			        true
-			);
+				);
 			qp_drawtext_recolor(my_display,
 			                    MENU_POSX,
 			                    MENU_POSY + last_row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
 			                    MENU_FONT,
-			                    menu_list[last_cursor_pos-1],
+			                    menu_label_list[last_cursor_pos-1],
 			                    HSV_WHITE,
-			                    MENU_COLOR_BACKGROUND
+			                    MENU_BACKGROUND
 			                );
 		}
     }
@@ -121,31 +130,84 @@ void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item po
 	qp_rect(my_display,
 			MENU_POSX,
 			MENU_POSY + row*MENU_LINE_HEIGHT,
-			319,
+			MENU_LABEL_WIDTH - 1,
 			MENU_POSY + (row+1)*MENU_LINE_HEIGHT,
-			MENU_CURSOR_OUTLINE,
+			MENU_CURSOR_COLOR,
 			true
-	);
+		);
 	qp_drawtext_recolor(my_display,
 						MENU_POSX,
 						MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
 						MENU_FONT,
-						menu_list[cursor_pos-1],
+						menu_label_list[cursor_pos-1],
 						HSV_BLACK,
-						MENU_CURSOR_OUTLINE
+						MENU_CURSOR_COLOR
 					);
 
 	last_cursor_pos = cursor_pos;
 }
 
+// Fills 'buf' with the current value of menu item 'item_pos' (1-based), or leaves it empty if that item has none
+static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
+	buf[0] = '\0';
+	switch (item_pos) {
+		case MENU_ACTIVATELAYER:
+			snprintf(buf, buflen, "%s", layer_names[eepdata.active_layer]);
+			break;
+		case MENU_DISPLAYTIMEOUT:
+			if (eepdata.display_timeout >= DISPLAY_TIMEOUT_NEVER)
+				snprintf(buf, buflen, "Never");
+			else
+				snprintf(buf, buflen, "%ds", eepdata.display_timeout);
+			break;
+		case MENU_DISPLAYBRIGHTNESS:
+			snprintf(buf, buflen, "%d", eepdata.display_brightness);
+			break;
+		case MENU_KNOBFUNCTION:
+			snprintf(buf, buflen, "%d", eepdata.knob_func);
+			break;
+		case MENU_FWVERSION:
+			snprintf(buf, buflen, "%s", FW_VERSION);
+			break;
+		default:
+			break; // no value to show for this item
+	}
+}
+
+// Chops characters off the end of 'str' until it fits within 'max_width' pixels when drawn in 'font'
+static void menu_truncate_to_width(char *str, painter_font_handle_t font, uint16_t max_width) {
+	uint8_t len = 0;
+	while (str[len] != '\0') len++;
+	while (len > 0 && qp_textwidth(font, str) > max_width) {
+		str[--len] = '\0';
+	}
+}
+
+// Render the value of menu item 'item_pos' (1-based) on page-relative 'row' (0-based), in the sidebar
+void menu_render_sidebar(uint8_t item_pos, uint8_t row) {
+	char value_str[16];
+	menu_get_value_string(item_pos, value_str, sizeof(value_str));
+	menu_truncate_to_width(value_str, MENU_FONT, MENU_SIDEBAR_MAX_TEXTWIDTH);
+
+	if (value_str[0] != '\0') {
+		qp_drawtext(my_display,
+		            MENU_SIDEBAR_TEXT_POSX,
+		            MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2,
+		            MENU_FONT,
+		            value_str);
+	}
+}
+
 void menu_action(void) {
-    if (menu_list_ischangeable[menu_cursor]) {
+    if (menu_label_list_ischangeable[menu_cursor]) {
         menu_state = SUB_MENU;
+		uint8_t row = (menu_cursor - 1) % MENU_LINESPERPAGE;
+		uint16_t arrow_y = MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_SIDEBAR_ARROW_HEIGHT)/2;
 		qp_drawimage_recolor(my_display,
-							0, (239 - ico16_arrow_left->height),
+							MENU_SIDEBAR_ARROW_LEFT_X, arrow_y,
 							ico16_arrow_left,  HSV_BLACK, HSV_WHITE);
 		qp_drawimage_recolor(my_display,
-							(239 - ico16_arrow_right->width), (239 - ico16_arrow_right->height),
+							MENU_SIDEBAR_ARROW_RIGHT_X, arrow_y,
 							ico16_arrow_right, HSV_BLACK, HSV_WHITE);
     }
     switch (menu_cursor) {
@@ -161,9 +223,6 @@ void menu_action(void) {
         case MENU_DISPLAYBRIGHTNESS:
 			action_displaybrightness();
             break;
-        case MENU_DISPLAYROTATION:
-			action_displayrotation();
-            break;
         // case MENU_LIGHTINGLAYERS:
 			//
             // break;
@@ -176,6 +235,9 @@ void menu_action(void) {
         case MENU_ABOUT:
 			action_aboutbuildbox();
 			break;
+        case MENU_BREAKOUT:
+			action_breakout();
+			break;
         case MENU_FACTORYRESET:
 			action_factoryreset();
 			break;
@@ -184,9 +246,6 @@ void menu_action(void) {
 			break;
         case MENU_DEBUG:
 			action_debug();
-			break;
-        case MENU_BREAKOUT:
-			action_breakout();
 			break;
         default:
             break;
@@ -209,14 +268,11 @@ void action_displaybrightness(void) {
 	menu_state = SUB_MENU;
 }
 
-void action_displayrotation(void) {
-	menu_state = SUB_MENU;
-}
-
 void action_aboutbuildbox(void) {
-	qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_COLOR_BACKGROUND, true); // Clear screen
+	qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
 	qp_drawtext(my_display, 0, MENU_FONT_HEIGHT*1, MENU_FONT, "      BuildBox     ");
 	qp_drawtext(my_display, 0, MENU_FONT_HEIGHT*2, MENU_FONT, "a multi-function macropad");
+	// Add QR code & web link here
 }
 
 void action_factoryreset(void) {
@@ -233,14 +289,14 @@ void action_resettodfu(void) {
 
 void action_breakout(void) {
 	menu_state  = NOT_IN_MENU;
-	menu_cursor = MAINMENU_1STLINE_POS;
+	menu_cursor = MENU_1STLINE_POS;
 	accumulator = 0;
 	breakout_start();
 }
 
 // Maximum matrix scan frequency: 4600-4700
 void action_debug(void) {
-    // qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_COLOR_BACKGROUND, true); // Clear screen
+    // qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
 	// qp_drawtext(my_display, 0, 0, robotobold25, "DATAS FOR NERD");
 }
 
