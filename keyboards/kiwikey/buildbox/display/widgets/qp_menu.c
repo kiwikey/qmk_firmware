@@ -291,7 +291,7 @@ void action_breakout(void) {
 	menu_state  = NOT_IN_MENU;
 	menu_cursor = MENU_1STLINE_POS;
 	accumulator = 0;
-	breakout_start();
+	breakout_open();
 }
 
 // Maximum matrix scan frequency: 4600-4700

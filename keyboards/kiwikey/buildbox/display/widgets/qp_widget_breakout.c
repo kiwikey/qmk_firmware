@@ -20,6 +20,26 @@ static uint16_t          score;
 static uint8_t           lives;
 static uint32_t          last_frame;
 
+static uint8_t diff_cursor      = BREAKOUT_DIFF_MEDIUM; // highlighted item on the difficulty screen
+static int8_t  diff_tick_accum  = 0;                    // debounces encoder ticks before moving diff_cursor
+static int16_t paddle_w    = BREAKOUT_PADDLE_W_DEFAULT;
+static int8_t  ball_speed  = BREAKOUT_BALL_SPEED_DEFAULT;
+static uint8_t lives_start = BREAKOUT_LIVES_DEFAULT;
+
+typedef struct {
+    const char *name;
+    int16_t     paddle_w;
+    int8_t      ball_speed;
+    uint8_t     lives;
+} breakout_difficulty_params_t;
+
+static const breakout_difficulty_params_t difficulty_table[BREAKOUT_DIFF_COUNT] = {
+    [BREAKOUT_DIFF_EASY]   = { "EASY",    70, 2, 4 },
+    [BREAKOUT_DIFF_MEDIUM] = { "MEDIUM",  50, 3, 3 },
+    [BREAKOUT_DIFF_HARD]   = { "HARD",    40, 4, 3 },
+    [BREAKOUT_DIFF_MUTANT] = { "MUTANT!", 30, 5, 3 },
+};
+
 static const hsv_t brick_colors[BREAKOUT_ROWS] = {
     { HSV_RED },
     { HSV_ORANGE },
@@ -77,9 +97,27 @@ static void draw_scorebar(void) {
 
 static void draw_paddle(int16_t old_x) {
     if (old_x != paddle_x) {
-        qp_rect(my_display, old_x, BREAKOUT_PADDLE_Y, old_x + BREAKOUT_PADDLE_W - 1, BREAKOUT_PADDLE_Y + BREAKOUT_PADDLE_H - 1, HSV_BLACK, true);
+        qp_rect(my_display, old_x, BREAKOUT_PADDLE_Y, old_x + paddle_w - 1, BREAKOUT_PADDLE_Y + BREAKOUT_PADDLE_H - 1, HSV_BLACK, true);
     }
-    qp_rect(my_display, paddle_x, BREAKOUT_PADDLE_Y, paddle_x + BREAKOUT_PADDLE_W - 1, BREAKOUT_PADDLE_Y + BREAKOUT_PADDLE_H - 1, HSV_WHITE, true);
+    qp_rect(my_display, paddle_x, BREAKOUT_PADDLE_Y, paddle_x + paddle_w - 1, BREAKOUT_PADDLE_Y + BREAKOUT_PADDLE_H - 1, HSV_WHITE, true);
+}
+
+static void draw_difficulty_list(void) {
+    qp_rect(my_display,
+            0, BREAKOUT_DIFF_LIST_TOP,
+            ST7789_WIDTH - 1, BREAKOUT_DIFF_LIST_TOP + BREAKOUT_DIFF_COUNT * BREAKOUT_DIFF_ITEM_H - 1,
+            HSV_BLACK, true);
+    for (uint8_t i = 0; i < BREAKOUT_DIFF_COUNT; i++) {
+        int16_t y = BREAKOUT_DIFF_LIST_TOP + i * BREAKOUT_DIFF_ITEM_H;
+        // qp_drawtext_recolor_center() takes the vertical CENTER of the text, not its top-left
+        int16_t text_y = y + BREAKOUT_DIFF_ITEM_H / 2;
+        if (i == diff_cursor) {
+            qp_rect(my_display, BREAKOUT_DIFF_FILL_LEFT, y, BREAKOUT_DIFF_FILL_RIGHT, y + BREAKOUT_DIFF_ITEM_H - 1, HSV_WHITE, true);
+            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, roboto20, difficulty_table[i].name, HSV_BLACK, HSV_WHITE);
+        } else {
+            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, roboto20, difficulty_table[i].name, HSV_WHITE, HSV_BLACK);
+        }
+    }
 }
 
 static void draw_ball(int16_t old_x, int16_t old_y) {
@@ -107,7 +145,7 @@ static void draw_center_message(const char *line1, const char *line2) {
 }
 
 static void reset_ball_on_paddle(void) {
-    ball_x  = paddle_x + BREAKOUT_PADDLE_W / 2 - BREAKOUT_BALL_SIZE / 2;
+    ball_x  = paddle_x + paddle_w / 2 - BREAKOUT_BALL_SIZE / 2;
     ball_y  = BREAKOUT_PADDLE_Y - BREAKOUT_BALL_SIZE;
     ball_vx = 0;
     ball_vy = 0;
@@ -116,11 +154,11 @@ static void reset_ball_on_paddle(void) {
     draw_center_message("Turn knob to aim", "Press knob to launch");
 }
 
-void breakout_start(void) {
+static void breakout_start(void) {
     active = true;
     score  = 0;
-    lives  = BREAKOUT_LIVES_START;
-    paddle_x = (ST7789_WIDTH - BREAKOUT_PADDLE_W) / 2;
+    lives  = lives_start;
+    paddle_x = (ST7789_WIDTH - paddle_w) / 2;
 
     qp_rect(my_display, 0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1, HSV_BLACK, true);
     draw_scorebar();
@@ -133,6 +171,19 @@ void breakout_start(void) {
     qp_flush(my_display);
 }
 
+void breakout_open(void) {
+    active          = true;
+    state           = BREAKOUT_SELECT_DIFFICULTY;
+    diff_cursor     = BREAKOUT_DIFF_MEDIUM;
+    diff_tick_accum = 0;
+
+    qp_rect(my_display, 0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1, HSV_BLACK, true);
+    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, 20, robotobold25, "FEELING STRONG?", HSV_CYAN, HSV_BLACK);
+    draw_difficulty_list();
+    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, ST7789_HEIGHT - 24, font_proggy_clean, "Turn knob to move, press to start", HSV_WHITE, HSV_BLACK);
+    qp_flush(my_display);
+}
+
 void breakout_exit(void) {
     active = false;
     ui_refresh();
@@ -141,10 +192,16 @@ void breakout_exit(void) {
 void breakout_button_action(void) {
     if (!active) return;
     switch (state) {
+        case BREAKOUT_SELECT_DIFFICULTY:
+            paddle_w    = difficulty_table[diff_cursor].paddle_w;
+            ball_speed  = difficulty_table[diff_cursor].ball_speed;
+            lives_start = difficulty_table[diff_cursor].lives;
+            breakout_start();
+            break;
         case BREAKOUT_READY:
             clear_playfield_message_area();
-            ball_vy = -BREAKOUT_BALL_SPEED;
-            ball_vx = (timer_read() & 0x01) ? (BREAKOUT_BALL_SPEED / 2) : -(BREAKOUT_BALL_SPEED / 2);
+            ball_vy = -ball_speed;
+            ball_vx = (timer_read() & 0x01) ? (ball_speed / 2) : -(ball_speed / 2);
             state   = BREAKOUT_RUNNING;
             qp_flush(my_display);
             break;
@@ -158,18 +215,35 @@ void breakout_button_action(void) {
     }
 }
 
-void breakout_move_paddle(bool clockwise) {
+void breakout_encoder_tick(bool clockwise) {
     if (!active) return;
+
+    if (state == BREAKOUT_SELECT_DIFFICULTY) {
+        diff_tick_accum += clockwise ? 1 : -1;
+        if (diff_tick_accum >= BREAKOUT_DIFF_TICKS_PER_STEP) {
+            diff_cursor     = (diff_cursor + 1) % BREAKOUT_DIFF_COUNT;
+            diff_tick_accum = 0;
+        } else if (diff_tick_accum <= -BREAKOUT_DIFF_TICKS_PER_STEP) {
+            diff_cursor     = (diff_cursor + BREAKOUT_DIFF_COUNT - 1) % BREAKOUT_DIFF_COUNT;
+            diff_tick_accum = 0;
+        } else {
+            return; // not enough ticks yet to move the cursor
+        }
+        draw_difficulty_list();
+        qp_flush(my_display);
+        return;
+    }
+
     int16_t old_x = paddle_x;
     paddle_x += clockwise ? BREAKOUT_PADDLE_SPEED : -BREAKOUT_PADDLE_SPEED;
     if (paddle_x < BREAKOUT_FIELD_LEFT) paddle_x = BREAKOUT_FIELD_LEFT;
-    if (paddle_x > BREAKOUT_FIELD_RIGHT - BREAKOUT_PADDLE_W + 1) paddle_x = BREAKOUT_FIELD_RIGHT - BREAKOUT_PADDLE_W + 1;
+    if (paddle_x > BREAKOUT_FIELD_RIGHT - paddle_w + 1) paddle_x = BREAKOUT_FIELD_RIGHT - paddle_w + 1;
     if (paddle_x == old_x) return;
 
     draw_paddle(old_x);
     if (state == BREAKOUT_READY) {
         int16_t old_bx = ball_x;
-        ball_x = paddle_x + BREAKOUT_PADDLE_W / 2 - BREAKOUT_BALL_SIZE / 2;
+        ball_x = paddle_x + paddle_w / 2 - BREAKOUT_BALL_SIZE / 2;
         draw_ball(old_bx, ball_y);
     }
     qp_flush(my_display);
@@ -221,14 +295,14 @@ void housekeeping_task_breakout(void) {
         ny + BREAKOUT_BALL_SIZE - 1 >= BREAKOUT_PADDLE_Y &&
         ny <= BREAKOUT_PADDLE_Y + BREAKOUT_PADDLE_H &&
         nx + BREAKOUT_BALL_SIZE - 1 >= paddle_x &&
-        nx <= paddle_x + BREAKOUT_PADDLE_W - 1) {
+        nx <= paddle_x + paddle_w - 1) {
         ny = BREAKOUT_PADDLE_Y - BREAKOUT_BALL_SIZE;
         ball_vy = -ball_vy;
-        int16_t hit_offset = (nx + BREAKOUT_BALL_SIZE / 2) - (paddle_x + BREAKOUT_PADDLE_W / 2);
+        int16_t hit_offset = (nx + BREAKOUT_BALL_SIZE / 2) - (paddle_x + paddle_w / 2);
         ball_vx = hit_offset / 8;
         if (ball_vx == 0) ball_vx = (hit_offset >= 0) ? 1 : -1;
-        if (ball_vx > BREAKOUT_BALL_SPEED) ball_vx = BREAKOUT_BALL_SPEED;
-        if (ball_vx < -BREAKOUT_BALL_SPEED) ball_vx = -BREAKOUT_BALL_SPEED;
+        if (ball_vx > ball_speed) ball_vx = ball_speed;
+        if (ball_vx < -ball_speed) ball_vx = -ball_speed;
     }
 
     // bricks - at most one hit per frame

@@ -50,11 +50,11 @@ void magnetic_encoder_update_kb(bool direction) {
 
     if (breakout_is_active()) {
         while (accumulator >= BREAKOUT_STEP_SIZE) {
-            breakout_move_paddle(CW);
+            breakout_encoder_tick(CW);
             accumulator -= BREAKOUT_STEP_SIZE;
         }
         while (accumulator <= -BREAKOUT_STEP_SIZE) {
-            breakout_move_paddle(CCW);
+            breakout_encoder_tick(CCW);
             accumulator += BREAKOUT_STEP_SIZE;
         }
     } else if (menu_state == NOT_IN_MENU) {
