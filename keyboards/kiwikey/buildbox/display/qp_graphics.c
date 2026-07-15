@@ -75,12 +75,6 @@ void ui_refresh(void) {
 }
 
 void housekeeping_task_display(void) {
-	char buf1[10] = {0};
-	sprintf(buf1, "cur=%2d", menu_cursor);
-	qp_drawtext(my_display, 250, 0, font_proggy_tiny, buf1);
-	sprintf(buf1, "men=%2d", menu_state);
-	qp_drawtext(my_display, 250, 10, font_proggy_tiny, buf1);
-
 	// Check all flags
 	if (flag_display_keycode_changed & 0x1000) {
 		uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
