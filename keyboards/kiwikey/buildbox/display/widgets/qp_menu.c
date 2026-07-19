@@ -155,7 +155,7 @@ static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 			snprintf(buf, buflen, "%s", layer_names[eepdata.active_layer]);
 			break;
 		case MENU_ANIMATION:
-			snprintf(buf, buflen, "%s", eepdata.display_anim ? "ON" : "OFF");
+			snprintf(buf, buflen, "%s", eepdata.display_bootanim ? "ON" : "OFF");
 			break;
 		case MENU_DISPLAYTIMEOUT:
 			if (eepdata.display_timeout >= DISPLAY_TIMEOUT_NEVER)
@@ -200,11 +200,11 @@ void menu_render_sidebar(uint8_t item_pos, uint8_t row) {
 	        MENU_BACKGROUND, true);
 
 	if (value_str[0] != '\0') {
-		qp_drawtext(my_display,
-		            MENU_SIDEBAR_TEXT_POSX,
-		            MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2,
-		            MENU_FONT,
-		            value_str);
+		qp_drawtext_recolor_center(my_display,
+		                           (MENU_SIDEBAR_TEXT_POSX + MENU_SIDEBAR_ARROW_RIGHT_X) / 2,
+		                           MENU_POSY + row*MENU_LINE_HEIGHT + MENU_LINE_HEIGHT/2,
+		                           MENU_FONT, value_str,
+		                           HSV_WHITE, MENU_BACKGROUND);
 	}
 }
 
@@ -309,11 +309,11 @@ void action_debug(void) {
 	char buf[32];
 	// qp_rect(my_display, 150, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
 	// qp_drawtext(my_display, 150, font_oled->line_height*0, font_oled, "EEPROM DEBUG");
-	snprintf(buf, sizeof(buf), "layer:%d anim:%d",     eepdata.active_layer, eepdata.display_anim);
+	snprintf(buf, sizeof(buf), "layer:%d anim:%d",     eepdata.active_layer, eepdata.display_bootanim);
 	qp_drawtext(my_display, 180, font_oled->line_height*1, font_oled, buf);
 	snprintf(buf, sizeof(buf), "timeout:%d bright:%d", eepdata.display_timeout, eepdata.display_brightness);
 	qp_drawtext(my_display, 180, font_oled->line_height*2, font_oled, buf);
-	snprintf(buf, sizeof(buf), "rot:%d lly:%d llf:%d", eepdata.display_rotation, eepdata.lighting_layers, eepdata.lighting_flags);
+	snprintf(buf, sizeof(buf), "rot:%d lly:%d llf:%d", eepdata.knob_effect, eepdata.lighting_layers, eepdata.lighting_flags);
 	qp_drawtext(my_display, 180, font_oled->line_height*3, font_oled, buf);
 	snprintf(buf, sizeof(buf), "hue: %d %d %d %d",     eepdata.layer_hue[0], eepdata.layer_hue[1], eepdata.layer_hue[2], eepdata.layer_hue[3]);
 	qp_drawtext(my_display, 180, font_oled->line_height*4, font_oled, buf);

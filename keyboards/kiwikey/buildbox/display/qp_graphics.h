@@ -1,6 +1,5 @@
 #pragma once
 
-#define BOOT_ENABLE            FALSE
 #define BOOT_DURATION          4000 // ms
 
 #define DISPLAY_TIMEOUT_MIN    30	// seconds

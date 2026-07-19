@@ -21,17 +21,17 @@
 
 EEPROM_CUSTOM_DATA eepdata;
 EEPROM_CUSTOM_DATA eepdata_default = {
-	0,                           // Layer 0
-	1,                           // Animation #1
-	DISPLAY_TIMEOUT_MIN,         // LCD Timeout 30s
-	BACKLIGHT_DEFAULT_LEVEL,     // LCD Brightness default (10 = max)
-	QP_ROTATION_0,               // Default rotation
-	0,                           // Lighting Layers OFF
-	0,                           // Lighting Layers applied to Underglow LEDs
-	{ 126, 210,  42,  84 },      // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
-	{ 255, 255, 255, 255 },      // Lighting Layers' SATs: maximum (255)
-	1,                           // Knob: Volume
-	7                            // Checksum is always 7
+	0,                        // Layer 0
+	1,                        // Boot animation enabled
+	DISPLAY_TIMEOUT_MIN,      // LCD Timeout 30s
+	BACKLIGHT_DEFAULT_LEVEL,  // LCD Brightness default (10 = max)
+	0,                        // Lighting Layers OFF
+	0,                        // Lighting Layers applied to Knob's LEDs
+	{ 126, 210,  42,  84 },   // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
+	{ 255, 255, 255, 255 },   // Lighting Layers' SATs: maximum (255)
+	1,                        // Knob special effect enabled
+	1,                        // Knob: Volume
+	7                         // Checksum is always 7
 };
 
 void keyboard_post_init_kb(void) {
@@ -52,17 +52,18 @@ void keyboard_post_init_kb(void) {
 		// backlight_level(eepdata.display_brightness);
 		backlight_level(10);
 	#endif // defined(BACKLIGHT_ENABLE)
-	// backlight_enable();
 
 	keyboard_post_init_sensors_handler();
-	keyboard_post_init_display();
+	keyboard_post_init_display();  // eepdata.display_bootanim is checked here
 	keyboard_post_init_user();
 }
 
 void housekeeping_task_kb(void) {
-	housekeeping_task_display();
-	housekeeping_task_sensors_handler();
-	housekeeping_task_breakout();
+	if (!booting) {
+		housekeeping_task_display();
+		housekeeping_task_sensors_handler();
+		housekeeping_task_breakout();
+	}
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {

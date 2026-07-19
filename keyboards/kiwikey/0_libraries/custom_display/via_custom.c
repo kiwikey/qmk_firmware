@@ -21,7 +21,8 @@ void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
 	#endif // defined(OLED_ENABLE)
 	
 #if defined(CONSOLE_ENABLE)
-	dprintf("via_custom_value_command_kb: %d %d %d %d - %d %d - %d %d \n", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+	dprintf("via_custom_value_command_kb: [%d] [%d] %d %d %d %d %d %d \n",
+        data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
 #endif // defined(CONSOLE_ENABLE)
 	
     // data = [ command_id, channel_id, value_id, value_data ]
@@ -57,8 +58,7 @@ void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
     // DO NOT call raw_hid_send(data,length) here, let caller do this
 }
 
-void via_config_set_value( uint8_t *data )
-{
+void via_config_set_value( uint8_t *data ) {
     // data = [ value_id, value_data ]
     uint8_t *value_id   = &(data[0]);
     uint8_t *value_data = &(data[1]);

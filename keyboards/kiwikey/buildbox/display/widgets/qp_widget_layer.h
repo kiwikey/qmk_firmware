@@ -14,4 +14,5 @@
 
 void widget_layer_init(void);
 void widget_layer_render(uint8_t layer);
+void widget_layer_number_render(uint8_t layer);
 void widget_layer_render_layername(uint8_t layer);

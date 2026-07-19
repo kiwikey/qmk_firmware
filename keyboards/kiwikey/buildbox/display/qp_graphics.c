@@ -2,6 +2,7 @@
 #include "qp_graphics.h"
 
 #include "features/eeprom_custom.h"
+#include "sensor/sensors_handler.h"
 #include "display/qp_includes.h"
 #include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
@@ -12,11 +13,16 @@
 painter_device_t my_display;
 bool     booting = false; // will be TRUE during boot animation
 
+uint16_t flag_display_keycode_changed = 0x0000;
 // flag_display_keycode_changed: contains layer, row, col of changed key
 // Mask:     00          00      00       00
 //       is changed?   layer     row      col
 // Example: 0x1231 = changed, layer 2, row 3, col 1
-uint16_t flag_display_keycode_changed = 0x0000;
+
+uint8_t flag_widget_layer_changed = 0;
+// 0 = nothing changed (we need this, so other layers need to +1)
+// 1 = layer 0 changed
+// 2 = layer 1 changed
 
 void display_init(void) {
 	// my_display = qp_ili9341_make_spi_device(
@@ -47,6 +53,7 @@ void display_init(void) {
 
 uint32_t finish_boot_animation(uint32_t trigger_time, void *cb_arg) {
     booting = false;
+	accumulator = 0; // All knob rotation during boot animation is cleared
 	qp_stop_animation(my_anim);
 	ui_refresh();
     return 0;   // Don't schedule again
@@ -54,7 +61,7 @@ uint32_t finish_boot_animation(uint32_t trigger_time, void *cb_arg) {
 
 void keyboard_post_init_display(void) {
 	display_init();
-	if (BOOT_ENABLE) {
+	if (eepdata.display_bootanim == 1) {
 		booting = true;
 		my_anim = qp_animate(my_display, 0, 90, gif_bootup01);
 		defer_exec(BOOT_DURATION, finish_boot_animation, NULL);
@@ -74,8 +81,7 @@ void ui_refresh(void) {
 	qp_flush(my_display);
 }
 
-void housekeeping_task_display(void) {
-	// Check all flags
+void housekeeping_task_display(void) { // Check all flags
 	if (flag_display_keycode_changed & 0x1000) {
 		uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
 		if (layer == get_highest_layer(layer_state)) { // only process if that changed layer is being activated
@@ -89,7 +95,14 @@ void housekeeping_task_display(void) {
 		}
 		flag_display_keycode_changed = 0x0000;
 	}
-	action_debug();
+
+	if (flag_widget_layer_changed) { // 0 means nothing changed
+		if ((flag_widget_layer_changed - 1) == get_highest_layer(layer_state)) {
+			widget_layer_number_render(flag_widget_layer_changed - 1);
+			widget_layer_render_layername(flag_widget_layer_changed - 1);
+		}
+		flag_widget_layer_changed = 0;
+	}
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {

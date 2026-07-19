@@ -41,7 +41,7 @@
 	#define ILI9341_HEIGHT 240
 
 	/*** QUANTUM PAINTER CONFIGURATION ***/
-	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT 60000
+	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT        0   // LCD Timeout handles by custom code
 	#define QUANTUM_PAINTER_SUPPORTS_256_PALETTE   TRUE
 	#define QUANTUM_PAINTER_SUPPORTS_NATIVE_COLORS TRUE
 	#define QUANTUM_PAINTER_NUM_IMAGES      16   // The maximum number of images/animations that can be loaded at any one time.

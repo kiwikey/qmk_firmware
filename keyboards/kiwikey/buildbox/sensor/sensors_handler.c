@@ -127,7 +127,7 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 					value_changed = true;
 					break;
 				case MENU_ANIMATION:
-					eepdata.display_anim ^= 1;
+					eepdata.display_bootanim ^= 1;
 					value_changed = true;
 					break;
 				case MENU_DISPLAYTIMEOUT:

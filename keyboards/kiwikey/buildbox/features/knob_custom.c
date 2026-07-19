@@ -1,6 +1,8 @@
 #include <qp.h>
 
 #include "knob_custom.h"
+
+#include "features/eeprom_custom.h"
 #include "sensor/sensors_handler.h"
 #include "display/defines.h"
 #include "display/qp_custom_api.h"
@@ -22,7 +24,10 @@ static int16_t angle_diff(uint8_t a, uint8_t b) {
 
 void knob_effect(void) {
     bool show_gradient = magnetic_encoder.is_present && timer_elapsed32(last_knob_movement_time) < KNOB_LED_FLASH_MS;
-    hsv_t base = layer_colors[get_highest_layer(layer_state|default_layer_state)];
+    hsv_t base = { eepdata.layer_hue[get_highest_layer(layer_state|default_layer_state)], // hue
+                   eepdata.layer_sat[get_highest_layer(layer_state|default_layer_state)], // sat
+                   255 // val = 100%
+                 };
 
     uint8_t angle    = 255 - (magnetic_encoder.new_angle >> 4);
     int16_t hue_diff = angle_diff(0, base.h); // shortest path from layer hue to red

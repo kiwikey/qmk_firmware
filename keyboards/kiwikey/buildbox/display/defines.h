@@ -28,13 +28,6 @@ static const char * const layer_names[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	"RGB LED"
 };
 
-static const hsv_t layer_colors[] = {
-    [0] = { HSV_CYAN },
-    [1] = { HSV_MAGENTA },
-    [2] = { HSV_YELLOW },
-    [3] = { HSV_GREEN },
-};
-
 enum custom_keycodes {
 	KC_BUTTON_1 = SAFE_RANGE, // keycode 0x7E40
 	KC_BUTTON_2
