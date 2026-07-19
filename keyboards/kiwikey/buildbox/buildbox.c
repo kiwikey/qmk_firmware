@@ -5,6 +5,7 @@
 #include "print.h"
 #include "sensor/sensors_handler.h"
 #include "features/eeprom_custom.h"
+#include "features/knob_custom.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 	#include "display/defines.h"
@@ -71,11 +72,12 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 	return process_record_user(keycode, record);
 }
 
+// LED ring around the knob: fades from red (at the knob's current angle) into the
+// active layer's color across ~2 neighboring LEDs each side, so the light crossfades
+// smoothly as the knob turns instead of jumping between the 8 discrete LEDs.
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-    for (uint8_t i = 22; i < 30; i++) {
-		rgb_matrix_set_color_hsv(i, layer_colors[get_highest_layer(layer_state|default_layer_state)]);
-    }
-    return false;
+	knob_effect();
+    return rgb_matrix_indicators_advanced_user(led_min, led_max);
 }
 
 layer_state_t layer_state_set_kb(layer_state_t state) {

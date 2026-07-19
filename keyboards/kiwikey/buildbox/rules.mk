@@ -17,6 +17,7 @@ SRC += matrix.c
 QUANTUM_LIB_SRC += i2c_master.c
 SRC += \
 	features/via_custom.c              \
+	features/knob_custom.c             \
 	sensor/sensors_handler.c           \
 	sensor/as5600.c
 

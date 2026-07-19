@@ -13,6 +13,7 @@
 #include "display/widgets/qp_widget_breakout.h"
 
 int16_t accumulator = 0;
+uint32_t last_knob_movement_time = 0;
 
 void keyboard_post_init_sensors_handler(void) {
 	keyboard_post_init_magnetic_encoder();
@@ -40,6 +41,8 @@ void housekeeping_task_sensors_handler(void) {
 // the sign of that movement: true = CW, false = CCW. This function does
 // NOT touch the sensor itself, avoiding a second, racy I2C read per tick.
 void magnetic_encoder_update_kb(bool direction) {
+	last_knob_movement_time = timer_read32();
+
 	uint16_t distance = get_distance(&magnetic_encoder);
 
 	accumulator += direction ? (int16_t)distance : -(int16_t)distance;
