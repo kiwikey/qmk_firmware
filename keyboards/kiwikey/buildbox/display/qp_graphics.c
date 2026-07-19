@@ -89,6 +89,7 @@ void housekeeping_task_display(void) {
 		}
 		flag_display_keycode_changed = 0x0000;
 	}
+	action_debug();
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
@@ -116,7 +117,7 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 	/*** If being in MENU :
 	MAIN MENU :
 		+ Pressing Button 1 -> quit Main Menu (back to default screen)
-		+ Pressing Button 2 -> choose cursor_pos function
+		+ Pressing Button 2 -> menu_action(): run cursor_pos function
 	SUB MENU :
 		+ Pressing Button 1 -> quit Sub Menu without saving
 		+ Pressing Button 2 -> quit Sub Menu and save the setting

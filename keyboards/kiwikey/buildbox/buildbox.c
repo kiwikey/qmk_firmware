@@ -72,9 +72,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 	return process_record_user(keycode, record);
 }
 
-// LED ring around the knob: fades from red (at the knob's current angle) into the
-// active layer's color across ~2 neighboring LEDs each side, so the light crossfades
-// smoothly as the knob turns instead of jumping between the 8 discrete LEDs.
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
 	knob_effect();
     return rgb_matrix_indicators_advanced_user(led_min, led_max);

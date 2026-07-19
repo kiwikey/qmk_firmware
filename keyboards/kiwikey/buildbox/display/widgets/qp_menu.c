@@ -44,11 +44,11 @@ void menu_exit(void) {
     menu_state  = NOT_IN_MENU;
 	accumulator = 0;
     menu_cursor = MENU_1STLINE_POS; // ignore cursor's latest position, reset to 1st menu line
-    // eeprom_update_custom(); // update all custom EEPROM values (if necessary)
+    eeprom_update_custom(); // update all custom EEPROM values (if necessary)
 
     /* Handle special cases */
     if (menu_cursor == MENU_ACTIVATELAYER) { // when exit "Active layer", move to that chosen layer
-        // layer_move(eepdata.active_layer);
+        layer_move(eepdata.active_layer);
     }
 
     ui_refresh();
@@ -154,6 +154,9 @@ static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 		case MENU_ACTIVATELAYER:
 			snprintf(buf, buflen, "%s", layer_names[eepdata.active_layer]);
 			break;
+		case MENU_ANIMATION:
+			snprintf(buf, buflen, "%s", eepdata.display_anim ? "ON" : "OFF");
+			break;
 		case MENU_DISPLAYTIMEOUT:
 			if (eepdata.display_timeout >= DISPLAY_TIMEOUT_NEVER)
 				snprintf(buf, buflen, "Never");
@@ -189,6 +192,13 @@ void menu_render_sidebar(uint8_t item_pos, uint8_t row) {
 	menu_get_value_string(item_pos, value_str, sizeof(value_str));
 	menu_truncate_to_width(value_str, MENU_FONT, MENU_SIDEBAR_MAX_TEXTWIDTH);
 
+	// Clear the text cell first: a shorter string wouldn't otherwise overwrite
+	// the tail of whatever longer string was previously drawn here.
+	qp_rect(my_display,
+	        MENU_SIDEBAR_TEXT_POSX, MENU_POSY + row*MENU_LINE_HEIGHT,
+	        MENU_SIDEBAR_ARROW_RIGHT_X, MENU_POSY + (row+1)*MENU_LINE_HEIGHT,
+	        MENU_BACKGROUND, true);
+
 	if (value_str[0] != '\0') {
 		qp_drawtext(my_display,
 		            MENU_SIDEBAR_TEXT_POSX,
@@ -199,8 +209,8 @@ void menu_render_sidebar(uint8_t item_pos, uint8_t row) {
 }
 
 void menu_action(void) {
-    if (menu_label_list_ischangeable[menu_cursor]) {
-        menu_state = SUB_MENU;
+	if (menu_label_list_ischangeable[menu_cursor]) {
+		menu_state = SUB_MENU;
 		uint8_t row = (menu_cursor - 1) % MENU_LINESPERPAGE;
 		uint16_t arrow_y = MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_SIDEBAR_ARROW_HEIGHT)/2;
 		qp_drawimage_recolor(my_display,
@@ -209,47 +219,48 @@ void menu_action(void) {
 		qp_drawimage_recolor(my_display,
 							MENU_SIDEBAR_ARROW_RIGHT_X, arrow_y,
 							ico16_arrow_right, HSV_BLACK, HSV_WHITE);
-    }
-    switch (menu_cursor) {
-        case MENU_ACTIVATELAYER:
+	}
+	switch (menu_cursor) {
+		case MENU_ACTIVATELAYER:
 			action_activelayer();
-            break;
-        case MENU_ANIMATION:
+			break;
+		case MENU_ANIMATION:
 			action_animation();
-            break;
-        case MENU_DISPLAYTIMEOUT:
+			break;
+		case MENU_DISPLAYTIMEOUT:
 			action_displaytimeout();
-            break;
-        case MENU_DISPLAYBRIGHTNESS:
+			break;
+		case MENU_DISPLAYBRIGHTNESS:
 			action_displaybrightness();
-            break;
-        // case MENU_LIGHTINGLAYERS:
+			break;
+		// case MENU_LIGHTINGLAYERS:
 			//
-            // break;
-        case MENU_KNOBFUNCTION:
+			// break;
+		case MENU_KNOBFUNCTION:
 			//
-            break;
-        case MENU_FWVERSION:
+			break;
+		case MENU_FWVERSION:
 			// NOP
-            break;
-        case MENU_ABOUT:
+			break;
+		case MENU_ABOUT:
 			action_aboutbuildbox();
 			break;
-        case MENU_BREAKOUT:
+		case MENU_BREAKOUT:
 			action_breakout();
 			break;
-        case MENU_FACTORYRESET:
+		case MENU_FACTORYRESET:
 			action_factoryreset();
 			break;
-        case MENU_BOOTTODFU:
+		case MENU_BOOTTODFU:
 			action_resettodfu();
 			break;
-        case MENU_DEBUG:
+		case MENU_DEBUG:
 			action_debug();
 			break;
-        default:
-            break;
-    }
+		default:
+			break;
+	}
+	
 }
 
 void action_activelayer(void) {
@@ -294,14 +305,27 @@ void action_breakout(void) {
 	breakout_open();
 }
 
-// Maximum matrix scan frequency: 4600-4700
 void action_debug(void) {
-    // qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
-	// qp_drawtext(my_display, 0, 0, robotobold25, "DATAS FOR NERD");
+	char buf[32];
+	// qp_rect(my_display, 150, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
+	// qp_drawtext(my_display, 150, font_oled->line_height*0, font_oled, "EEPROM DEBUG");
+	snprintf(buf, sizeof(buf), "layer:%d anim:%d",     eepdata.active_layer, eepdata.display_anim);
+	qp_drawtext(my_display, 180, font_oled->line_height*1, font_oled, buf);
+	snprintf(buf, sizeof(buf), "timeout:%d bright:%d", eepdata.display_timeout, eepdata.display_brightness);
+	qp_drawtext(my_display, 180, font_oled->line_height*2, font_oled, buf);
+	snprintf(buf, sizeof(buf), "rot:%d lly:%d llf:%d", eepdata.display_rotation, eepdata.lighting_layers, eepdata.lighting_flags);
+	qp_drawtext(my_display, 180, font_oled->line_height*3, font_oled, buf);
+	snprintf(buf, sizeof(buf), "hue: %d %d %d %d",     eepdata.layer_hue[0], eepdata.layer_hue[1], eepdata.layer_hue[2], eepdata.layer_hue[3]);
+	qp_drawtext(my_display, 180, font_oled->line_height*4, font_oled, buf);
+	snprintf(buf, sizeof(buf), "sat: %d %d %d %d",     eepdata.layer_sat[0], eepdata.layer_sat[1], eepdata.layer_sat[2], eepdata.layer_sat[3]);
+	qp_drawtext(my_display, 180, font_oled->line_height*5, font_oled, buf);
+	snprintf(buf, sizeof(buf), "knob:%d chk:%d",       eepdata.knob_func, eepdata.checksum);
+	qp_drawtext(my_display, 180, font_oled->line_height*6, font_oled, buf);
+	qp_flush(my_display);
 }
 
-// void eeprom_update_custom(void) {
-// 	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
-// }
+void eeprom_update_custom(void) {
+	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
+}
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)

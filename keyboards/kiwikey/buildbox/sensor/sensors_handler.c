@@ -58,7 +58,7 @@ void magnetic_encoder_update_kb(bool direction) {
 	// printf("accumulator = %d \n", accumulator);
 #endif
 
-    if (breakout_is_active()) {
+    if (breakout_is_active()) { // While in game
         while (accumulator >= BREAKOUT_STEP_SIZE) {
             breakout_encoder_tick(CW);
             accumulator -= BREAKOUT_STEP_SIZE;
@@ -67,7 +67,7 @@ void magnetic_encoder_update_kb(bool direction) {
             breakout_encoder_tick(CCW);
             accumulator += BREAKOUT_STEP_SIZE;
         }
-    } else if (menu_state == NOT_IN_MENU) {
+    } else if (menu_state == NOT_IN_MENU) { // While in main screen
         widget_knob_update(magnetic_encoder.prev_angle, magnetic_encoder.new_angle);
         while (accumulator >= STEP_SIZE) {
             tap_code16(MS_WHLU);
@@ -77,7 +77,7 @@ void magnetic_encoder_update_kb(bool direction) {
             tap_code16(MS_WHLD);
             accumulator += STEP_SIZE;
         }
-    } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU) {
+    } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU) { // While in Menu
         while (accumulator >= MENU_STEP_SIZE) {
             process_encoder_rotate(CW);
             accumulator -= MENU_STEP_SIZE;
@@ -105,25 +105,69 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 					menu_printlist();
 			}
 			if (menu_cursor > MENU_MAXITEMS) {
-				menu_cursor = 1;                 // scroll back to #1
-				menu_printlist();                // refresh the list
+				menu_cursor = 1;             // scroll back to #1
+				menu_printlist();            // refresh the list
 			}
 			if (menu_cursor == 0) {
 				menu_cursor = MENU_MAXITEMS; // scroll to last item
-				menu_printlist();                // refresh the list
+				menu_printlist();            // refresh the list
 			}
 			menu_set_cursor(menu_cursor);
 		/* In Sub-menu, knob rotation moves between options */
-		/* also note: menu lines that "ischangeable = FALSE" will not runs into Sub-menu */
+		/* also note: menu lines that "ischangeable = FALSE" will not run into Sub-menu */
 		} else if (menu_state == SUB_MENU) {
 			bool value_changed = false;
-			if (menu_cursor == MENU_ACTIVATELAYER) {
-				if (clockwise) { // next
-					eepdata.active_layer = (eepdata.active_layer == DYNAMIC_KEYMAP_LAYER_COUNT-1) ? 0 : eepdata.active_layer+1;
-				} else {          // previous
-					eepdata.active_layer = (eepdata.active_layer == 0) ? DYNAMIC_KEYMAP_LAYER_COUNT-1 : eepdata.active_layer-1;
-				}
-				value_changed = true;
+			switch (menu_cursor) {
+				case MENU_ACTIVATELAYER:
+					if (clockwise) { // next
+						eepdata.active_layer = (eepdata.active_layer == DYNAMIC_KEYMAP_LAYER_COUNT-1) ? 0 : eepdata.active_layer+1;
+					} else {         // previous
+						eepdata.active_layer = (eepdata.active_layer == 0) ? DYNAMIC_KEYMAP_LAYER_COUNT-1 : eepdata.active_layer-1;
+					}
+					value_changed = true;
+					break;
+				case MENU_ANIMATION:
+					eepdata.display_anim ^= 1;
+					value_changed = true;
+					break;
+				case MENU_DISPLAYTIMEOUT:
+					if (clockwise) { // next
+						eepdata.display_timeout += DISPLAY_TIMEOUT_STEP;
+						if (eepdata.display_timeout > DISPLAY_TIMEOUT_NEVER)
+							eepdata.display_timeout = DISPLAY_TIMEOUT_MIN;
+					} else {         // previous
+						eepdata.display_timeout -= DISPLAY_TIMEOUT_STEP;
+						if (eepdata.display_timeout <= 0)
+							eepdata.display_timeout = DISPLAY_TIMEOUT_NEVER;
+					}
+					value_changed = true;
+					break;
+				case MENU_DISPLAYBRIGHTNESS:
+					if (clockwise) { // next
+						if (eepdata.display_brightness == BACKLIGHT_LEVELS)
+							eepdata.display_brightness = 1;
+						else eepdata.display_brightness++;
+						backlight_level(eepdata.display_brightness);
+					} else {         // previous
+						if (eepdata.display_brightness == 1)
+							eepdata.display_brightness = BACKLIGHT_LEVELS;
+						else eepdata.display_brightness--;
+						backlight_level(eepdata.display_brightness);
+					}
+					value_changed = true;
+					break;
+				case MENU_KNOBFUNCTION:
+					if (clockwise) { // next
+						if (eepdata.knob_func == ENCODER_FUNC_MAX) eepdata.knob_func = 0;
+						else eepdata.knob_func++;
+					} else {         // previous
+						if (eepdata.knob_func == 0) eepdata.knob_func = ENCODER_FUNC_MAX;
+						else eepdata.knob_func--;
+					}
+					value_changed = true;
+					break;
+				default:
+					; //
 			}
 			// TODO: Animation, LCD Timeout, LCD Brightness, Knob Rotation Fn
 			if (value_changed) {
@@ -131,7 +175,6 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 				qp_flush(my_display);
 			}
 		}
-		// menu_quick_view();
 		return false;
 	}
     return true;

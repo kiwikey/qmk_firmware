@@ -6,6 +6,8 @@
 #define STEP_SIZE       128
 #define MENU_STEP_SIZE  512
 
+#define ENCODER_FUNC_MAX 5
+
 extern int16_t accumulator;
 extern uint32_t last_knob_movement_time;
 

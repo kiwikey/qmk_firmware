@@ -40,7 +40,7 @@ bool process_encoder_rotate(uint8_t index, bool clockwise) { // Rotating only, n
 			}
 			menu_set_cursor(menu_cursor);
 		/* In Sub-menu, knob rotation moves between options */
-		/* also note: menu lines that "ischangeable = FALSE" will not runs into Sub-menu */
+		/* also note: menu lines that "ischangeable = FALSE" will not run into Sub-menu */
 		} else if (current_menu == SUB_MENU) {
 			if (clockwise) { // Turn clockwise => RIGHT
 				if (menu_cursor == MENU_ACTIVATELAYER) {
