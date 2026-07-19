@@ -36,11 +36,18 @@ void housekeeping_task_sensors_handler(void) {
 	}
 }
 
+// Not in any public header, but has external linkage in quantum/keyboard.c.
+// Our knob bypasses QMK's ENCODER_ENABLE pipeline entirely (custom AS5600 I2C
+// read), so nothing else marks rotation as "activity" for Quantum Painter's
+// auto-sleep timer (QUANTUM_PAINTER_DISPLAY_TIMEOUT) unless we do it ourselves.
+extern void last_encoder_activity_trigger(void);
+
 // Called from process_magnetic_encoder() (as5600.c) once a movement past
 // DEG_MARGIN_AS5600 has already been read and validated. `direction` is
 // the sign of that movement: true = CW, false = CCW. This function does
 // NOT touch the sensor itself, avoiding a second, racy I2C read per tick.
 void magnetic_encoder_update_kb(bool direction) {
+	last_encoder_activity_trigger();
 	last_knob_movement_time = timer_read32();
 
 	uint16_t distance = get_distance(&magnetic_encoder);
