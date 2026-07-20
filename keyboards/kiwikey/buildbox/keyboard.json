@@ -35,12 +35,12 @@
 	},
     "rgb_matrix": {
         "driver": "ws2812",
-        "max_brightness": 100,
+        "max_brightness": 255,
         "val_steps": 12,
         "sleep": true,
 		"default": {
 			"on": true,
-			"val": 168,
+			"val": 192,
 			"animation": "cycle_up_down"
 		},
         "animations": {

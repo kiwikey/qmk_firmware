@@ -28,7 +28,7 @@ void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
 #endif // defined(CONSOLE_ENABLE)
 	
     uint8_t *command_id        = &(data[0]);
-    uint8_t *channel_id        = &(data[1]); // Read the notes
+    uint8_t *channel_id        = &(data[1]);
     uint8_t *value_id_and_data = &(data[2]);
 
     if ( *channel_id == id_custom_channel ) { // id_custom_channel = 0
@@ -152,8 +152,7 @@ void via_config_set_value( uint8_t *data ) {
     }
 }
 
-void via_config_get_value( uint8_t *data )
-{
+void via_config_get_value( uint8_t *data ) {
     // print("via_config_get_value \n");
     // data = [ value_id, value_data ]
     uint8_t *value_id   = &(data[0]);
@@ -195,33 +194,6 @@ void via_config_get_value( uint8_t *data )
     }
 }
 
-void via_config_save(void)
-{
+void via_config_save(void) {
 	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 }
-
-// #if defined(RGB_MATRIX_ENABLE)
-// bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) { // Lighting Layers
-//     if (!rgb_matrix_indicators_advanced_user(led_min, led_max)) {
-//         return false;
-//     }
-
-// 	HSV hsv = {
-// 		eepdata.layer_hue[get_highest_layer(layer_state)], // HUE = HUE setting of current layer
-// 		eepdata.layer_sat[get_highest_layer(layer_state)],
-// 		rgb_matrix_get_val() // VAL = current RGBMatrix's brightness
-// 	};
-// 	if (hsv.s == 0) hsv.v = 0;
-//     RGB rgb = hsv_to_rgb(hsv);
-
-// 	if (!(eepdata.lighting_layers & 0x0F)) // If Lighting Layers is off, there's nothing to do here
-// 		return false;
-
-//     for (uint8_t i = led_min; i < led_max; i++) {
-// 		if (g_led_config.flags[i] & ((eepdata.lighting_flags+1) << 1)) {
-//             rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
-//         }
-//     }
-//     return false;
-// }
-// #endif // defined(RGB_MATRIX_ENABLE)

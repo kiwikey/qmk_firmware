@@ -73,17 +73,41 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 	return process_record_user(keycode, record);
 }
 
-bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-	knob_effect();
-    return rgb_matrix_indicators_advanced_user(led_min, led_max);
-}
-
 layer_state_t layer_state_set_kb(layer_state_t state) {
 	if (!booting) {
 		widget_layer_render(get_highest_layer(state));
 		widget_matrix_keymap_render(get_highest_layer(state));
 	}
 	return state;
+}
+
+bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) { // Lighting Layers
+    if (!rgb_matrix_indicators_advanced_user(led_min, led_max)) {
+        return false;
+    }
+
+	HSV hsv = {
+		eepdata.layer_hue[get_highest_layer(layer_state)],
+		eepdata.layer_sat[get_highest_layer(layer_state)],
+		rgb_matrix_get_val() // VAL = current RGBMatrix's brightness
+	};
+	if (hsv.s == 0) hsv.v = 0;
+    RGB rgb = hsv_to_rgb(hsv);
+
+	if (eepdata.lighting_layers == 0) // If Lighting Layers is off, there's nothing to do here
+		return false;
+
+    for (uint8_t i = led_min; i < led_max; i++) {
+		dprintf("g_led_config.flags[%d] = %d",i, g_led_config.flags[i]);
+		// if (g_led_config.flags[i] & ((eepdata.lighting_flags+1) << 1)) {
+		if (g_led_config.flags[i] == LED_FLAG_INDICATOR) {
+            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+        }
+    }
+
+	knob_effect();
+
+    return false;
 }
 
 void suspend_power_down_kb(void) {
