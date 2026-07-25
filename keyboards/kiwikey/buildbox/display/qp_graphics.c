@@ -25,25 +25,26 @@ uint8_t flag_widget_layer_changed = 0;
 // 2 = layer 1 changed
 
 void display_init(void) {
-	// my_display = qp_ili9341_make_spi_device(
-	// 	ILI9341_WIDTH,
-	// 	ILI9341_HEIGHT,
-	// 	DISPLAY_CS_PIN,
-	// 	DISPLAY_DC_PIN,
-	// 	DISPLAY_RST_PIN,
-	// 	DISPLAY_SPI_DIVISOR,
-	// 	DISPLAY_SPI_MODE
-	// );
-	my_display = qp_st7789_make_spi_device(
-		ST7789_WIDTH,
-		ST7789_HEIGHT,
+	my_display = qp_ili9341_make_spi_device(
+		ILI9341_WIDTH,
+		ILI9341_HEIGHT,
 		DISPLAY_CS_PIN,
 		DISPLAY_DC_PIN,
 		DISPLAY_RST_PIN,
 		DISPLAY_SPI_DIVISOR,
 		DISPLAY_SPI_MODE
 	);
-	qp_init(my_display, QP_ROTATION_270);   // Initialise my_display
+	// my_display = qp_st7789_make_spi_device(
+	// 	ST7789_WIDTH,
+	// 	ST7789_HEIGHT,
+	// 	DISPLAY_CS_PIN,
+	// 	DISPLAY_DC_PIN,
+	// 	DISPLAY_RST_PIN,
+	// 	DISPLAY_SPI_DIVISOR,
+	// 	DISPLAY_SPI_MODE
+	// );
+	// qp_init(my_display, QP_ROTATION_270);   // Initialise my_display
+	qp_init(my_display, QP_ROTATION_90);   // Initialise my_display
 	qp_power(my_display, true);
 	qp_clear(my_display);
 	qp_rect(my_display, 0, 0, 319, 239, HSV_BLACK, true); // Fill screen by black color

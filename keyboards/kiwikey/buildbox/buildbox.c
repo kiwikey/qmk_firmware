@@ -49,8 +49,8 @@ void keyboard_post_init_kb(void) {
 	layer_move(eepdata.active_layer);
 	#if defined(BACKLIGHT_ENABLE)
 		backlight_enable(); // TFT backlight
-		// backlight_level(eepdata.display_brightness);
-		backlight_level(10);
+		backlight_level(eepdata.display_brightness);
+		// backlight_level(10);
 	#endif // defined(BACKLIGHT_ENABLE)
 
 	keyboard_post_init_sensors_handler();

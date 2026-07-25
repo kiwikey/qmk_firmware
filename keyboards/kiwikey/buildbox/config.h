@@ -18,20 +18,29 @@
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 	/*** SPI DRIVER DEFINITIONS ***/
-	#define SPI_DRIVER SPID1
-	#define SPI_SCK_PIN          GP14
-	#define SPI_MOSI_PIN         GP15
+	#define SPI_DRIVER           SPID1
 
+	// #define SPI_SCK_PIN          GP14
+	// #define SPI_MOSI_PIN         GP15
+	// #define DISPLAY_CS_PIN       GP13
+	// #define DISPLAY_DC_PIN       GP12
+	// #define DISPLAY_RST_PIN      GP9
 	// #define SPI_SCK_PAL_MODE  5
 	// #define SPI_MOSI_PAL_MODE 5
 	// #define SPI_MISO_PAL_MODE 5
 
-	#define DISPLAY_CS_PIN       GP13
+	#define SPI_SCK_PIN          GP14
+	#define SPI_MOSI_PIN         GP15
+	#define DISPLAY_CS_PIN       GP8
 	#define DISPLAY_DC_PIN       GP12
 	#define DISPLAY_RST_PIN      GP9
+	// #define SPI_SCK_PAL_MODE  5
+	// #define SPI_MOSI_PAL_MODE 5
+	// #define SPI_MISO_PAL_MODE 5
 
 	#define DISPLAY_SPI_DIVISOR 4
-	#define DISPLAY_SPI_MODE    3 // ST7789 240*240 works with mode 2 or 3 only, not sure why
+	// #define DISPLAY_SPI_MODE    3 // ST7789 240*240 works with mode 2 or 3 only, not sure why
+	#define DISPLAY_SPI_MODE    0 // ST7789 240*240 works with mode 2 or 3 only, not sure why
 	
 	/*** TFT DISPLAY CONFIGURATIONS ***/
 	#define ST7789_WIDTH  320
@@ -55,8 +64,12 @@
 /*** PWM DRIVER DEFINITIONS ***/
 // There is no official API for PWM, so PWM Backlight is used
 // GPIO8 - PWM4 A
-#define BACKLIGHT_PWM_DRIVER    PWMD4
-#define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_A
-// #define BACKLIGHT_PAL_MODE      (PAL_MODE_ALTERNATE_PWM | PAL_RP_PAD_DRIVE12 | PAL_RP_GPIO_OE)
-#define BACKLIGHT_PAL_MODE      2
+// #define BACKLIGHT_PWM_DRIVER    PWMD4
+// #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_A
+
+// GPIO13 - PWM6 B
+#define BACKLIGHT_PWM_DRIVER    PWMD6
+#define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
+#define BACKLIGHT_PAL_MODE      (PAL_MODE_ALTERNATE_PWM | PAL_RP_PAD_DRIVE12 | PAL_RP_GPIO_OE)
+// #define BACKLIGHT_PAL_MODE      2
 #define BACKLIGHT_DEFAULT_LEVEL 10 // defined in keyboard.json

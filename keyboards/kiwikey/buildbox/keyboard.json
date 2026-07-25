@@ -19,7 +19,7 @@
         "nkro": true
     },
     "backlight": {
-        "pin": "GP8",
+        "pin": "GP13",
         "driver": "pwm",
         "on_state": 1,
         "breathing": false,
