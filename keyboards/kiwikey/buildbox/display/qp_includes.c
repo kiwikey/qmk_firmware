@@ -4,10 +4,8 @@
 #include "qp_includes.h"
 
 /* FONTS */
-	#include "resources/fonts/thintel15.qff.h"
-	#include "resources/fonts/thintel20.qff.h"
-	#include "resources/fonts/thintel30.qff.h"
-	#include "resources/fonts/thintel35.qff.h"
+	#include "resources/fonts/thintel16.qff.h"
+	#include "resources/fonts/thintel32.qff.h"
 	#include "resources/fonts/roboto20.qff.h"
 	#include "resources/fonts/roboto25.qff.h"
 	#include "resources/fonts/robotobold25.qff.h"
@@ -15,10 +13,10 @@
 	#include "resources/fonts/font_proggy_clean.qff.h"
 	#include "resources/fonts/font_proggy_tiny.qff.h"
 	#include "resources/fonts/robotomono20.qff.h"
-	painter_font_handle_t  thintel15;
-	painter_font_handle_t  thintel20;
-	painter_font_handle_t  thintel30;
-	painter_font_handle_t  thintel35;
+	#include "resources/fonts/nanoplex16.qff.h"
+	#include "resources/fonts/nanoplex32.qff.h"
+	painter_font_handle_t  thintel16;
+	painter_font_handle_t  thintel32;
 	painter_font_handle_t  roboto20;
 	painter_font_handle_t  roboto25;
 	painter_font_handle_t  robotobold25;
@@ -26,6 +24,8 @@
 	painter_font_handle_t  font_proggy_clean;
 	painter_font_handle_t  font_proggy_tiny;
 	painter_font_handle_t  robotomono20;
+	painter_font_handle_t  nanoplex16;
+	painter_font_handle_t  nanoplex32;
 
 /* ICONS */
 	// #include "resources/icons/lock-caps-ON.qgf.h"
@@ -78,10 +78,8 @@
 
 void qp_init_load_files(void) {
 	/* FONTS */
-		thintel15         = qp_load_font_mem(font_thintel15);
-		thintel20         = qp_load_font_mem(font_thintel20);
-		thintel30         = qp_load_font_mem(font_thintel30);
-		thintel35         = qp_load_font_mem(font_thintel35);
+		thintel16         = qp_load_font_mem(font_thintel16);
+		thintel32         = qp_load_font_mem(font_thintel32);
 		roboto20          = qp_load_font_mem(font_roboto20);
 		roboto25          = qp_load_font_mem(font_roboto25);
 		robotobold25      = qp_load_font_mem(font_robotobold25);
@@ -89,6 +87,8 @@ void qp_init_load_files(void) {
 		font_proggy_clean = qp_load_font_mem(font_proggy_clean_15);
 		font_proggy_tiny  = qp_load_font_mem(font_ProggyTiny15);
 		robotomono20      = qp_load_font_mem(font_robotomono20);
+		nanoplex16        = qp_load_font_mem(font_nanoplex16);
+		nanoplex32        = qp_load_font_mem(font_nanoplex32);
 
 	/* ICONS */
 		// lock_caps_on     = qp_load_image_mem(gfx_lock_caps_ON);

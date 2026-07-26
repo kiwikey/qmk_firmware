@@ -18,7 +18,7 @@
 #define WIDGET_KNOB_DOT_RESOLUTION    5
 
 // Shown centered in the knob instead of the DOT when the AS5600 reports no magnet.
-#define WIDGET_KNOB_MISSING_FONT          robotobold25
+#define WIDGET_KNOB_FONT              nanoplex32
 // Radius cleared before (re)drawing the center content. Stays under
 // (orbit radius - dot size) so it never overlaps the DOT/ring.
 #define WIDGET_KNOB_CENTER_CLEAR_RADIUS   (WIDGET_KNOB_DOT_ORBIT_RADIUS - WIDGET_KNOB_DOT_SIZE - 5)

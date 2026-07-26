@@ -106,14 +106,7 @@ void housekeeping_task_display(void) { // Check all flags
 		flag_widget_layer_changed = 0;
 	}
 
-	char buf1[20] = {0};
-	sprintf(buf1, "ms= %05lu", timer_read32());
-	qp_drawtext_recolor(my_display,
-						WIDGET_STATUS_POSX, WIDGET_STATUS_POSY + 15,
-						WIDGET_STATUS_FONT,
-						buf1,
-						HSV_WHITE,
-						HSV_BLACK);
+	widget_status_render_uptime();
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
@@ -219,17 +212,13 @@ void test_fonts(void) {
 	qp_drawtext(my_display, 0, y, thintel15, buf);
 	y += thintel15->line_height + 2;
 
-	sprintf(buf, "thintel20: abcd1234");
-	qp_drawtext(my_display, 0, y, thintel20, buf);
-	y += thintel20->line_height + 2;
+	sprintf(buf, "thintel16: abcd1234");
+	qp_drawtext(my_display, 0, y, thintel16, buf);
+	y += thintel16->line_height + 2;
 
-	sprintf(buf, "thintel30: abcd1234");
-	qp_drawtext(my_display, 0, y, thintel30, buf);
-	y += thintel30->line_height + 2;
-
-	sprintf(buf, "thintel35: abcd1234");
-	qp_drawtext(my_display, 0, y, thintel35, buf);
-	y += thintel35->line_height + 2;
+	sprintf(buf, "thintel32: abcd1234");
+	qp_drawtext(my_display, 0, y, thintel32, buf);
+	y += thintel32->line_height + 2;
 
 	sprintf(buf, "roboto20: abcd1234");
 	qp_drawtext(my_display, 0, y, roboto20, buf);

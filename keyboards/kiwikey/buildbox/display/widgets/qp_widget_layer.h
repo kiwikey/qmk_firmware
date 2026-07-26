@@ -17,8 +17,8 @@
 #define WIDGET_LAYER_NAV_POSX  220
 #define WIDGET_LAYER_NAV_POSY  200
 
-#define WIDGET_LAYER_FONT      thintel35
-#define WIDGET_LAYER_NAV_FONT  thintel30
+#define WIDGET_LAYER_FONT      nanoplex32
+#define WIDGET_LAYER_NAV_FONT  nanoplex16
 
 void widget_layer_init(void);
 // void widget_layer_render_layernumber(uint8_t layer);

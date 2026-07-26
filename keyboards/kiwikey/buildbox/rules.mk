@@ -35,17 +35,17 @@ SRC += \
 
 # FONTS
 SRC += \
-	display/resources/fonts/thintel15.qff.c         \
-	display/resources/fonts/thintel20.qff.c         \
-	display/resources/fonts/thintel30.qff.c         \
-	display/resources/fonts/thintel35.qff.c         \
+	display/resources/fonts/thintel16.qff.c         \
+	display/resources/fonts/thintel32.qff.c         \
 	display/resources/fonts/roboto20.qff.c          \
 	display/resources/fonts/roboto25.qff.c          \
 	display/resources/fonts/robotobold25.qff.c      \
 	display/resources/fonts/font_oled.qff.c         \
 	display/resources/fonts/font_proggy_clean.qff.c \
 	display/resources/fonts/font_proggy_tiny.qff.c  \
-	display/resources/fonts/robotomono20.qff.c
+	display/resources/fonts/robotomono20.qff.c      \
+	display/resources/fonts/nanoplex16.qff.c        \
+	display/resources/fonts/nanoplex32.qff.c
 
 # ICONS
 SRC += \

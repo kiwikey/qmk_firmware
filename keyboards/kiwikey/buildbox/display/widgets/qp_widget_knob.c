@@ -36,7 +36,7 @@ static void widget_knob_draw_missing(void) {
 			  WIDGET_KNOB_BG_COLOR, true);
 	qp_drawtext_recolor_center(my_display,
 								WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
-								WIDGET_KNOB_MISSING_FONT, "!",
+								WIDGET_KNOB_FONT, "!",
 								WIDGET_KNOB_DOT_COLOR,
 								WIDGET_KNOB_BG_COLOR);
 }
@@ -66,7 +66,7 @@ void widget_knob_show_func(void) {
 	sprintf(buf1, "HEH");
 	qp_drawtext_recolor_center(my_display,
 								WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
-								roboto20,
+								WIDGET_KNOB_FONT,
 								buf1,
 								HSV_WHITE,
 								WIDGET_KNOB_BG_COLOR);

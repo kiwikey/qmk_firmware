@@ -2,9 +2,8 @@
 
 /* FONTS */
 	extern painter_font_handle_t thintel15;         // line_height = 28, width = 13 (not all characters)
-	extern painter_font_handle_t thintel20;
-	extern painter_font_handle_t thintel30;
-	extern painter_font_handle_t thintel35;
+	extern painter_font_handle_t thintel16;
+	extern painter_font_handle_t thintel32;
 	extern painter_font_handle_t roboto20;          // line_height = 22, width = 12
 	extern painter_font_handle_t roboto25;          // line_height = 27, width = 15
 	extern painter_font_handle_t robotobold25;      // line_height = 27, width = 
@@ -12,6 +11,8 @@
 	extern painter_font_handle_t font_proggy_clean; // line_height = 13, width = 7
 	extern painter_font_handle_t font_proggy_tiny;  // line_height = 10, width = 6
 	extern painter_font_handle_t robotomono20;
+	extern painter_font_handle_t nanoplex16;
+	extern painter_font_handle_t nanoplex32;
 
 /* ICONS */
 	// extern painter_image_handle_t lock_caps_on;
