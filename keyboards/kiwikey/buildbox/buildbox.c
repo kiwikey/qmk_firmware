@@ -53,8 +53,8 @@ void keyboard_post_init_kb(void) {
 		// backlight_level(10);
 	#endif // defined(BACKLIGHT_ENABLE)
 
-	keyboard_post_init_sensors_handler();
 	keyboard_post_init_display();  // eepdata.display_bootanim is checked here
+	keyboard_post_init_sensors_handler();
 	keyboard_post_init_user();
 }
 
@@ -75,7 +75,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
 layer_state_t layer_state_set_kb(layer_state_t state) {
 	if (!booting) {
-		widget_layer_render(get_highest_layer(state));
+		widget_layer_render_layername(get_highest_layer(state));
+		widget_layer_render_navigation(get_highest_layer(state));
 		widget_matrix_keymap_render(get_highest_layer(state));
 	}
 	return state;

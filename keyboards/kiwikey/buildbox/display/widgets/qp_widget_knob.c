@@ -42,25 +42,34 @@ static void widget_knob_draw_missing(void) {
 }
 
 void widget_knob_init(void) {
-	qp_circle(my_display,
-			  WIDGET_KNOB_CENTERX + UI_WIDGET_SHADOW,
-			  WIDGET_KNOB_CENTERY + UI_WIDGET_SHADOW,
-			  WIDGET_KNOB_RADIUS,
-			  UI_COLOR_SHADOW, true);
+	// Big knob, fill with WIDGET_KNOB_OUTTER_COLOR
 	qp_circle(my_display,
 			  WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
 			  WIDGET_KNOB_RADIUS,
-			  WIDGET_KNOB_BG_COLOR, WIDGET_KNOB_IS_FILLED);
+			  WIDGET_KNOB_OUTTER_COLOR, true);
+	// Fill inside knob, with a smaller diameter of WIDGET_KNOB_OUTTER_THICKNESS
 	qp_circle(my_display,
 			  WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
-			  WIDGET_KNOB_RADIUS,
-			  HSV_YELLOW, FALSE);
+			  WIDGET_KNOB_RADIUS - WIDGET_KNOB_OUTTER_THICKNESS,
+			  WIDGET_KNOB_BG_COLOR, true);
 
 	if (magnetic_encoder.is_present) {
 		widget_knob_draw_dot();
+		widget_knob_show_func();
 	} else {
 		widget_knob_draw_missing();
 	}
+}
+
+void widget_knob_show_func(void) {
+	char buf1[5] = {0}; // maximum 4 characters + null terminator = 5 bytes
+	sprintf(buf1, "HEH");
+	qp_drawtext_recolor_center(my_display,
+								WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
+								roboto20,
+								buf1,
+								HSV_WHITE,
+								WIDGET_KNOB_BG_COLOR);
 }
 
 // Call when the magnet is (re)detected: clears the "!" and shows the DOT again.
@@ -69,6 +78,7 @@ void widget_knob_show_dot(void) {
 			  WIDGET_KNOB_CENTER_CLEAR_RADIUS,
 			  WIDGET_KNOB_BG_COLOR, true);
 	widget_knob_draw_dot();
+	widget_knob_show_func();
 }
 
 // Call when the magnet is lost: clears the DOT and shows "!" instead.

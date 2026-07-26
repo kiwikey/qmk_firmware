@@ -20,57 +20,12 @@
 	+ widget free buttons (2 buttons)
 ***/
 void widget_matrix_init(void) {
-	// Draw shadow
-	qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
-				 WIDGET_LAYER_POSY + UI_WIDGET_SHADOW - 5 + 1,
-				//  WIDGET_MATRIX_POSY - WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW + 1 - WIDGET_LAYER_HEIGHT,
-				 WIDGET_MATRIX_POSX + WIDGET_MATRIX_KEY_WIDTH*4  + WIDGET_MATRIX_KEY_SPACING*3 + WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
-				 WIDGET_MATRIX_POSY + WIDGET_MATRIX_KEY_HEIGHT*4 + WIDGET_MATRIX_KEY_SPACING*3 + WIDGET_MATRIX_BORDER + UI_WIDGET_SHADOW,
-				 UI_COLOR_SHADOW, true, 5, true, true);
-	// Draw background
-	qp_roundrect(WIDGET_MATRIX_POSX - WIDGET_MATRIX_BORDER,
-				 WIDGET_LAYER_POSY - 5 + 1,
-				 WIDGET_MATRIX_POSX + WIDGET_MATRIX_KEY_WIDTH*4  + WIDGET_MATRIX_KEY_SPACING*3 + WIDGET_MATRIX_BORDER,
-				 WIDGET_MATRIX_POSY + WIDGET_MATRIX_KEY_HEIGHT*4 + WIDGET_MATRIX_KEY_SPACING*3 + WIDGET_MATRIX_BORDER,
-				 WIDGET_MATRIX_BG, true, 5, true, true);
-	// Draw all buttons
     for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) { // ROW4 is for direct pin buttons, so need to -1
         for (uint8_t y = 0; y < MATRIX_COLS; y++) {
 			widget_matrix_bgclear_singlebutton(x, y);
 			widget_matrix_render_singlebutton(x, y, WIDGET_MATRIX_BUTTON_OFF, false, 0); // as long as text_on = false, layer is ignored
 		}
 	}
-	// 2 FREE BUTTONS
-	// Shadows
-	qp_circle(my_display,
-			  WIDGET_MATRIX_BTN1_POSX + UI_WIDGET_SHADOW, WIDGET_MATRIX_BTN1_POSY + UI_WIDGET_SHADOW,
-			  WIDGET_MATRIX_BTN_RADIUS, UI_COLOR_SHADOW, true);
-	qp_circle(my_display,
-			  WIDGET_MATRIX_BTN2_POSX + UI_WIDGET_SHADOW, WIDGET_MATRIX_BTN2_POSY + UI_WIDGET_SHADOW,
-			  WIDGET_MATRIX_BTN_RADIUS, UI_COLOR_SHADOW, true);
-	// Inner
-	qp_circle(my_display,
-			  WIDGET_MATRIX_BTN1_POSX, WIDGET_MATRIX_BTN1_POSY,
-			  WIDGET_MATRIX_BTN_RADIUS, WIDGET_MATRIX_BUTTON_BG, true);
-	qp_circle(my_display,
-			  WIDGET_MATRIX_BTN2_POSX, WIDGET_MATRIX_BTN2_POSY,
-			  WIDGET_MATRIX_BTN_RADIUS, WIDGET_MATRIX_BUTTON_BG, true);
-	// Outline
-	qp_circle(my_display,
-			  WIDGET_MATRIX_BTN1_POSX, WIDGET_MATRIX_BTN1_POSY,
-			  WIDGET_MATRIX_BTN_RADIUS, WIDGET_MATRIX_BUTTON_OFF, false);
-	qp_circle(my_display,
-			  WIDGET_MATRIX_BTN2_POSX, WIDGET_MATRIX_BTN2_POSY,
-			  WIDGET_MATRIX_BTN_RADIUS, WIDGET_MATRIX_BUTTON_OFF, false);
-	// Button icons
-	qp_drawimage(my_display,
-				 WIDGET_MATRIX_BTN1_POSX - (ico16_layer->width)/2,
-				 WIDGET_MATRIX_BTN1_POSY - (ico16_layer->height)/2,
-				 ico16_layer);
-	qp_drawimage(my_display,
-				 WIDGET_MATRIX_BTN2_POSX - (ico32_menu->width)/2,
-				 WIDGET_MATRIX_BTN2_POSY - (ico32_menu->height)/2,
-				 ico32_menu);
 }
 
 /***  Render "interactive effect" when a key is being pressed
@@ -97,7 +52,7 @@ void widget_matrix_update(uint8_t col, uint8_t row) {
 void widget_matrix_keymap_render(uint8_t layer) {
 	for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) {
 		for (uint8_t y = 0;  y < MATRIX_COLS; y++) {
-				widget_matrix_render_singlebutton(x, y, WIDGET_MATRIX_KC_COLOR, true, layer);
+				widget_matrix_render_singlebutton(x, y, WIDGET_MATRIX_BUTTON_OFF, true, layer);
 		}
 	}
 }
@@ -162,13 +117,14 @@ void widget_matrix_render_kc_layer(uint16_t posx, uint16_t posy, uint16_t keycod
 ***/
 void widget_matrix_render_singlebutton(uint8_t x, uint8_t y, uint8_t hue, uint8_t sat, uint8_t val, bool text_on, uint8_t layer) {
 	// Button outline
-	qp_rect(my_display,
-			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING), // left
-			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING), // top
-			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH, // right
-			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT, // bottom
-			hue, sat, val,
-			false);
+	qp_roundrect(my_display,
+				WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING), // left
+				WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING), // top
+				WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH, // right
+				WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT, // bottom
+				hue, sat, val,
+				false,
+				WIDGET_MATRIX_KEY_CORNER, true, true);
 	// Inner text
 	if (text_on) {
 		widget_matrix_bgclear_singlebutton(x, y);
@@ -206,13 +162,15 @@ void widget_matrix_render_singlebutton(uint8_t x, uint8_t y, uint8_t hue, uint8_
 	Nothing from the old keycode is left
 ***/
 void widget_matrix_bgclear_singlebutton(uint8_t x, uint8_t y) { // just inner button, has no effect to button's outline
-	qp_rect(my_display,
-			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + 1, // left
-			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + 1, // top
-			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH - 1, // right
-			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT - 1, // bottom
-			WIDGET_MATRIX_BUTTON_BG,
-			true);
+	qp_roundrect(my_display,
+				WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + 1, // left
+				WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + 1, // top
+				WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH - 1, // right
+				WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT - 1, // bottom
+				WIDGET_MATRIX_BUTTON_BG,
+				true,
+				WIDGET_MATRIX_KEY_CORNER, true, true
+			);
 }
 
 /***  Custom function for converting keycode (eg. 0x0004) to text (eg. "a")

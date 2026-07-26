@@ -2,16 +2,18 @@
 
 #define NULL_VALUE 0
 
-#define CW              true
-#define CCW             false
+#define CW         true
+#define CCW        false
+
+#define GLOBAL_THEME_COLOR  HSV_MAGENTA
 
 /*** Definitions of (almost) all positions, colors, texts,... ***/
 
 // #define UI_COLOR_BACKGROUND     HSV_BLACK
-#define UI_COLOR_SHADOW         0, 0, 100
+// #define UI_COLOR_SHADOW         0, 0, 100
 // #define UI_COLOR_TEXT_H1        HSV_BLACK
 // #define UI_COLOR_TEXT_H2        HSV_BLACK
-#define UI_WIDGET_SHADOW        3 // shadow of widgets, in pixel
+// #define UI_WIDGET_SHADOW        3 // shadow of widgets, in pixel
 
 // #define WIDGET_RGB_COLOR1     HSV_WHITE // Color of the 1st line
 // #define WIDGET_RGB_COLOR2     HSV_GREEN // Color of the 2st line
@@ -23,8 +25,8 @@
 
 static const char * const layer_names[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	"Default",
-	"Media",
-	"Mouse",
+	"Media  ",
+	"Mouse  ",
 	"RGB LED"
 };
 

@@ -5,19 +5,27 @@
 
 /* FONTS */
 	#include "resources/fonts/thintel15.qff.h"
+	#include "resources/fonts/thintel20.qff.h"
+	#include "resources/fonts/thintel30.qff.h"
+	#include "resources/fonts/thintel35.qff.h"
 	#include "resources/fonts/roboto20.qff.h"
 	#include "resources/fonts/roboto25.qff.h"
 	#include "resources/fonts/robotobold25.qff.h"
 	#include "resources/fonts/font_oled.qff.h"
 	#include "resources/fonts/font_proggy_clean.qff.h"
 	#include "resources/fonts/font_proggy_tiny.qff.h"
+	#include "resources/fonts/robotomono20.qff.h"
 	painter_font_handle_t  thintel15;
+	painter_font_handle_t  thintel20;
+	painter_font_handle_t  thintel30;
+	painter_font_handle_t  thintel35;
 	painter_font_handle_t  roboto20;
 	painter_font_handle_t  roboto25;
 	painter_font_handle_t  robotobold25;
 	painter_font_handle_t  font_oled;
 	painter_font_handle_t  font_proggy_clean;
 	painter_font_handle_t  font_proggy_tiny;
+	painter_font_handle_t  robotomono20;
 
 /* ICONS */
 	// #include "resources/icons/lock-caps-ON.qgf.h"
@@ -31,6 +39,8 @@
 	#include "resources/icons/ico16_arrow_down.qgf.h"
 	#include "resources/icons/ico16_arrow_left.qgf.h"
 	#include "resources/icons/ico16_arrow_right.qgf.h"
+	#include "resources/icons/ico12_arrow_left.qgf.h"
+	#include "resources/icons/ico12_arrow_right.qgf.h"
 	#include "resources/icons/ico16_layer.qgf.h"
 	#include "resources/icons/ico32_menu.qgf.h"
 	// painter_image_handle_t lock_caps_on;
@@ -44,6 +54,8 @@
 	painter_image_handle_t ico16_arrow_down;
 	painter_image_handle_t ico16_arrow_left;
 	painter_image_handle_t ico16_arrow_right;
+	painter_image_handle_t ico12_arrow_left;
+	painter_image_handle_t ico12_arrow_right;
 	painter_image_handle_t ico16_layer;
 	painter_image_handle_t ico32_menu;
 
@@ -66,13 +78,17 @@
 
 void qp_init_load_files(void) {
 	/* FONTS */
-		thintel15      = qp_load_font_mem(font_thintel15);
+		thintel15         = qp_load_font_mem(font_thintel15);
+		thintel20         = qp_load_font_mem(font_thintel20);
+		thintel30         = qp_load_font_mem(font_thintel30);
+		thintel35         = qp_load_font_mem(font_thintel35);
 		roboto20          = qp_load_font_mem(font_roboto20);
 		roboto25          = qp_load_font_mem(font_roboto25);
 		robotobold25      = qp_load_font_mem(font_robotobold25);
 		font_oled         = qp_load_font_mem(font_oled_font);
 		font_proggy_clean = qp_load_font_mem(font_proggy_clean_15);
 		font_proggy_tiny  = qp_load_font_mem(font_ProggyTiny15);
+		robotomono20      = qp_load_font_mem(font_robotomono20);
 
 	/* ICONS */
 		// lock_caps_on     = qp_load_image_mem(gfx_lock_caps_ON);
@@ -86,6 +102,8 @@ void qp_init_load_files(void) {
 		ico16_arrow_down  = qp_load_image_mem(gfx_ico16_arrow_down);
 		ico16_arrow_left  = qp_load_image_mem(gfx_ico16_arrow_left);
 		ico16_arrow_right = qp_load_image_mem(gfx_ico16_arrow_right);
+		ico12_arrow_left  = qp_load_image_mem(gfx_ico12_arrow_left);
+		ico12_arrow_right = qp_load_image_mem(gfx_ico12_arrow_right);
 		ico16_layer       = qp_load_image_mem(gfx_ico16_layer);
 		ico32_menu        = qp_load_image_mem(gfx_ico32_menu);
 

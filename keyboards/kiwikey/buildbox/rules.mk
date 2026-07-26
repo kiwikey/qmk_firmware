@@ -16,31 +16,36 @@ SRC += matrix.c
 # OTHERS
 QUANTUM_LIB_SRC += i2c_master.c
 SRC += \
-	features/via_custom.c              \
-	features/knob_custom.c             \
-	sensor/sensors_handler.c           \
+	features/via_custom.c               \
+	features/knob_custom.c              \
+	sensor/sensors_handler.c            \
 	sensor/as5600.c
 
 # QP SOURCE FILES
 SRC += \
-	display/qp_graphics.c              \
-	display/qp_custom_api.c            \
-	display/qp_includes.c              \
-	display/widgets/qp_menu.c          \
-	display/widgets/qp_widget_matrix.c \
-	display/widgets/qp_widget_layer.c  \
-	display/widgets/qp_widget_knob.c   \
+	display/qp_graphics.c               \
+	display/qp_custom_api.c             \
+	display/qp_includes.c               \
+	display/widgets/qp_menu.c           \
+	display/widgets/qp_widget_matrix.c  \
+	display/widgets/qp_widget_layer.c   \
+	display/widgets/qp_widget_knob.c    \
+	display/widgets/qp_widget_status.c  \
 	display/widgets/qp_widget_breakout.c
 
 # FONTS
 SRC += \
 	display/resources/fonts/thintel15.qff.c         \
+	display/resources/fonts/thintel20.qff.c         \
+	display/resources/fonts/thintel30.qff.c         \
+	display/resources/fonts/thintel35.qff.c         \
 	display/resources/fonts/roboto20.qff.c          \
 	display/resources/fonts/roboto25.qff.c          \
 	display/resources/fonts/robotobold25.qff.c      \
 	display/resources/fonts/font_oled.qff.c         \
 	display/resources/fonts/font_proggy_clean.qff.c \
-	display/resources/fonts/font_proggy_tiny.qff.c
+	display/resources/fonts/font_proggy_tiny.qff.c  \
+	display/resources/fonts/robotomono20.qff.c
 
 # ICONS
 SRC += \
@@ -49,6 +54,8 @@ SRC += \
 	display/resources/icons/ico16_arrow_down.qgf.c  \
 	display/resources/icons/ico16_arrow_left.qgf.c  \
 	display/resources/icons/ico16_arrow_right.qgf.c \
+	display/resources/icons/ico12_arrow_left.qgf.c  \
+	display/resources/icons/ico12_arrow_right.qgf.c \
 	display/resources/icons/ico16_layer.qgf.c       \
 	display/resources/icons/ico32_menu.qgf.c
 

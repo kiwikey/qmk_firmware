@@ -17,3 +17,5 @@ void ui_refresh(void);
 void keyboard_post_init_display(void);
 void housekeeping_task_display(void);
 bool process_record_display(uint16_t keycode, keyrecord_t *record);
+
+void test_fonts(void);

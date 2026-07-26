@@ -7,6 +7,7 @@
 #include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
 #include "display/widgets/qp_widget_knob.h"
+#include "display/widgets/qp_widget_status.h"
 #include "display/widgets/qp_menu.h"
 #include "display/widgets/qp_widget_breakout.h"
 
@@ -34,6 +35,7 @@ void display_init(void) {
 		DISPLAY_SPI_DIVISOR,
 		DISPLAY_SPI_MODE
 	);
+	qp_init(my_display, QP_ROTATION_90);   // Initialise my_display
 	// my_display = qp_st7789_make_spi_device(
 	// 	ST7789_WIDTH,
 	// 	ST7789_HEIGHT,
@@ -44,7 +46,7 @@ void display_init(void) {
 	// 	DISPLAY_SPI_MODE
 	// );
 	// qp_init(my_display, QP_ROTATION_270);   // Initialise my_display
-	qp_init(my_display, QP_ROTATION_90);   // Initialise my_display
+	
 	qp_power(my_display, true);
 	qp_clear(my_display);
 	qp_rect(my_display, 0, 0, 319, 239, HSV_BLACK, true); // Fill screen by black color
@@ -76,8 +78,8 @@ void ui_refresh(void) {
 	qp_flush(my_display);
 	widget_matrix_init();
 	widget_layer_init();
+	widget_status_init();
 	widget_knob_init();
-	widget_layer_render(get_highest_layer(layer_state));
 	widget_matrix_keymap_render(get_highest_layer(layer_state));
 	qp_flush(my_display);
 }
@@ -99,11 +101,19 @@ void housekeeping_task_display(void) { // Check all flags
 
 	if (flag_widget_layer_changed) { // 0 means nothing changed
 		if ((flag_widget_layer_changed - 1) == get_highest_layer(layer_state)) {
-			widget_layer_number_render(flag_widget_layer_changed - 1);
 			widget_layer_render_layername(flag_widget_layer_changed - 1);
 		}
 		flag_widget_layer_changed = 0;
 	}
+
+	char buf1[20] = {0};
+	sprintf(buf1, "ms= %05lu", timer_read32());
+	qp_drawtext_recolor(my_display,
+						WIDGET_STATUS_POSX, WIDGET_STATUS_POSY + 15,
+						WIDGET_STATUS_FONT,
+						buf1,
+						HSV_WHITE,
+						HSV_BLACK);
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
@@ -164,22 +174,30 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 		} else return false;
 	}
 
-	/*** If not in MENU ***/
+	/*** If not in MENU
+		+ Pressing Button 1 -> previous layer
+		+ Pressing Button 2 -> next layer
+	***/
 	if (record->event.pressed) {
 		switch (keycode) {
 			case KC_BUTTON_1:
+				if (get_highest_layer(layer_state) <= 0)
+					layer_move(DYNAMIC_KEYMAP_LAYER_COUNT-1);
+				else
+					layer_move(get_highest_layer(layer_state)-1);
+				return false;
+			case KC_BUTTON_2:
 				if (get_highest_layer(layer_state) >= DYNAMIC_KEYMAP_LAYER_COUNT-1)
 					layer_move(0);
 				else
 					layer_move(get_highest_layer(layer_state)+1);
 				return false;
-			case KC_BUTTON_2:
-					if (menu_state == NOT_IN_MENU) {
-						menu_init();
-					}
-					else if (menu_state == MAIN_MENU) {
-						menu_exit();
-					}
+// if (menu_state == NOT_IN_MENU) {
+// 	menu_init();
+// }
+// else if (menu_state == MAIN_MENU) {
+// 	menu_exit();
+// }
 				return false;
 			default:
 				break; // Process all other keycodes normally
@@ -188,4 +206,58 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 
 	widget_matrix_update(record->event.key.col, record->event.key.row);
 	return true;
+}
+
+void test_fonts(void) {
+	qp_clear(my_display);
+	qp_rect(my_display, 0, 0, 319, 239, HSV_BLACK, true); // Fill screen by black color
+
+	char     buf[32];
+	uint16_t y = 0;
+
+	sprintf(buf, "thintel15: abcd1234");
+	qp_drawtext(my_display, 0, y, thintel15, buf);
+	y += thintel15->line_height + 2;
+
+	sprintf(buf, "thintel20: abcd1234");
+	qp_drawtext(my_display, 0, y, thintel20, buf);
+	y += thintel20->line_height + 2;
+
+	sprintf(buf, "thintel30: abcd1234");
+	qp_drawtext(my_display, 0, y, thintel30, buf);
+	y += thintel30->line_height + 2;
+
+	sprintf(buf, "thintel35: abcd1234");
+	qp_drawtext(my_display, 0, y, thintel35, buf);
+	y += thintel35->line_height + 2;
+
+	sprintf(buf, "roboto20: abcd1234");
+	qp_drawtext(my_display, 0, y, roboto20, buf);
+	y += roboto20->line_height + 2;
+
+	sprintf(buf, "roboto25: abcd1234");
+	qp_drawtext(my_display, 0, y, roboto25, buf);
+	y += roboto25->line_height + 2;
+
+	sprintf(buf, "robotobold25: abcd1234");
+	qp_drawtext(my_display, 0, y, robotobold25, buf);
+	y += robotobold25->line_height + 2;
+
+	sprintf(buf, "font_oled: abcd1234");
+	qp_drawtext(my_display, 0, y, font_oled, buf);
+	y += font_oled->line_height + 2;
+
+	sprintf(buf, "font_proggy_clean: abcd1234");
+	qp_drawtext(my_display, 0, y, font_proggy_clean, buf);
+	y += font_proggy_clean->line_height + 2;
+
+	sprintf(buf, "font_proggy_tiny: abcd1234");
+	qp_drawtext(my_display, 0, y, font_proggy_tiny, buf);
+	y += font_proggy_tiny->line_height + 2;
+
+	sprintf(buf, "robotomono20: abcd1234");
+	qp_drawtext(my_display, 0, y, robotomono20, buf);
+	y += robotomono20->line_height + 2;
+
+	qp_flush(my_display);
 }

@@ -1,17 +1,18 @@
 #pragma once
 
 // The Knob itself
-#define WIDGET_KNOB_CENTERX           256
-#define WIDGET_KNOB_CENTERY           130
+#define WIDGET_KNOB_CENTERX           265
+#define WIDGET_KNOB_CENTERY           110
 #define WIDGET_KNOB_RADIUS            50
-#define WIDGET_KNOB_IS_FILLED         TRUE
+#define WIDGET_KNOB_OUTTER_THICKNESS  2
+#define WIDGET_KNOB_OUTTER_COLOR      GLOBAL_THEME_COLOR
 
 // Knob's indicator, aka the "DOT"
-#define WIDGET_KNOB_DOT_SIZE          10
+#define WIDGET_KNOB_DOT_SIZE          8
 #define WIDGET_KNOB_DOT_IS_FILLED     TRUE
-#define WIDGET_KNOB_DOT_ORBIT_RADIUS  (WIDGET_KNOB_RADIUS - 15)
+#define WIDGET_KNOB_DOT_ORBIT_RADIUS  (WIDGET_KNOB_RADIUS - 14)
 #define WIDGET_KNOB_BG_COLOR          HSV_BLACK
-#define WIDGET_KNOB_DOT_COLOR         HSV_RED
+#define WIDGET_KNOB_DOT_COLOR         GLOBAL_THEME_COLOR
 // Minimum on-screen movement (px) before the DOT is redrawn. Lower = smoother
 // rotation but more frequent erase/redraw flicker; higher = choppier but less flicker.
 #define WIDGET_KNOB_DOT_RESOLUTION    5
@@ -26,3 +27,4 @@ void widget_knob_init(void);
 void widget_knob_update(uint16_t last_pos, uint16_t new_pos);
 void widget_knob_show_dot(void);
 void widget_knob_show_missing(void);
+void widget_knob_show_func(void);
