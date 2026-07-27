@@ -14,7 +14,7 @@
         "mousekey": true,
         "nkro": true,
         "encoder": true,
-        "oled": true
+        "oled": false
     },
     "qmk": {
         "tap_keycode_delay": 10
