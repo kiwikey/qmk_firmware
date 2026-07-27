@@ -49,7 +49,7 @@ void display_init(void) {
 	
 	qp_power(my_display, true);
 	qp_clear(my_display);
-	qp_rect(my_display, 0, 0, 319, 239, HSV_BLACK, true); // Fill screen by black color
+	qp_rect(my_display, 0, 0, 319, 239, GLOBAL_BG_COLOR, true);
 	qp_flush(my_display);
 	qp_init_load_files();
 }
@@ -74,7 +74,7 @@ void keyboard_post_init_display(void) {
 }
 
 void ui_refresh(void) {
-	qp_rect(my_display, 0, 0, 319, 239, HSV_BLACK, true); // Fill screen by black color
+	qp_rect(my_display, 0, 0, 319, 239, GLOBAL_BG_COLOR, true); // Fill screen by black color
 	qp_flush(my_display);
 	widget_matrix_init();
 	widget_layer_init();
@@ -203,7 +203,7 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 
 void test_fonts(void) {
 	qp_clear(my_display);
-	qp_rect(my_display, 0, 0, 319, 239, HSV_BLACK, true); // Fill screen by black color
+	qp_rect(my_display, 0, 0, 319, 239, GLOBAL_BG_COLOR, true); // Fill screen by black color
 
 	char     buf[32];
 	uint16_t y = 0;

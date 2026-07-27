@@ -6,6 +6,7 @@
 #define CCW        false
 
 #define GLOBAL_THEME_COLOR  HSV_MAGENTA
+#define GLOBAL_BG_COLOR     HSV_BLACK
 
 /*** Definitions of (almost) all positions, colors, texts,... ***/
 
@@ -25,8 +26,8 @@
 
 static const char * const layer_names[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	"Default",
-	"Media  ",
-	"Mouse  ",
+	"Media",
+	"Mouse",
 	"RGB LED"
 };
 

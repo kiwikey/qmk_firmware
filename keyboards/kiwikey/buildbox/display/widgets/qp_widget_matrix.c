@@ -74,38 +74,38 @@ void widget_matrix_render_kc_basic(uint16_t posx, uint16_t posy, uint16_t keycod
 ***/
 void widget_matrix_render_kc_layer(uint16_t posx, uint16_t posy, uint16_t keycode) {
 	// Top-left label background, TODO: clean this up
-	qp_rect(my_display,
-			posx - WIDGET_MATRIX_KEY_WIDTH/2 + 1,
-			posy - WIDGET_MATRIX_KEY_WIDTH/2 + 1,
-			posx - WIDGET_MATRIX_KEY_WIDTH/2 + 16,
-			posy - WIDGET_MATRIX_KEY_WIDTH/2 + WIDGET_MATRIX_LABEL_FONT->line_height + 2,
-			WIDGET_MATRIX_LABEL_BG, true);
+		// qp_rect(my_display,
+		// 		posx - WIDGET_MATRIX_KEY_WIDTH/2 + 1,
+		// 		posy - WIDGET_MATRIX_KEY_WIDTH/2 + 1,
+		// 		posx - WIDGET_MATRIX_KEY_WIDTH/2 + 16,
+		// 		posy - WIDGET_MATRIX_KEY_WIDTH/2 + WIDGET_MATRIX_LABEL_FONT->line_height + 2,
+		// 		WIDGET_MATRIX_LABEL_BG, true);
 	// Type of layer-keycode
-	char buf1[4], buf2[10]; // TODO: optimize buf1 buf2 length
-	switch (keycode) {
-		case QK_MOMENTARY ... QK_MOMENTARY_MAX:
-			sprintf(buf1, "MO");
-			sprintf(buf2, "%i", keycode - QK_MOMENTARY);
-			break;
-		case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
-			sprintf(buf1, "TG");
-			sprintf(buf2, "%i", keycode - QK_TOGGLE_LAYER);
-			break;
-		default:
-			sprintf(buf1, "??");
-			sprintf(buf2, "??");
-	}
+		// char buf1[4], buf2[10]; // TODO: optimize buf1 buf2 length
+		// switch (keycode) {
+		// 	case QK_MOMENTARY ... QK_MOMENTARY_MAX:
+		// 		sprintf(buf1, "MO");
+		// 		sprintf(buf2, "%i", keycode - QK_MOMENTARY);
+		// 		break;
+		// 	case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
+		// 		sprintf(buf1, "TG");
+		// 		sprintf(buf2, "%i", keycode - QK_TOGGLE_LAYER);
+		// 		break;
+		// 	default:
+		// 		sprintf(buf1, "??");
+		// 		sprintf(buf2, "??");
+		// }
 	// Top-left label
-	qp_drawtext_recolor(my_display,
-						posx - WIDGET_MATRIX_KEY_WIDTH/2 +3,
-						posy - WIDGET_MATRIX_KEY_WIDTH/2 +3,
-						WIDGET_MATRIX_LABEL_FONT, buf1, HSV_BLACK, WIDGET_MATRIX_LABEL_BG);
+		// qp_drawtext_recolor(my_display,
+		// 					posx - WIDGET_MATRIX_KEY_WIDTH/2 +3,
+		// 					posy - WIDGET_MATRIX_KEY_WIDTH/2 +3,
+		// 					WIDGET_MATRIX_LABEL_FONT, buf1, HSV_BLACK, WIDGET_MATRIX_LABEL_BG);
 	// Layer number
-	qp_drawtext_recolor_center(my_display,
-							   posx,
-							   posy + 5, // HOTFIX: +5 for better alignment
-							   WIDGET_MATRIX_KC_BASIC_FONT,
-							   buf2, WIDGET_MATRIX_KC_COLOR, WIDGET_MATRIX_KC_BG);
+		// qp_drawtext_recolor_center(my_display,
+		// 						posx,
+		// 						posy + 5, // HOTFIX: +5 for better alignment
+		// 						WIDGET_MATRIX_KC_BASIC_FONT,
+		// 						buf2, WIDGET_MATRIX_KC_COLOR, WIDGET_MATRIX_KC_BG);
 }
 
 /***  Render one single key to the screen, at [x,y] position, with HSV color
