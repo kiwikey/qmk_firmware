@@ -37,13 +37,7 @@ SRC += \
 SRC += \
 	display/resources/fonts/thintel16.qff.c         \
 	display/resources/fonts/thintel32.qff.c         \
-	display/resources/fonts/roboto20.qff.c          \
-	display/resources/fonts/roboto25.qff.c          \
-	display/resources/fonts/robotobold25.qff.c      \
 	display/resources/fonts/font_oled.qff.c         \
-	display/resources/fonts/font_proggy_clean.qff.c \
-	display/resources/fonts/font_proggy_tiny.qff.c  \
-	display/resources/fonts/robotomono20.qff.c      \
 	display/resources/fonts/nanoplex16.qff.c        \
 	display/resources/fonts/nanoplex32.qff.c
 
@@ -55,9 +49,7 @@ SRC += \
 	display/resources/icons/ico16_arrow_left.qgf.c  \
 	display/resources/icons/ico16_arrow_right.qgf.c \
 	display/resources/icons/ico12_arrow_left.qgf.c  \
-	display/resources/icons/ico12_arrow_right.qgf.c \
-	display/resources/icons/ico16_layer.qgf.c       \
-	display/resources/icons/ico32_menu.qgf.c
+	display/resources/icons/ico12_arrow_right.qgf.c
 
 # IMAGES & ANIMATIONS
 SRC += \

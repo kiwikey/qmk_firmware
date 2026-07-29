@@ -92,7 +92,7 @@ static void draw_scorebar(void) {
     char buf[24];
     qp_rect(my_display, 0, 0, ST7789_WIDTH - 1, BREAKOUT_SCOREBAR_H - 1, HSV_BLACK, true);
     snprintf(buf, sizeof(buf), "Score:%-4u Lives:%u", score, lives);
-    qp_drawtext(my_display, 4, (BREAKOUT_SCOREBAR_H - font_proggy_clean->line_height) / 2, font_proggy_clean, buf);
+    qp_drawtext(my_display, 4, (BREAKOUT_SCOREBAR_H - thintel16->line_height) / 2, thintel16, buf);
 }
 
 static void draw_paddle(int16_t old_x) {
@@ -113,9 +113,9 @@ static void draw_difficulty_list(void) {
         int16_t text_y = y + BREAKOUT_DIFF_ITEM_H / 2;
         if (i == diff_cursor) {
             qp_rect(my_display, BREAKOUT_DIFF_FILL_LEFT, y, BREAKOUT_DIFF_FILL_RIGHT, y + BREAKOUT_DIFF_ITEM_H - 1, HSV_WHITE, true);
-            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, roboto20, difficulty_table[i].name, HSV_BLACK, HSV_WHITE);
+            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, thintel16, difficulty_table[i].name, HSV_BLACK, HSV_WHITE);
         } else {
-            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, roboto20, difficulty_table[i].name, HSV_WHITE, HSV_BLACK);
+            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, thintel16, difficulty_table[i].name, HSV_WHITE, HSV_BLACK);
         }
     }
 }
@@ -137,10 +137,10 @@ static void clear_playfield_message_area(void) {
 
 static void draw_center_message(const char *line1, const char *line2) {
     clear_playfield_message_area();
-    int16_t y = (brick_top(BREAKOUT_ROWS - 1) + BREAKOUT_BRICK_H + BREAKOUT_PADDLE_Y) / 2 - roboto20->line_height;
-    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, y, roboto20, line1, HSV_WHITE, HSV_BLACK);
+    int16_t y = (brick_top(BREAKOUT_ROWS - 1) + BREAKOUT_BRICK_H + BREAKOUT_PADDLE_Y) / 2 - thintel16->line_height;
+    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, y, thintel16, line1, HSV_WHITE, HSV_BLACK);
     if (line2) {
-        qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, y + roboto20->line_height + 2, roboto20, line2, HSV_WHITE, HSV_BLACK);
+        qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, y + thintel16->line_height + 2, thintel16, line2, HSV_WHITE, HSV_BLACK);
     }
 }
 
@@ -178,9 +178,9 @@ void breakout_open(void) {
     diff_tick_accum = 0;
 
     qp_rect(my_display, 0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1, HSV_BLACK, true);
-    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, 20, robotobold25, "FEELING STRONG?", HSV_CYAN, HSV_BLACK);
+    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, 20, thintel16, "FEELING STRONG?", HSV_CYAN, HSV_BLACK);
     draw_difficulty_list();
-    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, ST7789_HEIGHT - 24, font_proggy_clean, "Turn knob to move, press to start", HSV_WHITE, HSV_BLACK);
+    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, ST7789_HEIGHT - 24, thintel16, "Turn knob to move, press to start", HSV_WHITE, HSV_BLACK);
     qp_flush(my_display);
 }
 

@@ -31,7 +31,7 @@ void menu_init(void) {
 	qp_drawtext_recolor_center(my_display,
 							   ST7789_WIDTH/2,
 							   20,
-							   robotobold25,
+							   thintel32,
 							   "SETTINGS",
 							   MENU_TITLE_COLOR,
 							   MENU_BACKGROUND); // Menu title

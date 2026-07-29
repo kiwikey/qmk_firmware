@@ -70,6 +70,9 @@ void keyboard_post_init_display(void) {
 		defer_exec(BOOT_DURATION, finish_boot_animation, NULL);
 	} else {
 		ui_refresh();
+		// qp_drawimage(my_display, 0,0, img_anya01);
+		// my_anim = qp_animate(my_display, 0,0, gif_nyan120px);
+		// booting = true;
 	}
 }
 
@@ -220,33 +223,9 @@ void test_fonts(void) {
 	qp_drawtext(my_display, 0, y, thintel32, buf);
 	y += thintel32->line_height + 2;
 
-	sprintf(buf, "roboto20: abcd1234");
-	qp_drawtext(my_display, 0, y, roboto20, buf);
-	y += roboto20->line_height + 2;
-
-	sprintf(buf, "roboto25: abcd1234");
-	qp_drawtext(my_display, 0, y, roboto25, buf);
-	y += roboto25->line_height + 2;
-
-	sprintf(buf, "robotobold25: abcd1234");
-	qp_drawtext(my_display, 0, y, robotobold25, buf);
-	y += robotobold25->line_height + 2;
-
 	sprintf(buf, "font_oled: abcd1234");
 	qp_drawtext(my_display, 0, y, font_oled, buf);
 	y += font_oled->line_height + 2;
-
-	sprintf(buf, "font_proggy_clean: abcd1234");
-	qp_drawtext(my_display, 0, y, font_proggy_clean, buf);
-	y += font_proggy_clean->line_height + 2;
-
-	sprintf(buf, "font_proggy_tiny: abcd1234");
-	qp_drawtext(my_display, 0, y, font_proggy_tiny, buf);
-	y += font_proggy_tiny->line_height + 2;
-
-	sprintf(buf, "robotomono20: abcd1234");
-	qp_drawtext(my_display, 0, y, robotomono20, buf);
-	y += robotomono20->line_height + 2;
 
 	qp_flush(my_display);
 }

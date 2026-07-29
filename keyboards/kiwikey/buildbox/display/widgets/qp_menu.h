@@ -6,7 +6,7 @@
 #define MENU_BACKGROUND         HSV_BLACK
 #define MENU_TITLE_COLOR        HSV_CYAN
 #define MENU_CURSOR_COLOR       HSV_WHITE
-#define MENU_FONT               roboto20
+#define MENU_FONT               thintel32
 #define MENU_FONT_HEIGHT        (MENU_FONT->line_height)
 #define MENU_LINE_HEIGHT        30  // Height for each menu line
 #define MENU_POSX               0

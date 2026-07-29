@@ -6,24 +6,12 @@
 /* FONTS */
 	#include "resources/fonts/thintel16.qff.h"
 	#include "resources/fonts/thintel32.qff.h"
-	#include "resources/fonts/roboto20.qff.h"
-	#include "resources/fonts/roboto25.qff.h"
-	#include "resources/fonts/robotobold25.qff.h"
 	#include "resources/fonts/font_oled.qff.h"
-	#include "resources/fonts/font_proggy_clean.qff.h"
-	#include "resources/fonts/font_proggy_tiny.qff.h"
-	#include "resources/fonts/robotomono20.qff.h"
 	#include "resources/fonts/nanoplex16.qff.h"
 	#include "resources/fonts/nanoplex32.qff.h"
 	painter_font_handle_t  thintel16;
 	painter_font_handle_t  thintel32;
-	painter_font_handle_t  roboto20;
-	painter_font_handle_t  roboto25;
-	painter_font_handle_t  robotobold25;
 	painter_font_handle_t  font_oled;
-	painter_font_handle_t  font_proggy_clean;
-	painter_font_handle_t  font_proggy_tiny;
-	painter_font_handle_t  robotomono20;
 	painter_font_handle_t  nanoplex16;
 	painter_font_handle_t  nanoplex32;
 
@@ -56,8 +44,6 @@
 	painter_image_handle_t ico16_arrow_right;
 	painter_image_handle_t ico12_arrow_left;
 	painter_image_handle_t ico12_arrow_right;
-	painter_image_handle_t ico16_layer;
-	painter_image_handle_t ico32_menu;
 
 /* IMAGES & ANIMATIONS */
 	#include "resources/graphics/gif_bootup01.qgf.h"
@@ -80,13 +66,7 @@ void qp_init_load_files(void) {
 	/* FONTS */
 		thintel16         = qp_load_font_mem(font_thintel16);
 		thintel32         = qp_load_font_mem(font_thintel32);
-		roboto20          = qp_load_font_mem(font_roboto20);
-		roboto25          = qp_load_font_mem(font_roboto25);
-		robotobold25      = qp_load_font_mem(font_robotobold25);
 		font_oled         = qp_load_font_mem(font_oled_font);
-		font_proggy_clean = qp_load_font_mem(font_proggy_clean_15);
-		font_proggy_tiny  = qp_load_font_mem(font_ProggyTiny15);
-		robotomono20      = qp_load_font_mem(font_robotomono20);
 		nanoplex16        = qp_load_font_mem(font_nanoplex16);
 		nanoplex32        = qp_load_font_mem(font_nanoplex32);
 
@@ -104,8 +84,6 @@ void qp_init_load_files(void) {
 		ico16_arrow_right = qp_load_image_mem(gfx_ico16_arrow_right);
 		ico12_arrow_left  = qp_load_image_mem(gfx_ico12_arrow_left);
 		ico12_arrow_right = qp_load_image_mem(gfx_ico12_arrow_right);
-		ico16_layer       = qp_load_image_mem(gfx_ico16_layer);
-		ico32_menu        = qp_load_image_mem(gfx_ico32_menu);
 
 	/* IMAGES & ANIMATIONS */
 		gif_bootup01      = qp_load_image_mem(gfx_gif_bootup01);
