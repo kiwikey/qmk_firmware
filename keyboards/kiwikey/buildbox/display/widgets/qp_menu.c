@@ -43,14 +43,14 @@ void menu_init(void) {
 void menu_exit(void) {
     menu_state  = NOT_IN_MENU;
 	accumulator = 0;
-    menu_cursor = MENU_1STLINE_POS; // ignore cursor's latest position, reset to 1st menu line
-    eeprom_update_custom(); // update all custom EEPROM values (if necessary)
 
     /* Handle special cases */
     if (menu_cursor == MENU_ACTIVATELAYER) { // when exit "Active layer", move to that chosen layer
         layer_move(eepdata.active_layer);
     }
 
+	menu_cursor = MENU_1STLINE_POS; // ignore cursor's latest position, reset to 1st menu line
+	eeprom_update_custom(); // update all custom EEPROM values (if necessary)
     ui_refresh();
 }
 

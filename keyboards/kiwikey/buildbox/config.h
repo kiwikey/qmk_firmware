@@ -11,6 +11,10 @@
 
 #define TAP_CODE_DELAY 10
 
+#if defined(COMBO_ENABLE)
+	#define COMBO_SHOULD_TRIGGER // enables the combo_should_trigger() override in features/combos.c
+#endif // defined(COMBO_ENABLE)
+
 #if defined(VIA_ENABLE)
 	#define DYNAMIC_KEYMAP_LAYER_COUNT 4
 	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 17

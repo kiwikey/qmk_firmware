@@ -188,13 +188,6 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 				else
 					layer_move(get_highest_layer(layer_state)+1);
 				return false;
-// if (menu_state == NOT_IN_MENU) {
-// 	menu_init();
-// }
-// else if (menu_state == MAIN_MENU) {
-// 	menu_exit();
-// }
-				return false;
 			default:
 				break; // Process all other keycodes normally
 		}
