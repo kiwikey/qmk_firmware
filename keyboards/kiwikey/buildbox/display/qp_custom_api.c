@@ -109,15 +109,10 @@ void rgb_matrix_set_color_hsv(uint8_t index, hsv_t hsv) {
     rgb_matrix_set_color(index, rgb.r, rgb.g, rgb.b);
 }
 
-char *toUppercase(const char *str) {
-    size_t len = strlen(str);
-    char *result = malloc(len + 1);
-    if (result == NULL) {
-        return NULL;
+void toUppercase(const char *str, char *out, size_t outsize) {
+    size_t i = 0;
+    for (; str[i] != '\0' && i + 1 < outsize; i++) {
+        out[i] = (str[i] >= 'a' && str[i] <= 'z') ? str[i] - 32 : str[i];
     }
-    for (size_t i = 0; i < len; i++) {
-        result[i] = (str[i] >= 'a' && str[i] <= 'z') ? str[i] - 32 : str[i];
-    }
-    result[len] = '\0';
-    return result;
+    out[i] = '\0';
 }

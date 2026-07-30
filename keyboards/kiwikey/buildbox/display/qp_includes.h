@@ -1,7 +1,6 @@
 #pragma once
 
 /* FONTS */
-	extern painter_font_handle_t thintel15;         // line_height = 28, width = 13 (not all characters)
 	extern painter_font_handle_t thintel16;
 	extern painter_font_handle_t thintel32;
 	extern painter_font_handle_t font_oled;         // line_height =  8, width = 6

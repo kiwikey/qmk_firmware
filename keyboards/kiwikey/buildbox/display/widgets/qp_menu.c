@@ -264,19 +264,19 @@ void menu_action(void) {
 }
 
 void action_activelayer(void) {
-	menu_state = SUB_MENU;
+	// menu_state = SUB_MENU;
 }
 
 void action_animation(void) {
-	menu_state = SUB_MENU;
+	// menu_state = SUB_MENU;
 }
 
 void action_displaytimeout(void) {
-	menu_state = SUB_MENU;
+	// menu_state = SUB_MENU;
 }
 
 void action_displaybrightness(void) {
-	menu_state = SUB_MENU;
+	// menu_state = SUB_MENU;
 }
 
 void action_aboutbuildbox(void) {

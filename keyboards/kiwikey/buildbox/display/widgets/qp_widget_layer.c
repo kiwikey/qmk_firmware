@@ -35,11 +35,13 @@ void widget_layer_render_layername(uint8_t layer) { // BIG LAYER NAME
 				WIDGET_LAYER_BG, true,
 				WIDGET_LAYER_CORNER, true, true
 				);
+	char layer_name_upper[16];
+	toUppercase(layer_names[layer], layer_name_upper, sizeof(layer_name_upper));
 	qp_drawtext_recolor_center(my_display,
 							   WIDGET_LAYER_POSX + WIDGET_LAYER_WIDTH/2,
 							   WIDGET_LAYER_POSY + WIDGET_LAYER_HEIGHT/2 +2, // +2 for micro refining
 							   WIDGET_LAYER_FONT,
-							   toUppercase(layer_names[layer]),
+							   layer_name_upper,
 							   WIDGET_LAYER_TEXT,
 							   WIDGET_LAYER_BG);
 }

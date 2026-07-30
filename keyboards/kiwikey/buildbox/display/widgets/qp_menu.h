@@ -96,7 +96,7 @@ static const bool menu_label_list_ischangeable[MENU_MAXITEMS+1] = {
 	false, // 8 (Breakout Game - triggers immediately, no sub-menu)
 	false, // 9
 	false, // 10
-	true   // 11 (Debug)
+	false  // 11 (Debug)
 };
 
 #define DISPLAY_ANIM_QTY  3

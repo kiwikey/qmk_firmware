@@ -211,10 +211,6 @@ void test_fonts(void) {
 	char     buf[32];
 	uint16_t y = 0;
 
-	sprintf(buf, "thintel15: abcd1234");
-	qp_drawtext(my_display, 0, y, thintel15, buf);
-	y += thintel15->line_height + 2;
-
 	sprintf(buf, "thintel16: abcd1234");
 	qp_drawtext(my_display, 0, y, thintel16, buf);
 	y += thintel16->line_height + 2;
