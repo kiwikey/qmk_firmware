@@ -9,6 +9,7 @@
 
 extern painter_device_t my_display;
 extern bool booting;
+extern bool ui_refresh_pending;
 
 void display_init(void);
 void display_bootup(void);

@@ -46,7 +46,9 @@ void menu_exit(void) {
 
     /* Handle special cases */
     if (menu_cursor == MENU_ACTIVATELAYER) { // when exit "Active layer", move to that chosen layer
+        ui_refresh_pending = true; // ui_refresh() below will redraw everything anyway; skip the redundant partial redraw from layer_state_set_kb()
         layer_move(eepdata.active_layer);
+        ui_refresh_pending = false;
     }
 
 	menu_cursor = MENU_1STLINE_POS; // ignore cursor's latest position, reset to 1st menu line

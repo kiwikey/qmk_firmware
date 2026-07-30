@@ -74,7 +74,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 }
 
 layer_state_t layer_state_set_kb(layer_state_t state) {
-	if (!booting) {
+	if (!booting && !ui_refresh_pending) {
 		widget_layer_render_layername(get_highest_layer(state));
 		widget_layer_render_navigation(get_highest_layer(state));
 		widget_matrix_keymap_render(get_highest_layer(state));

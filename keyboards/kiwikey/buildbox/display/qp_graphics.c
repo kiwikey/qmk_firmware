@@ -13,6 +13,7 @@
 
 painter_device_t my_display;
 bool     booting = false; // will be TRUE during boot animation
+bool     ui_refresh_pending = false;
 
 uint16_t flag_display_keycode_changed = 0x0000;
 // flag_display_keycode_changed: contains layer, row, col of changed key
