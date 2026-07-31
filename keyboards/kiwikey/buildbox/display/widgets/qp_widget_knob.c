@@ -63,7 +63,7 @@ void widget_knob_init(void) {
 
 void widget_knob_show_func(void) {
 	char buf1[5] = {0}; // maximum 4 characters + null terminator = 5 bytes
-	sprintf(buf1, "HEH");
+	sprintf(buf1, "CST");
 	qp_drawtext_recolor_center(my_display,
 								WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
 								WIDGET_KNOB_FONT,

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "features/webhid_shadow.h" // redirects qp_rect/qp_flush/etc to also mirror over webhid_stream; see that header
+
 #define BOOT_DURATION          4000 // ms
 
 #define DISPLAY_TIMEOUT_MIN    30	// seconds

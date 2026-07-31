@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>WebHID isolation test</title>
+	<style>
+		body { font-family: monospace; background: #111; color: #eee; padding: 24px; }
+		button { font-size: 16px; padding: 8px 16px; margin: 6px 6px 6px 0; }
+		#log { white-space: pre-wrap; margin-top: 16px; border-top: 1px solid #444; padding-top: 12px; }
+	</style>
+</head>
+<body>
+	<h1>WebHID isolation test</h1>
+	<p>No protocol, no sending, no oninputreport. Each button does exactly what it says and nothing else. Watch the TFT after each step.</p>
+	<button id="step1">1. requestDevice() + open()</button>
+	<button id="step2">2. + attach oninputreport listener (still sends nothing)</button>
+	<button id="step3">3. + send ONE all-zero 32-byte report</button>
+	<button id="step4">4. + send ONE report with our PING bytes [0x07,1,1,...]</button>
+	<button id="close">Close device</button>
+	<div id="log"></div>
+	<script>
+		const log = document.getElementById('log');
+		const line = (s) => { log.textContent += s + '\n'; console.log(s); };
+		let device = null;
+
+		document.getElementById('step1').onclick = async () => {
+			try {
+				// Same filter as web/app.js - narrows the picker to just the raw
+				// HID interface (confirmed: usagePage 0xFF60 / usage 0x61, output
+				// report id 0, 32 bytes).
+				const devices = await navigator.hid.requestDevice({
+					filters: [{ vendorId: 0x4B57, productId: 0xBB00, usagePage: 0xFF60, usage: 0x61 }],
+				});
+				if (!devices.length) { line('No device selected.'); return; }
+				device = devices[0];
+				await device.open();
+				line(`Opened "${device.productName}". Doing nothing else. Check the TFT now.`);
+				line('collections: ' + JSON.stringify(device.collections, null, 2));
+			} catch (e) { line('ERROR: ' + e); }
+		};
+
+		document.getElementById('step2').onclick = () => {
+			if (!device) { line('Open the device first (step 1).'); return; }
+			device.oninputreport = (event) => line('got input report, ' + event.data.byteLength + ' bytes (not parsed)');
+			line('Listener attached. Still nothing sent. Check the TFT now.');
+		};
+
+		document.getElementById('step3').onclick = async () => {
+			if (!device) { line('Open the device first (step 1).'); return; }
+			try {
+				await device.sendReport(0, new Uint8Array(32));
+				line('Sent one all-zero report. Check the TFT now.');
+			} catch (e) { line('ERROR: ' + e); }
+		};
+
+		document.getElementById('step4').onclick = async () => {
+			if (!device) { line('Open the device first (step 1).'); return; }
+			try {
+				const report = new Uint8Array(32);
+				report[0] = 0x07; report[1] = 1; report[2] = 1;
+				await device.sendReport(0, report);
+				line('Sent one PING-shaped report. Check the TFT now.');
+			} catch (e) { line('ERROR: ' + e); }
+		};
+
+		document.getElementById('close').onclick = () => {
+			if (device && device.opened) device.close();
+			line('Closed.');
+		};
+	</script>
+</body>
+</html>

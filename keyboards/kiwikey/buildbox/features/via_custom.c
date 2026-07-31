@@ -1,6 +1,7 @@
 #include "via_custom.h"
 #include "eeprom_custom.h"
 #include "display/qp_graphics.h"
+#include "webhid_stream.h"
 
 extern uint16_t flag_display_keycode_changed;
 extern uint16_t flag_widget_layer_changed;
@@ -13,8 +14,10 @@ extern uint16_t flag_widget_layer_changed;
 	// extern bool display_rotate_flag;
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
-/* via_custom_value_command_kb only handles 'id_custom_channel'
-    Only:
+/* via_custom_value_command_kb dispatches by channel_id:
+     id_custom_channel (0)         - this keyboard's own config, handled inline below
+     WEBHID_CONFIG_CHANNEL_ID (1)  - forwarded to webhid_stream_handle_config()
+   Only these command_ids are handled on either channel:
         id_custom_set_value                     = 0x07,
         id_custom_get_value                     = 0x08,
         id_custom_save                          = 0x09,
@@ -51,6 +54,10 @@ void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
                 break;
             }
         }
+        return;
+    }
+    if ( *channel_id == WEBHID_CONFIG_CHANNEL_ID ) { // = 1, see features/webhid_stream.h
+        webhid_stream_handle_config(*command_id, value_id_and_data);
         return;
     }
     // Return the unhandled state

@@ -6,6 +6,7 @@
 #include "sensor/sensors_handler.h"
 #include "features/eeprom_custom.h"
 #include "features/knob_custom.h"
+#include "features/webhid_stream.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 	#include "display/defines.h"
@@ -55,6 +56,7 @@ void keyboard_post_init_kb(void) {
 
 	keyboard_post_init_display();  // eepdata.display_bootanim is checked here
 	keyboard_post_init_sensors_handler();
+	keyboard_post_init_webhid_stream();
 	keyboard_post_init_user();
 }
 
@@ -63,6 +65,7 @@ void housekeeping_task_kb(void) {
 		housekeeping_task_display();
 		housekeeping_task_sensors_handler();
 		housekeeping_task_breakout();
+		housekeeping_task_webhid_stream();
 	}
 }
 
