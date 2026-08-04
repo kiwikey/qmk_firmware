@@ -35,8 +35,8 @@
 	},
     "rgb_matrix": {
         "driver": "ws2812",
-        "max_brightness": 255,
-        "val_steps": 12,
+        "max_brightness": 240,
+        "val_steps": 24,
         "sleep": true,
 		"default": {
 			"on": true,

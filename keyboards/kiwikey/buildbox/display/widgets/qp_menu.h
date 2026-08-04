@@ -4,31 +4,37 @@
 #include "display/defines.h"
 
 #define MENU_BACKGROUND         HSV_BLACK
-#define MENU_TITLE_COLOR        HSV_CYAN
-#define MENU_CURSOR_COLOR       HSV_WHITE
-#define MENU_FONT               thintel32
+#define MENU_TITLE_COLOR        HSV_BLACK
+#define MENU_TITLE_BG           HSV_WHITE
+#define MENU_CURSOR_COLOR       GLOBAL_THEME_COLOR
+
+#define MENU_WIDTH              320 - MENU_POSX
+#define MENU_LABEL_WIDTH        220
+#define MENU_SIDEBAR_POSX       MENU_LABEL_WIDTH
+
+#define MENU_TITLE_POSY         20        // centered to LCD's width, so no POSX needed
+#define MENU_FONT               nanoplex32
 #define MENU_FONT_HEIGHT        (MENU_FONT->line_height)
-#define MENU_LINE_HEIGHT        30  // Height for each menu line
-#define MENU_POSX               0
+#define MENU_LINE_HEIGHT        23  // Height for each menu line
+#define MENU_POSX               15
 #define MENU_POSY               40
 
-#define MENU_WIDTH                320 // Full width
-#define MENU_LABEL_WIDTH          208 // 65% of MENU_WIDTH
-#define MENU_SIDEBAR_WIDTH        (MENU_WIDTH - MENU_LABEL_WIDTH) // 35% of MENU_WIDTH
-#define MENU_SIDEBAR_POSX         MENU_LABEL_WIDTH
-
-#define MENU_SIDEBAR_ARROW_WIDTH   8
-#define MENU_SIDEBAR_ARROW_HEIGHT  16
-#define MENU_SIDEBAR_ARROW_LEFT_X  MENU_SIDEBAR_POSX
-#define MENU_SIDEBAR_ARROW_RIGHT_X (MENU_WIDTH - MENU_SIDEBAR_ARROW_WIDTH)
-
-#define MENU_SIDEBAR_TEXT_PADDING  4
-#define MENU_SIDEBAR_TEXT_POSX     (MENU_SIDEBAR_POSX + MENU_SIDEBAR_ARROW_WIDTH + MENU_SIDEBAR_TEXT_PADDING)
+#define MENU_SIDEBAR_TEXT_PADDING  10
+#define MENU_SIDEBAR_TEXT_POSX     (MENU_SIDEBAR_POSX + MENU_SIDEBAR_TEXT_PADDING)
 #define MENU_SIDEBAR_MAX_TEXTWIDTH (MENU_SIDEBAR_TEXT_POSX - MENU_SIDEBAR_TEXT_PADDING) // long values get truncated to fit this
 
+#define MENU_CURSOR_ICON_WIDTH     8  // ico16_arrow_right is 8x16
+#define MENU_CURSOR_ICON_HEIGHT    16
+
+#define MENU_PAGINATION_ARROW_WIDTH   16 // ico16_arrow_up/down are 16x8
+#define MENU_PAGINATION_ARROW_HEIGHT  8
+#define MENU_PAGINATION_ARROW_POSX    295
+#define MENU_PAGINATION_UP_POSY       35
+#define MENU_PAGINATION_DOWN_POSY     195
+
 #define MENU_1STLINE_POS    1
-#define MENU_MAXITEMS       11
-#define MENU_LINESPERPAGE   6
+#define MENU_MAXITEMS       10
+#define MENU_LINESPERPAGE   7
 
 /* GLOBAL VARIATIONS - common use */
 	/*** menu_state definition:
@@ -55,48 +61,47 @@
 
 enum menu_label_list_references {
 	__DUMP = 0,
-    MENU_ACTIVATELAYER,
-    MENU_ANIMATION,
-    MENU_DISPLAYTIMEOUT,
-	MENU_DISPLAYBRIGHTNESS,
-	MENU_KNOBFUNCTION,
-    MENU_FWVERSION, // 6
-	MENU_ABOUT,
-	MENU_BREAKOUT,
-	MENU_FACTORYRESET,
+	MENU_DISPLAY_BRIGHTNESS,
+	MENU_RGB_BRIGHTNESS,
+	MENU_RGB_MODE,
+	MENU_KNOB_RGB,
 	MENU_BOOTTODFU,
-	MENU_DEBUG
-	// MENU_LIGHTINGLAYERS,
+	MENU_DEBUG,
+	MENU_ANIMATION,
+
+	MENU_DISPLAYTIMEOUT,
+	MENU_BREAKOUT,
+	MENU_ABOUT
 };
 
 static const char * const menu_label_list[MENU_MAXITEMS] = {
-	" Active Layer",
-	" Animation",
-	" LCD Timeout",
-	" LCD Brightness",
-	" Knob Rotation Fn",
-	" FW Version",
-	" About BuildBox",
-	" Breakout Game",
-	" Factory Reset",
-	" Boot to DFU",
-	" Debug",
+	"LCD BRIGHTNESS",
+	"RGB BRIGHTNESS",
+	"RGB MODE",
+	"RGB SCROLL WHEEL",
+	"BOOT TO DFU",
+	"DEBUG",
+	"BUILDBOX INTRO",
+
+	"LCD TIMEOUT",
+	"SECRET GAME",
+	"ABOUT BUILDBOX"
 };
 
 static const bool menu_label_list_ischangeable[MENU_MAXITEMS+1] = {
 	false, // 0 (never checked, just dump value)
 	/* the list below */
-	true,  // 1
-	true,  // 2
-	true,  // 3
-	true,  // 4
-	true,  // 5
-	false, // 6
-	true,  // 7
-	false, // 8 (Breakout Game - triggers immediately, no sub-menu)
-	false, // 9
-	false, // 10
-	false  // 11 (Debug)
+	true,
+	true,
+	true,
+	true,
+	false,
+	false,
+	true,
+
+	true,
+	false, // (Breakout Game - triggers immediately, no sub-menu)
+	false
 };
 
 #define DISPLAY_ANIM_QTY  3
@@ -108,13 +113,11 @@ static const bool menu_label_list_ischangeable[MENU_MAXITEMS+1] = {
 	// "Nyan Cat"
 // };
 
-void action_activelayer(void);
 void action_animation(void);
-void action_displaytimeout(void);
 void action_displaybrightness(void);
-void action_lightingconfig(void);
 void action_aboutbuildbox(void);
-void action_factoryreset(void);
 void action_resettodfu(void);
 void action_debug(void);
 void action_breakout(void);
+
+// void action_factoryreset(void);

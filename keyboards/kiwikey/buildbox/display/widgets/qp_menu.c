@@ -28,13 +28,32 @@ void menu_init(void) {
 	menu_state = MAIN_MENU;
 	accumulator = 0; // clear this to avoid "weird cursor jump"
 	qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
+	qp_roundrect(my_display,
+	             MENU_POSX,
+				 MENU_TITLE_POSY - MENU_FONT_HEIGHT/2 -3, // Refine
+	             ST7789_WIDTH - MENU_POSX,
+				 MENU_TITLE_POSY + MENU_FONT_HEIGHT/2,
+	             MENU_TITLE_BG, true,
+	             5, true, true); // Title background
 	qp_drawtext_recolor_center(my_display,
 							   ST7789_WIDTH/2,
-							   20,
-							   thintel32,
+							   MENU_TITLE_POSY,
+							   MENU_FONT,
 							   "SETTINGS",
 							   MENU_TITLE_COLOR,
-							   MENU_BACKGROUND); // Menu title
+							   MENU_TITLE_BG); // Menu title
+	qp_drawimage(my_display,
+				ST7789_WIDTH/2 + qp_textwidth(thintel32, "SETTINGS")/2 + 10,
+				MENU_TITLE_POSY - MENU_FONT_HEIGHT/2,
+				ico18_heart); // decorative icon after the title
+    qp_line(my_display, 10, 208, 310, 208, HSV_WHITE);
+	qp_drawtext_recolor_center(my_display,
+							   ST7789_WIDTH/2,
+							   225,
+							   MENU_FONT,
+							   FW_VERSION,
+							   HSV_WHITE,
+							   HSV_BLACK); // Version number
 	menu_printlist();               // Print the menu list and sidebar (value)
 	menu_set_cursor(menu_cursor);   // Set the cursor
 	qp_flush(my_display);
@@ -44,13 +63,6 @@ void menu_exit(void) {
     menu_state  = NOT_IN_MENU;
 	accumulator = 0;
 
-    /* Handle special cases */
-    if (menu_cursor == MENU_ACTIVATELAYER) { // when exit "Active layer", move to that chosen layer
-        ui_refresh_pending = true; // ui_refresh() below will redraw everything anyway; skip the redundant partial redraw from layer_state_set_kb()
-        layer_move(eepdata.active_layer);
-        ui_refresh_pending = false;
-    }
-
 	menu_cursor = MENU_1STLINE_POS; // ignore cursor's latest position, reset to 1st menu line
 	eeprom_update_custom(); // update all custom EEPROM values (if necessary)
     ui_refresh();
@@ -59,19 +71,42 @@ void menu_exit(void) {
 void menu_submenu_exit(void) { // Return from Sub Menu to Main Menu without a full-screen redraw
 	menu_state = MAIN_MENU;
 	accumulator = 0;
-	// Erase only the arrow icons drawn when entering the sub menu
+	// Redraw the value back in its normal (non-active) color
 	uint8_t row = (menu_cursor - 1) % MENU_LINESPERPAGE;
-	uint16_t arrow_y = MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_SIDEBAR_ARROW_HEIGHT)/2;
-	qp_rect(my_display,
-	        MENU_SIDEBAR_ARROW_LEFT_X, arrow_y,
-	        MENU_SIDEBAR_ARROW_LEFT_X + MENU_SIDEBAR_ARROW_WIDTH, arrow_y + MENU_SIDEBAR_ARROW_HEIGHT,
-	        MENU_BACKGROUND, true);
-	qp_rect(my_display,
-	        MENU_SIDEBAR_ARROW_RIGHT_X, arrow_y,
-	        MENU_SIDEBAR_ARROW_RIGHT_X + MENU_SIDEBAR_ARROW_WIDTH, arrow_y + MENU_SIDEBAR_ARROW_HEIGHT,
-	        MENU_BACKGROUND, true);
+	menu_render_sidebar(menu_cursor, row);
 	// menu_set_cursor(menu_cursor);
 	qp_flush(my_display);
+}
+
+static void menu_render_pagination(void) {
+	uint8_t page      = (menu_cursor - 1) / MENU_LINESPERPAGE;
+	uint8_t last_page = (MENU_MAXITEMS - 1) / MENU_LINESPERPAGE;
+
+	qp_rect(my_display,
+			MENU_PAGINATION_ARROW_POSX,
+			MENU_PAGINATION_UP_POSY,
+			MENU_PAGINATION_ARROW_POSX + MENU_PAGINATION_ARROW_WIDTH - 1,
+			MENU_PAGINATION_UP_POSY + MENU_PAGINATION_ARROW_HEIGHT - 1,
+			MENU_BACKGROUND, true);
+	if (page > 0) {
+		qp_drawimage_recolor(my_display,
+							MENU_PAGINATION_ARROW_POSX,
+							MENU_PAGINATION_UP_POSY,
+							ico16_arrow_up, GLOBAL_THEME_COLOR, MENU_BACKGROUND);
+	}
+
+	qp_rect(my_display,
+			MENU_PAGINATION_ARROW_POSX,
+			MENU_PAGINATION_DOWN_POSY,
+			MENU_PAGINATION_ARROW_POSX + MENU_PAGINATION_ARROW_WIDTH - 1,
+			MENU_PAGINATION_DOWN_POSY + MENU_PAGINATION_ARROW_HEIGHT - 1,
+			MENU_BACKGROUND, true);
+	if (page < last_page) {
+		qp_drawimage_recolor(my_display,
+							MENU_PAGINATION_ARROW_POSX,
+							MENU_PAGINATION_DOWN_POSY,
+							ico16_arrow_down, GLOBAL_THEME_COLOR, MENU_BACKGROUND);
+	}
 }
 
 void menu_printlist(void) { // Print the menu list, total MENU_LINESPERPAGE lines
@@ -89,13 +124,14 @@ void menu_printlist(void) { // Print the menu list, total MENU_LINESPERPAGE line
 	for (uint8_t i = page_start; i < page_end; i++) {
 		// Menu label
 		qp_drawtext(my_display,
-					MENU_POSX,
+					MENU_POSX + MENU_CURSOR_ICON_WIDTH + 10,
 					MENU_POSY + (i - page_start)*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
 					MENU_FONT,
 					menu_label_list[i]);
 		// Its value in sidebar
 		menu_render_sidebar(i + 1, i - page_start); // item_pos is 1-based; row is 0-based on this page
 	}
+	menu_render_pagination();
 }
 
 void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item position (1..MENU_MAXITEMS)
@@ -104,7 +140,7 @@ void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item po
 	uint8_t page = (cursor_pos - 1) / MENU_LINESPERPAGE;
 	uint8_t row  = (cursor_pos - 1) % MENU_LINESPERPAGE; // 0-based row on the current page
 
-    // Erase the old cursor rectangle, but only if it's still on the same page.
+    // Erase the old cursor icon, but only if it's still on the same page.
     // A page change is already handled by a full menu_printlist() redraw.
     if (last_cursor_pos != 0 && last_cursor_pos != cursor_pos) {
 		uint8_t last_page = (last_cursor_pos - 1) / MENU_LINESPERPAGE;
@@ -113,37 +149,20 @@ void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item po
 			qp_rect(my_display,
 			        MENU_POSX,
 			        MENU_POSY + last_row*MENU_LINE_HEIGHT,
-			        MENU_LABEL_WIDTH - 1,
+			        MENU_POSX + MENU_CURSOR_ICON_WIDTH - 1,
 			        MENU_POSY + (last_row+1)*MENU_LINE_HEIGHT,
 			        MENU_BACKGROUND,
 			        true
 				);
-			qp_drawtext_recolor(my_display,
-			                    MENU_POSX,
-			                    MENU_POSY + last_row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
-			                    MENU_FONT,
-			                    menu_label_list[last_cursor_pos-1],
-			                    HSV_WHITE,
-			                    MENU_BACKGROUND
-			                );
 		}
     }
-	// Draw new cursor rectangle
-	qp_rect(my_display,
-			MENU_POSX,
-			MENU_POSY + row*MENU_LINE_HEIGHT,
-			MENU_LABEL_WIDTH - 1,
-			MENU_POSY + (row+1)*MENU_LINE_HEIGHT,
-			MENU_CURSOR_COLOR,
-			true
-		);
-	qp_drawtext_recolor(my_display,
+	// Draw new cursor icon
+	qp_drawimage_recolor(my_display,
 						MENU_POSX,
-						MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
-						MENU_FONT,
-						menu_label_list[cursor_pos-1],
-						HSV_BLACK,
-						MENU_CURSOR_COLOR
+						MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_CURSOR_ICON_HEIGHT)/2,
+						ico16_arrow_right,
+						MENU_CURSOR_COLOR,
+						MENU_BACKGROUND
 					);
 
 	last_cursor_pos = cursor_pos;
@@ -153,26 +172,38 @@ void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item po
 static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 	buf[0] = '\0';
 	switch (item_pos) {
-		case MENU_ACTIVATELAYER:
-			snprintf(buf, buflen, "%s", layer_names[eepdata.active_layer]);
+		case MENU_DISPLAY_BRIGHTNESS:
+			snprintf(buf, buflen, "%d%%", eepdata.display_brightness*10);
+			break;
+		case MENU_RGB_BRIGHTNESS:
+			if (rgb_matrix_is_enabled() || (rgb_matrix_get_val() == 0)) {
+				snprintf(buf, buflen, "%d%%", rgb_matrix_get_val()*5/12);
+			} else {
+				snprintf(buf, buflen, "RGB OFF");
+			}
+			break;
+		case MENU_RGB_MODE:
+			if (!rgb_matrix_is_enabled()) {
+				snprintf(buf, buflen, "RGB OFF");
+			} else {
+				snprintf(buf, buflen, "MODE #%d", rgb_matrix_get_mode());
+			}
+			break;
+		case MENU_KNOB_RGB:
+			// if (!rgb_matrix_is_enabled()) {
+			// 	snprintf(buf, buflen, "RGB OFF");
+			// } else {
+			// 	snprintf(buf, buflen, "Mode #%d", rgb_matrix_get_mode());
+			// }
 			break;
 		case MENU_ANIMATION:
 			snprintf(buf, buflen, "%s", eepdata.display_bootanim ? "ON" : "OFF");
 			break;
 		case MENU_DISPLAYTIMEOUT:
 			if (eepdata.display_timeout >= DISPLAY_TIMEOUT_NEVER)
-				snprintf(buf, buflen, "Never");
+				snprintf(buf, buflen, "NEVER");
 			else
 				snprintf(buf, buflen, "%ds", eepdata.display_timeout);
-			break;
-		case MENU_DISPLAYBRIGHTNESS:
-			snprintf(buf, buflen, "%d", eepdata.display_brightness);
-			break;
-		case MENU_KNOBFUNCTION:
-			snprintf(buf, buflen, "%d", eepdata.knob_func);
-			break;
-		case MENU_FWVERSION:
-			snprintf(buf, buflen, "%s", FW_VERSION);
 			break;
 		default:
 			break; // no value to show for this item
@@ -198,15 +229,24 @@ void menu_render_sidebar(uint8_t item_pos, uint8_t row) {
 	// the tail of whatever longer string was previously drawn here.
 	qp_rect(my_display,
 	        MENU_SIDEBAR_TEXT_POSX, MENU_POSY + row*MENU_LINE_HEIGHT,
-	        MENU_SIDEBAR_ARROW_RIGHT_X, MENU_POSY + (row+1)*MENU_LINE_HEIGHT,
+	        319, MENU_POSY + (row+1)*MENU_LINE_HEIGHT,
 	        MENU_BACKGROUND, true);
 
 	if (value_str[0] != '\0') {
-		qp_drawtext_recolor_center(my_display,
-		                           (MENU_SIDEBAR_TEXT_POSX + MENU_SIDEBAR_ARROW_RIGHT_X) / 2,
-		                           MENU_POSY + row*MENU_LINE_HEIGHT + MENU_LINE_HEIGHT/2,
-		                           MENU_FONT, value_str,
-		                           HSV_WHITE, MENU_BACKGROUND);
+		bool is_active = (menu_state == SUB_MENU && item_pos == menu_cursor);
+		if (is_active) {
+			qp_drawtext_recolor(my_display,
+			                    MENU_SIDEBAR_TEXT_POSX,
+			                    MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2,
+			                    MENU_FONT, value_str,
+			                    GLOBAL_THEME_COLOR, MENU_BACKGROUND);
+		} else {
+			qp_drawtext_recolor(my_display,
+			                    MENU_SIDEBAR_TEXT_POSX,
+			                    MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2,
+			                    MENU_FONT, value_str,
+			                    HSV_WHITE, MENU_BACKGROUND);
+		}
 	}
 }
 
@@ -214,44 +254,15 @@ void menu_action(void) {
 	if (menu_label_list_ischangeable[menu_cursor]) {
 		menu_state = SUB_MENU;
 		uint8_t row = (menu_cursor - 1) % MENU_LINESPERPAGE;
-		uint16_t arrow_y = MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_SIDEBAR_ARROW_HEIGHT)/2;
-		qp_drawimage_recolor(my_display,
-							MENU_SIDEBAR_ARROW_LEFT_X, arrow_y,
-							ico16_arrow_left,  HSV_BLACK, HSV_WHITE);
-		qp_drawimage_recolor(my_display,
-							MENU_SIDEBAR_ARROW_RIGHT_X, arrow_y,
-							ico16_arrow_right, HSV_BLACK, HSV_WHITE);
+		menu_render_sidebar(menu_cursor, row); // redraw the value in the active (SUB_MENU) color
 	}
 	switch (menu_cursor) {
-		case MENU_ACTIVATELAYER:
-			action_activelayer();
-			break;
+		case MENU_DISPLAY_BRIGHTNESS:
+		case MENU_RGB_BRIGHTNESS:
+		case MENU_RGB_MODE:
+		case MENU_KNOB_RGB:
 		case MENU_ANIMATION:
-			action_animation();
-			break;
 		case MENU_DISPLAYTIMEOUT:
-			action_displaytimeout();
-			break;
-		case MENU_DISPLAYBRIGHTNESS:
-			action_displaybrightness();
-			break;
-		// case MENU_LIGHTINGLAYERS:
-			//
-			// break;
-		case MENU_KNOBFUNCTION:
-			//
-			break;
-		case MENU_FWVERSION:
-			// NOP
-			break;
-		case MENU_ABOUT:
-			action_aboutbuildbox();
-			break;
-		case MENU_BREAKOUT:
-			action_breakout();
-			break;
-		case MENU_FACTORYRESET:
-			action_factoryreset();
 			break;
 		case MENU_BOOTTODFU:
 			action_resettodfu();
@@ -259,40 +270,23 @@ void menu_action(void) {
 		case MENU_DEBUG:
 			action_debug();
 			break;
+		case MENU_BREAKOUT:
+			action_breakout();
+			break;
+		case MENU_ABOUT:
+			action_aboutbuildbox();
+			break;
 		default:
 			break;
 	}
 	
 }
 
-void action_activelayer(void) {
-	// menu_state = SUB_MENU;
-}
-
-void action_animation(void) {
-	// menu_state = SUB_MENU;
-}
-
-void action_displaytimeout(void) {
-	// menu_state = SUB_MENU;
-}
-
-void action_displaybrightness(void) {
-	// menu_state = SUB_MENU;
-}
-
 void action_aboutbuildbox(void) {
 	qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
-	qp_drawtext(my_display, 0, MENU_FONT_HEIGHT*1, MENU_FONT, "      BuildBox     ");
-	qp_drawtext(my_display, 0, MENU_FONT_HEIGHT*2, MENU_FONT, "a multi-function macropad");
+	qp_drawtext(my_display, 0, MENU_FONT_HEIGHT*1, MENU_FONT, "      BUILDBOX     ");
+	qp_drawtext(my_display, 0, MENU_FONT_HEIGHT*2, MENU_FONT, "A MULTI-FUNCTION MACROPAD");
 	// Add QR code & web link here
-}
-
-void action_factoryreset(void) {
-	clear_keyboard();   // release all pressed keys if available
-	eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
-	eeconfig_disable();
-	soft_reset_keyboard();
 }
 
 void action_resettodfu(void) {
@@ -325,6 +319,14 @@ void action_debug(void) {
 	qp_drawtext(my_display, 180, font_oled->line_height*6, font_oled, buf);
 	qp_flush(my_display);
 }
+
+// void action_factoryreset(void) {
+// 	clear_keyboard();   // release all pressed keys if available
+// 	eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
+// 	eeconfig_disable();
+// 	soft_reset_keyboard();
+// }
+
 
 void eeprom_update_custom(void) {
 	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));

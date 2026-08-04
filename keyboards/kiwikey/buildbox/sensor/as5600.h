@@ -12,6 +12,7 @@
 
 #define AS5600_ADDRESS (0x36 << 1)
 #define AS5600_I2C_TIMEOUT_MS 5 // bounded timeout so a bus glitch can't hang the matrix scan
+#define AS5600_PRESENCE_RETRY_MS 250 // how often to retry I2C presence-detect while the magnet is missing
 
 #define MAGNET_DETECTED_MASK 0b00100000
 #define MAGNET_WEAK_MASK     0b00110000  // Not used

@@ -92,7 +92,7 @@ static void draw_scorebar(void) {
     char buf[24];
     qp_rect(my_display, 0, 0, ST7789_WIDTH - 1, BREAKOUT_SCOREBAR_H - 1, HSV_BLACK, true);
     snprintf(buf, sizeof(buf), "Score:%-4u Lives:%u", score, lives);
-    qp_drawtext(my_display, 4, (BREAKOUT_SCOREBAR_H - thintel16->line_height) / 2, thintel16, buf);
+    qp_drawtext(my_display, 4, (BREAKOUT_SCOREBAR_H - BREAKOUT_FONT_SMALL->line_height) / 2, BREAKOUT_FONT_SMALL, buf);
 }
 
 static void draw_paddle(int16_t old_x) {
@@ -113,9 +113,9 @@ static void draw_difficulty_list(void) {
         int16_t text_y = y + BREAKOUT_DIFF_ITEM_H / 2;
         if (i == diff_cursor) {
             qp_rect(my_display, BREAKOUT_DIFF_FILL_LEFT, y, BREAKOUT_DIFF_FILL_RIGHT, y + BREAKOUT_DIFF_ITEM_H - 1, HSV_WHITE, true);
-            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, thintel16, difficulty_table[i].name, HSV_BLACK, HSV_WHITE);
+            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, BREAKOUT_FONT_BIG, difficulty_table[i].name, HSV_BLACK, HSV_WHITE);
         } else {
-            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, thintel16, difficulty_table[i].name, HSV_WHITE, HSV_BLACK);
+            qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, text_y, BREAKOUT_FONT_BIG, difficulty_table[i].name, HSV_WHITE, HSV_BLACK);
         }
     }
 }
@@ -124,7 +124,7 @@ static void draw_ball(int16_t old_x, int16_t old_y) {
     if (old_x != ball_x || old_y != ball_y) {
         qp_rect(my_display, old_x, old_y, old_x + BREAKOUT_BALL_SIZE - 1, old_y + BREAKOUT_BALL_SIZE - 1, HSV_BLACK, true);
     }
-    qp_rect(my_display, ball_x, ball_y, ball_x + BREAKOUT_BALL_SIZE - 1, ball_y + BREAKOUT_BALL_SIZE - 1, HSV_WHITE, true);
+    qp_rect(my_display, ball_x, ball_y, ball_x + BREAKOUT_BALL_SIZE - 1, ball_y + BREAKOUT_BALL_SIZE - 1, HSV_CYAN, true);
 }
 
 static void clear_playfield_message_area(void) {
@@ -137,10 +137,10 @@ static void clear_playfield_message_area(void) {
 
 static void draw_center_message(const char *line1, const char *line2) {
     clear_playfield_message_area();
-    int16_t y = (brick_top(BREAKOUT_ROWS - 1) + BREAKOUT_BRICK_H + BREAKOUT_PADDLE_Y) / 2 - thintel16->line_height;
-    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, y, thintel16, line1, HSV_WHITE, HSV_BLACK);
+    int16_t y = (brick_top(BREAKOUT_ROWS - 1) + BREAKOUT_BRICK_H + BREAKOUT_PADDLE_Y) / 2 - BREAKOUT_FONT_BIG->line_height;
+    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, y, BREAKOUT_FONT_BIG, line1, HSV_WHITE, HSV_BLACK);
     if (line2) {
-        qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, y + thintel16->line_height + 2, thintel16, line2, HSV_WHITE, HSV_BLACK);
+        qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, y + BREAKOUT_FONT_BIG->line_height + 2, BREAKOUT_FONT_BIG, line2, HSV_WHITE, HSV_BLACK);
     }
 }
 
@@ -151,7 +151,7 @@ static void reset_ball_on_paddle(void) {
     ball_vy = 0;
     state   = BREAKOUT_READY;
     draw_ball(ball_x, ball_y);
-    draw_center_message("Turn knob to aim", "Press knob to launch");
+    draw_center_message("Turn knob to aim", "Press Button 2 to launch");
 }
 
 static void breakout_start(void) {
@@ -178,9 +178,9 @@ void breakout_open(void) {
     diff_tick_accum = 0;
 
     qp_rect(my_display, 0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1, HSV_BLACK, true);
-    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, 20, thintel16, "FEELING STRONG?", HSV_CYAN, HSV_BLACK);
+    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, 20, BREAKOUT_FONT_BIG, "FEELING STRONG?", HSV_CYAN, HSV_BLACK);
     draw_difficulty_list();
-    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, ST7789_HEIGHT - 24, thintel16, "Turn knob to move, press to start", HSV_WHITE, HSV_BLACK);
+    qp_drawtext_recolor_center(my_display, ST7789_WIDTH / 2, ST7789_HEIGHT - 24, BREAKOUT_FONT_SMALL, "Turn knob to move, press to start", HSV_WHITE, HSV_BLACK);
     qp_flush(my_display);
 }
 
@@ -255,13 +255,13 @@ static void end_round(bool life_lost) {
         draw_scorebar();
         if (lives == 0) {
             state = BREAKOUT_GAMEOVER;
-            draw_center_message("GAME OVER", "Press knob to restart");
+            draw_center_message("GAME OVER", "Press Button 2 to restart");
         } else {
             reset_ball_on_paddle();
         }
     } else { // all bricks cleared
         state = BREAKOUT_WIN;
-        draw_center_message("YOU WIN!", "Press knob to restart");
+        draw_center_message("YOU WIN!", "Press Button 2 to restart");
     }
     qp_flush(my_display);
 }

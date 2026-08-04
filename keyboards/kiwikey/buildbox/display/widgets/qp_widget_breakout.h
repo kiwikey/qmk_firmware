@@ -3,6 +3,9 @@
 #include "quantum.h"
 #include "display/defines.h"
 
+#define BREAKOUT_FONT_SMALL nanoplex16
+#define BREAKOUT_FONT_BIG   nanoplex32
+
 /*** Encoder ***/
 #define BREAKOUT_STEP_SIZE    32  // smaller than STEP_SIZE/MENU_STEP_SIZE => finer paddle control
 #define BREAKOUT_PADDLE_SPEED 8   // px moved per encoder tick

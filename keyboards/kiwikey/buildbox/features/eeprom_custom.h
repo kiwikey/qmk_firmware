@@ -18,6 +18,7 @@ typedef struct {
 	uint8_t layer_sat[DYNAMIC_KEYMAP_LAYER_COUNT];
 	uint8_t knob_effect;
 	uint8_t knob_func;
+	uint8_t theme_hue;
 	uint8_t checksum;
 } EEPROM_CUSTOM_DATA;
 

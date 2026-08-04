@@ -14,6 +14,7 @@
 painter_device_t my_display;
 bool     booting = false; // will be TRUE during boot animation
 bool     ui_refresh_pending = false;
+static bool display_asleep = false;
 
 uint16_t flag_display_keycode_changed = 0x0000;
 // flag_display_keycode_changed: contains layer, row, col of changed key
@@ -71,9 +72,6 @@ void keyboard_post_init_display(void) {
 		defer_exec(BOOT_DURATION, finish_boot_animation, NULL);
 	} else {
 		ui_refresh();
-		// qp_drawimage(my_display, 0,0, img_anya01);
-		// my_anim = qp_animate(my_display, 0,0, gif_nyan120px);
-		// booting = true;
 	}
 }
 
@@ -110,7 +108,24 @@ void housekeeping_task_display(void) { // Check all flags
 		flag_widget_layer_changed = 0;
 	}
 
-	widget_status_render_uptime();
+	if (menu_state == NOT_IN_MENU) {
+		widget_status_render_uptime();
+	}
+
+	// LCD Timeout: cut the backlight after N seconds of no matrix/encoder activity.
+	// (Using the backlight rather than qp_power(): DISPOFF stops the panel from
+	// refreshing but doesn't blank the glass to black on this panel - it settles
+	// to white instead. Zeroing the backlight makes it look off regardless.)
+	if (!booting) {
+		uint32_t timeout_ms = (uint32_t)eepdata.display_timeout * 1000;
+		if (!display_asleep && eepdata.display_timeout < DISPLAY_TIMEOUT_NEVER && last_input_activity_elapsed() >= timeout_ms) {
+			backlight_level_noeeprom(0);
+			display_asleep = true;
+		} else if (display_asleep && last_input_activity_elapsed() < timeout_ms) {
+			backlight_level_noeeprom(eepdata.display_brightness);
+			display_asleep = false;
+		}
+	}
 }
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {

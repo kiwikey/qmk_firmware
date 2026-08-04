@@ -118,13 +118,43 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 		} else if (menu_state == SUB_MENU) {
 			bool value_changed = false;
 			switch (menu_cursor) {
-				case MENU_ACTIVATELAYER:
+				case MENU_DISPLAY_BRIGHTNESS:
 					if (clockwise) { // next
-						eepdata.active_layer = (eepdata.active_layer == DYNAMIC_KEYMAP_LAYER_COUNT-1) ? 0 : eepdata.active_layer+1;
+						if (eepdata.display_brightness == BACKLIGHT_LEVELS)
+							eepdata.display_brightness = 1;
+						else eepdata.display_brightness++;
+						backlight_level(eepdata.display_brightness);
 					} else {         // previous
-						eepdata.active_layer = (eepdata.active_layer == 0) ? DYNAMIC_KEYMAP_LAYER_COUNT-1 : eepdata.active_layer-1;
+						if (eepdata.display_brightness == 1)
+							eepdata.display_brightness = BACKLIGHT_LEVELS;
+						else eepdata.display_brightness--;
+						backlight_level(eepdata.display_brightness);
 					}
 					value_changed = true;
+					break;
+				case MENU_RGB_BRIGHTNESS:
+					if (clockwise) { // next
+						rgb_matrix_increase_val();
+					} else {         // previous
+						rgb_matrix_decrease_val();
+					}
+					value_changed = true;
+					break;
+				case MENU_RGB_MODE:
+					if (clockwise) { // next
+						rgb_matrix_step();
+					} else {         // previous
+						rgb_matrix_step_reverse();
+					}
+					value_changed = true;
+					break;
+				case MENU_KNOB_RGB:
+					// if (clockwise) { // next
+					// 	rgb_matrix_step();
+					// } else {         // previous
+					// 	rgb_matrix_step_reverse();
+					// }
+					// value_changed = true;
 					break;
 				case MENU_ANIMATION:
 					eepdata.display_bootanim ^= 1;
@@ -139,30 +169,6 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 						eepdata.display_timeout -= DISPLAY_TIMEOUT_STEP;
 						if (eepdata.display_timeout <= 0)
 							eepdata.display_timeout = DISPLAY_TIMEOUT_NEVER;
-					}
-					value_changed = true;
-					break;
-				case MENU_DISPLAYBRIGHTNESS:
-					if (clockwise) { // next
-						if (eepdata.display_brightness == BACKLIGHT_LEVELS)
-							eepdata.display_brightness = 1;
-						else eepdata.display_brightness++;
-						backlight_level(eepdata.display_brightness);
-					} else {         // previous
-						if (eepdata.display_brightness == 1)
-							eepdata.display_brightness = BACKLIGHT_LEVELS;
-						else eepdata.display_brightness--;
-						backlight_level(eepdata.display_brightness);
-					}
-					value_changed = true;
-					break;
-				case MENU_KNOBFUNCTION:
-					if (clockwise) { // next
-						if (eepdata.knob_func == ENCODER_FUNC_MAX) eepdata.knob_func = 0;
-						else eepdata.knob_func++;
-					} else {         // previous
-						if (eepdata.knob_func == 0) eepdata.knob_func = ENCODER_FUNC_MAX;
-						else eepdata.knob_func--;
 					}
 					value_changed = true;
 					break;

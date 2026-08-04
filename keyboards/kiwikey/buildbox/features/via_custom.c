@@ -148,10 +148,6 @@ void via_config_set_value( uint8_t *data ) {
 			soft_reset_keyboard();
 			break;
 		}
-		case id_factory_reset: {
-			action_factoryreset();
-			break;
-		}
 		case id_reset_to_dfu: {
 			action_resettodfu();
 			break;

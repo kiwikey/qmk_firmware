@@ -32,10 +32,12 @@ EEPROM_CUSTOM_DATA eepdata_default = {
 	{ 255, 255, 255, 255 },   // Lighting Layers' SATs: maximum (255)
 	1,                        // Knob special effect enabled
 	1,                        // Knob: Volume
+	213,                      // Theme HUE default
 	7                         // Checksum is always 7
 };
 
 void keyboard_post_init_kb(void) {
+
 	// Reading all EEPROM custom datas, refer to 'eeprom_custom.h' for detail
     eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 
@@ -48,14 +50,16 @@ void keyboard_post_init_kb(void) {
 	}
 
 	layer_move(eepdata.active_layer);
+
+	keyboard_post_init_sensors_handler();
+	keyboard_post_init_display();
+
 	#if defined(BACKLIGHT_ENABLE)
-		backlight_enable(); // TFT backlight
+		backlight_enable(); // TFT backlight - after display init, so the panel is already showing a clean frame
 		backlight_level(eepdata.display_brightness);
 		// backlight_level(10);
 	#endif // defined(BACKLIGHT_ENABLE)
 
-	keyboard_post_init_display();  // eepdata.display_bootanim is checked here
-	keyboard_post_init_sensors_handler();
 	keyboard_post_init_webhid_stream();
 	keyboard_post_init_user();
 }

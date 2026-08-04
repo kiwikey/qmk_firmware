@@ -1,6 +1,7 @@
 #include "as5600.h"
 #include "i2c_master.h"
 #include "print.h"
+#include "timer.h"
 
 magnetic_encoder_t magnetic_encoder;
 
@@ -105,8 +106,16 @@ void housekeeping_task_magnetic_encoder(void) {
     // separate is_magnet_detected() transaction here.
     process_magnetic_encoder();
     if (!magnetic_encoder.is_present) {
-        // retry presence next tick without spamming reads if the magnet is gone
-        magnetic_encoder.is_present = is_magnet_detected();
+        // Retry presence at a bounded rate. This task runs on every
+        // housekeeping tick (every main loop iteration) with no throttling
+        // of its own, so without this the retry below fires continuously -
+        // thousands of I2C transactions/sec - for as long as the magnet is
+        // missing, which is enough bus activity to be a real noise source.
+        static uint32_t last_retry = 0;
+        if (timer_elapsed32(last_retry) >= AS5600_PRESENCE_RETRY_MS) {
+            last_retry = timer_read32();
+            magnetic_encoder.is_present = is_magnet_detected();
+        }
     }
 }
 

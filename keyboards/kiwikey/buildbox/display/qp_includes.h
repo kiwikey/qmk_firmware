@@ -21,6 +21,7 @@
 	extern painter_image_handle_t ico16_arrow_right;
 	extern painter_image_handle_t ico12_arrow_left;
 	extern painter_image_handle_t ico12_arrow_right;
+	extern painter_image_handle_t ico18_heart;
 
 /* IMAGES & ANIMATIONS */
 	extern painter_image_handle_t gif_bootup01;

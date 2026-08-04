@@ -31,6 +31,7 @@
 	#include "resources/icons/ico12_arrow_right.qgf.h"
 	#include "resources/icons/ico16_layer.qgf.h"
 	#include "resources/icons/ico32_menu.qgf.h"
+	#include "resources/graphics/ico18_heart.qgf.h"
 	// painter_image_handle_t lock_caps_on;
 	// painter_image_handle_t lock_caps_off;
 	// painter_image_handle_t lock_num_on;
@@ -44,6 +45,7 @@
 	painter_image_handle_t ico16_arrow_right;
 	painter_image_handle_t ico12_arrow_left;
 	painter_image_handle_t ico12_arrow_right;
+	painter_image_handle_t ico18_heart;
 
 /* IMAGES & ANIMATIONS */
 	#include "resources/graphics/gif_bootup01.qgf.h"
@@ -84,6 +86,7 @@ void qp_init_load_files(void) {
 		ico16_arrow_right = qp_load_image_mem(gfx_ico16_arrow_right);
 		ico12_arrow_left  = qp_load_image_mem(gfx_ico12_arrow_left);
 		ico12_arrow_right = qp_load_image_mem(gfx_ico12_arrow_right);
+		ico18_heart       = qp_load_image_mem(gfx_ico18_heart);
 
 	/* IMAGES & ANIMATIONS */
 		gif_bootup01      = qp_load_image_mem(gfx_gif_bootup01);
