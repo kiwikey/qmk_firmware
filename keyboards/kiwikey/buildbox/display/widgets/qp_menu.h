@@ -113,7 +113,6 @@ static const bool menu_label_list_ischangeable[MENU_MAXITEMS+1] = {
 	// "Nyan Cat"
 // };
 
-void action_animation(void);
 void action_displaybrightness(void);
 void action_aboutbuildbox(void);
 void action_resettodfu(void);

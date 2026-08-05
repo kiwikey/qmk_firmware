@@ -3,6 +3,7 @@
 #include <lib/lib8tion/lib8tion.h>
 
 #include "features/eeprom_custom.h"
+#include "features/knob_custom.h"
 #include "display/qp_graphics.h"
 #include "display/qp_includes.h"
 #include "display/qp_custom_api.h"
@@ -118,7 +119,7 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 		} else if (menu_state == SUB_MENU) {
 			bool value_changed = false;
 			switch (menu_cursor) {
-				case MENU_DISPLAY_BRIGHTNESS:
+				case MENU_DISPLAY_BRIGHTNESS: // DONE
 					if (clockwise) { // next
 						if (eepdata.display_brightness == BACKLIGHT_LEVELS)
 							eepdata.display_brightness = 1;
@@ -132,7 +133,7 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 					}
 					value_changed = true;
 					break;
-				case MENU_RGB_BRIGHTNESS:
+				case MENU_RGB_BRIGHTNESS: // DONE
 					if (clockwise) { // next
 						rgb_matrix_increase_val();
 					} else {         // previous
@@ -140,7 +141,7 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 					}
 					value_changed = true;
 					break;
-				case MENU_RGB_MODE:
+				case MENU_RGB_MODE: // DONE
 					if (clockwise) { // next
 						rgb_matrix_step();
 					} else {         // previous
@@ -149,14 +150,14 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 					value_changed = true;
 					break;
 				case MENU_KNOB_RGB:
-					// if (clockwise) { // next
-					// 	rgb_matrix_step();
-					// } else {         // previous
-					// 	rgb_matrix_step_reverse();
-					// }
-					// value_changed = true;
+					if (clockwise) { // next
+						eepdata.knob_effect = (eepdata.knob_effect == KNOB_EFFECT_LAYER) ? KNOB_EFFECT_OFF : eepdata.knob_effect + 1;
+					} else {         // previous
+						eepdata.knob_effect = (eepdata.knob_effect == KNOB_EFFECT_OFF) ? KNOB_EFFECT_LAYER : eepdata.knob_effect - 1;
+					}
+					value_changed = true;
 					break;
-				case MENU_ANIMATION:
+				case MENU_ANIMATION: // DONE
 					eepdata.display_bootanim ^= 1;
 					value_changed = true;
 					break;

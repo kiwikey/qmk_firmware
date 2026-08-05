@@ -23,6 +23,17 @@ static int16_t angle_diff(uint8_t a, uint8_t b) {
 }
 
 void knob_effect(void) {
+    if (eepdata.knob_effect == KNOB_EFFECT_OFF) {
+        for (uint8_t idx = 0; idx < KNOB_LED_COUNT; idx++) {
+            rgb_matrix_set_color(KNOB_LED_START + idx, 0, 0, 0);
+        }
+        return;
+    }
+    if (eepdata.knob_effect == KNOB_EFFECT_DEFAULT) {
+        return; // leave these LEDs alone - whatever RGB Matrix's active effect already painted stands
+    }
+
+    // KNOB_EFFECT_LAYER
     bool show_gradient = magnetic_encoder.is_present && timer_elapsed32(last_knob_movement_time) < KNOB_LED_FLASH_MS;
     hsv_t base = { eepdata.layer_hue[get_highest_layer(layer_state|default_layer_state)], // hue
                    eepdata.layer_sat[get_highest_layer(layer_state|default_layer_state)], // sat

@@ -3,6 +3,7 @@
 #include "qp_menu.h"
 
 #include "features/eeprom_custom.h"
+#include "features/knob_custom.h"
 #include "display/qp_graphics.h"
 #include "display/qp_includes.h"
 #include "display/qp_custom_api.h"
@@ -190,11 +191,11 @@ static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 			}
 			break;
 		case MENU_KNOB_RGB:
-			// if (!rgb_matrix_is_enabled()) {
-			// 	snprintf(buf, buflen, "RGB OFF");
-			// } else {
-			// 	snprintf(buf, buflen, "Mode #%d", rgb_matrix_get_mode());
-			// }
+			switch (eepdata.knob_effect) {
+				case KNOB_EFFECT_DEFAULT: snprintf(buf, buflen, "DEFAULT"); break;
+				case KNOB_EFFECT_LAYER:   snprintf(buf, buflen, "LAYER");   break;
+				default:                  snprintf(buf, buflen, "OFF");    break;
+			}
 			break;
 		case MENU_ANIMATION:
 			snprintf(buf, buflen, "%s", eepdata.display_bootanim ? "ON" : "OFF");
