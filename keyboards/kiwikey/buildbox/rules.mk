@@ -21,6 +21,7 @@ QUANTUM_LIB_SRC += i2c_master.c
 SRC += \
 	features/via_custom.c               \
 	features/knob_custom.c              \
+	features/menu_keyselect.c           \
 	features/webhid_stream.c            \
 	features/webhid_shadow.c            \
 	sensor/sensors_handler.c            \

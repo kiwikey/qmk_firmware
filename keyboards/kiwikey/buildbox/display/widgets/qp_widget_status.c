@@ -35,7 +35,7 @@ void widget_status_render_uptime(void) {
 
 	char buf1[20] = {0};
 	if (minutes < 60) {
-		sprintf(buf1, "UPTIME: %lumins", minutes);
+		sprintf(buf1, "UPTIME: %lu mins", minutes);
 	} else {
 		sprintf(buf1, "UPTIME: %luh %02lum", minutes / 60, minutes % 60);
 	}

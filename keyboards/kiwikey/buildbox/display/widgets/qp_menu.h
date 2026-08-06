@@ -3,6 +3,8 @@
 #include "quantum.h"
 #include "display/defines.h"
 
+#define MENU_KEYSELECT_ENABLE   false
+
 #define MENU_BACKGROUND         HSV_BLACK
 #define MENU_TITLE_COLOR        HSV_BLACK
 #define MENU_TITLE_BG           HSV_WHITE
