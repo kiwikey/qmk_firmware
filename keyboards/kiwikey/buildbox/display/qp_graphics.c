@@ -2,7 +2,6 @@
 #include "qp_graphics.h"
 
 #include "features/eeprom_custom.h"
-#include "features/menu_keyselect.h" // TEMP: keyboard-driven Main Menu navigation
 #include "sensor/sensors_handler.h"
 #include "display/qp_includes.h"
 #include "display/widgets/qp_widget_matrix.h"
@@ -169,9 +168,6 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 					menu_action();
 					return false;
 				default:
-#if MENU_KEYSELECT_ENABLE
-					menu_keyselect_process_record(record); // TEMP: keyboard-driven menu navigation
-#endif
 					return false; // During Menu, no keycode is processed
 			}
 		} else return false;
@@ -185,9 +181,6 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 					menu_submenu_exit();
 					return false;
 				default:
-#if MENU_KEYSELECT_ENABLE
-					menu_keyselect_process_record(record); // TEMP: keyboard-driven menu navigation
-#endif
 					return false; // During Menu, no keycode is processed
 			}
 		} else return false;
