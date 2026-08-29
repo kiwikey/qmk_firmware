@@ -9,6 +9,8 @@
 #include "display/qp_custom_api.h"
 #include "display/defines.h"
 #include "sensor/as5600.h"
+#include "features/eeprom_custom.h"
+#include "features/knob_custom.h"
 
 // Screen position of the DOT as it was last actually drawn. Compared against
 // on each update so that a run of small encoder ticks accumulates instead of
@@ -63,7 +65,8 @@ void widget_knob_init(void) {
 
 void widget_knob_show_func(void) {
 	char buf1[5] = {0}; // maximum 4 characters + null terminator = 5 bytes
-	sprintf(buf1, "CST");
+	uint8_t func = (eepdata.knob_func < KNOB_FUNC_COUNT) ? eepdata.knob_func : KNOB_FUNC_CUSTOM;
+	sprintf(buf1, "%s", knob_func_short_text[func]);
 	qp_drawtext_recolor_center(my_display,
 								WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
 								WIDGET_KNOB_FONT,

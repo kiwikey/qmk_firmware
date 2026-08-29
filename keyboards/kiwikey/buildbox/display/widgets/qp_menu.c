@@ -206,6 +206,9 @@ static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 			else
 				snprintf(buf, buflen, "%ds", eepdata.display_timeout);
 			break;
+		case MENU_KNOB_FUNC:
+			snprintf(buf, buflen, "%s", knob_func_menu_text[eepdata.knob_func < KNOB_FUNC_COUNT ? eepdata.knob_func : KNOB_FUNC_CUSTOM]);
+			break;
 		default:
 			break; // no value to show for this item
 	}
@@ -264,6 +267,7 @@ void menu_action(void) {
 		case MENU_KNOB_RGB:
 		case MENU_ANIMATION:
 		case MENU_DISPLAYTIMEOUT:
+		case MENU_KNOB_FUNC:
 			break;
 		case MENU_BOOTTODFU:
 			action_resettodfu();

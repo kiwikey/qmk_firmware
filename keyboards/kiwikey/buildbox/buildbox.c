@@ -31,7 +31,7 @@ EEPROM_CUSTOM_DATA eepdata_default = {
 	{ 126, 210,  42,  84 },   // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
 	{ 255, 255, 255, 255 },   // Lighting Layers' SATs: maximum (255)
 	1,                        // Knob special effect enabled
-	1,                        // Knob: Volume
+	KNOB_FUNC_VOLUME,         // Knob: Volume
 	213,                      // Theme HUE default
 	7                         // Checksum is always 7
 };

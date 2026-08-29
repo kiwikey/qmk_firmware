@@ -133,6 +133,16 @@ void via_config_set_value( uint8_t *data ) {
             break;
         }
 
+		// KNOB CONFIGS
+        case id_rgb_wheel: {
+			eepdata.knob_effect = *value_data;
+            break;
+        }
+		case id_knob_func: {
+			eepdata.knob_func = *value_data;
+			break;
+		}
+
 		// LCD CONFIGS
         case id_boot_animation: {
 			eepdata.display_bootanim = *value_data;
@@ -185,7 +195,17 @@ void via_config_get_value( uint8_t *data ) {
             break;
         }
 		
-		// OLED CONTROL
+		// KNOB CONFIGS
+        case id_rgb_wheel: {
+            value_data[0] = eepdata.knob_effect;
+            break;
+        }
+        case id_knob_func: {
+            value_data[0] = eepdata.knob_func;
+            break;
+        }
+
+		// LCD CONFIGS
         case id_boot_animation: {
             value_data[0] = eepdata.display_bootanim;
             break;

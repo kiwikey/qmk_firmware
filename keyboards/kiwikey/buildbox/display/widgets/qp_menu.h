@@ -35,7 +35,7 @@
 #define MENU_PAGINATION_DOWN_POSY     195
 
 #define MENU_1STLINE_POS    1
-#define MENU_MAXITEMS       10
+#define MENU_MAXITEMS       11
 #define MENU_LINESPERPAGE   7
 
 /* GLOBAL VARIATIONS - common use */
@@ -67,13 +67,14 @@ enum menu_label_list_references {
 	MENU_RGB_BRIGHTNESS,
 	MENU_RGB_MODE,
 	MENU_KNOB_RGB,
-	MENU_BOOTTODFU,
-	MENU_DEBUG,
+	MENU_KNOB_FUNC,
+	MENU_DISPLAYTIMEOUT,
 	MENU_ANIMATION,
 
-	MENU_DISPLAYTIMEOUT,
+	MENU_BOOTTODFU,
 	MENU_BREAKOUT,
-	MENU_ABOUT
+	MENU_ABOUT,
+	MENU_DEBUG
 };
 
 static const char * const menu_label_list[MENU_MAXITEMS] = {
@@ -81,13 +82,14 @@ static const char * const menu_label_list[MENU_MAXITEMS] = {
 	"RGB BRIGHTNESS",
 	"RGB MODE",
 	"RGB SCROLL WHEEL",
-	"BOOT TO DFU",
-	"DEBUG",
+	"KNOB FUNCTION",
+	"LCD TIMEOUT",
 	"BUILDBOX INTRO",
 
-	"LCD TIMEOUT",
+	"BOOT TO DFU",
 	"SECRET GAME",
-	"ABOUT BUILDBOX"
+	"ABOUT BUILDBOX",
+	"DEBUG"
 };
 
 static const bool menu_label_list_ischangeable[MENU_MAXITEMS+1] = {
@@ -97,12 +99,13 @@ static const bool menu_label_list_ischangeable[MENU_MAXITEMS+1] = {
 	true,
 	true,
 	true,
-	false,
-	false,
+	true,
+	true,
 	true,
 
-	true,
+	false,
 	false, // (Breakout Game - triggers immediately, no sub-menu)
+	false,
 	false
 };
 

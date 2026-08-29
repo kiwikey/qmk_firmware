@@ -22,6 +22,12 @@ enum via_system_value {
 	id_reset_to_dfu      = 8
 };
 
+enum via_knob_value {
+    id_rgb_wheel         = 9,
+    id_knob_func         = 10
+};
+
+
 void via_config_set_value( uint8_t *data );
 void via_config_get_value( uint8_t *data );
 void via_config_save(void);

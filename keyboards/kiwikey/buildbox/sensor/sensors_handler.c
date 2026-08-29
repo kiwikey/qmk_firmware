@@ -70,12 +70,21 @@ void magnetic_encoder_update_kb(bool direction) {
         }
     } else if (menu_state == NOT_IN_MENU) { // While in main screen
         widget_knob_update(magnetic_encoder.prev_angle, magnetic_encoder.new_angle);
+
+        uint16_t code_cw = KC_NO, code_ccw = KC_NO;
+        switch (eepdata.knob_func) {
+            case KNOB_FUNC_HSCROLL: code_cw = MS_WHLR; code_ccw = MS_WHLL; break;
+            case KNOB_FUNC_VSCROLL: code_cw = MS_WHLD; code_ccw = MS_WHLU; break;
+            case KNOB_FUNC_VOLUME:  code_cw = KC_VOLU; code_ccw = KC_VOLD; break;
+            default: break; // KNOB_FUNC_CUSTOM - no built-in action yet
+        }
+
         while (accumulator >= STEP_SIZE) {
-            tap_code16(MS_WHLU);
+            if (code_cw != KC_NO) tap_code16(code_cw);
             accumulator -= STEP_SIZE;
         }
         while (accumulator <= -STEP_SIZE) {
-            tap_code16(MS_WHLD);
+            if (code_ccw != KC_NO) tap_code16(code_ccw);
             accumulator += STEP_SIZE;
         }
     } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU) { // While in Menu
@@ -170,6 +179,14 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 						eepdata.display_timeout -= DISPLAY_TIMEOUT_STEP;
 						if (eepdata.display_timeout <= 0)
 							eepdata.display_timeout = DISPLAY_TIMEOUT_NEVER;
+					}
+					value_changed = true;
+					break;
+				case MENU_KNOB_FUNC:
+					if (clockwise) { // next
+						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_CUSTOM) ? KNOB_FUNC_HSCROLL : eepdata.knob_func + 1;
+					} else {         // previous
+						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_HSCROLL) ? KNOB_FUNC_CUSTOM : eepdata.knob_func - 1;
 					}
 					value_changed = true;
 					break;
