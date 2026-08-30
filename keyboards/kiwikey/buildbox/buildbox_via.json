@@ -1,0 +1,212 @@
+{
+    "name": "BuildBox v1",
+    "vendorId": "0x4B57",
+    "productId": "0xBB00",
+    "keycodes": ["qmk_lighting"],
+    "menus": [
+		{
+            "label": "BUILDBOX CONFIGS",
+            "content": [
+            {
+                "label": "Layers",
+                "content": [
+                {
+                    "label": "Active Layer",
+                    "type": "dropdown",
+                    "options": [
+						"0. Default",
+                        "1. Media",
+                        "2. Mouse",
+						"3. RGB LEDs"
+                    ],
+					"content": ["id_layer_setactive", 0, 0]
+                },
+				{
+					"label": "RGB Layers",
+					"type": "toggle",
+					"content": ["id_layer_indicator_enable", 0, 1]
+				},
+                {
+					"showIf": "{id_layer_indicator_enable} == 1",
+                    "label": "Applied to",
+                    "type": "dropdown",
+                    "options": [
+                        "Rotary Knob",
+						"Underglow LEDs",
+                        "Backlight LEDs",
+                        "Both (all LEDs)"
+                    ],
+					"content": ["id_layer_indicator_setled", 0, 2]
+                },
+				{
+					"showIf": "{id_layer_indicator_enable} == 1",
+					"label": "Layer [0] - Default",
+					"type": "color",
+					"content": ["id_eepdata_layer[0]", 0, 3, 0]
+				},
+				{
+					"showIf": "{id_layer_indicator_enable} == 1",
+					"label": "Layer [1] - Media",
+					"type": "color",
+					"content": ["id_eepdata_layer[1]", 0, 3, 1]
+				},
+				{
+					"showIf": "{id_layer_indicator_enable} == 1",
+					"label": "Layer [2] - Mouse",
+					"type": "color",
+					"content": ["id_eepdata_layer[2]", 0, 3, 2]
+				},
+				{
+					"showIf": "{id_layer_indicator_enable} == 1",
+					"label": "Layer [3] - RGB LEDs",
+					"type": "color",
+					"content": ["id_eepdata_layer[3]", 0, 3, 3]
+				}
+                ]
+            },
+            {
+                "label": "Knob",
+                "content": [
+                {
+                    "label": "RGB Wheel",
+                    "type": "dropdown",
+                    "options": [ "Default", "Layer", "Off" ],
+					"content": [ "id_rgb_wheel", 0, 9 ]
+                },
+                {
+                    "label": "Knob Function",
+                    "type": "dropdown",
+                    "options": [ "Horizontal Scroll", "Vertical Scroll", "Volume", "User Custom" ],
+					"content": [ "id_knob_func", 0, 10 ]
+                }
+                ]
+            },
+            {
+                "label": "LCD Display",
+                "content": [
+                {
+                    "label": "LCD Backlight",
+                    "type": "range",
+                    "options": [0, 255],
+					"content": ["id_qmk_backlight_brightness", 1, 1]
+                },
+                {
+                    "label": "Timeout",
+                    "type": "dropdown",
+                    "options": [ "30s", "60s", "90s", "120s", "150s", "180s", "Always ON" ],
+					"content": ["id_oled_timeout", 0, 5]
+                },
+                {
+                    "label": "Boot Animation",
+                    "type": "toggle",
+					"content": ["id_oled_animation", 0, 4]
+                }
+                ]
+            },
+            {
+                "label": "RGB LIGHTING",
+                "content": [
+                {
+                    "label": "Brightness",
+                    "type": "range",
+                    "options": [0, 255],
+                    "content": ["id_qmk_rgb_matrix_brightness", 3, 1]
+                },
+                {
+                    "label": "Effect",
+                    "type": "dropdown",
+                    "content": ["id_qmk_rgb_matrix_effect", 3, 2],
+                    "options": [
+                        "00. All Off",
+                        "01. Solid Color",
+                        "02. Gradient Left Right",
+                        "03. Gradient Up Down",
+                        "04. Breathing",
+                        "05. Cycle All",
+                        "06. Cycle Up Down",
+                        "07. Cycle Left Right",
+                        "08. Rainbow Moving Chevron",
+                        "09. Cycle Out in",
+                        "10. Cycle Out in Dual",
+                        "11. Cycle Pinwheel",
+                        "12. Cycle Spiral",
+                        "13. Dual Beacon",
+                        "14. Rainbow Beacon",
+                        "15. Rainbow Pinwheels",
+                        "16. Flower Blooming",
+                        "17. Raindrops",
+                        "18. Jellybean Raindrops",
+                        "19. Hue Breathing",
+                        "20. Hue Pendulum",
+                        "21. Hue Wave",
+                        "22. Pixel Rain",
+                        "23. Pixel Flow",
+                        "24. Pixel Fractal",
+                        "25. Typing Heatmap",
+                        "26. Digital Rain",
+                        "27. Solid Reactive Simple",
+                        "28. Solid Reactive",
+                        "29. Solid Reactive Wide",
+                        "30. Solid Reactive Multiwide",
+                        "31. Solid Reactive Cross",
+                        "32. Solid Reactive Multicross",
+                        "33. Solid Reactive Nexus",
+                        "34. Solid Reactive Multinexus",
+                        "35. Splash",
+                        "36. Multisplash",
+                        "37. Solid Splash",
+                        "38. Solid Multisplash",
+                        "39. Starlight",
+                        "40. Starlight Dual Sat",
+                        "41. Starlight Dual Hue",
+                        "42. Riverflow"
+                    ]
+                },
+                {
+                    "showIf": "{id_qmk_rgb_matrix_effect} >=2",
+                    "label": "Effect Speed",
+                    "type": "range",
+                    "options": [0, 255],
+                    "content": ["id_qmk_rgb_matrix_effect_speed", 3, 3]
+                },
+                {
+                    "showIf": "{id_qmk_rgb_matrix_effect} != 0 && {id_qmk_rgb_matrix_effect} != 24 && {id_qmk_rgb_matrix_effect} != 28 && {id_qmk_rgb_matrix_effect} != 29 && {id_qmk_rgb_matrix_effect} != 32",
+                    "label": "Color",
+                    "type": "color",
+                    "content": ["id_qmk_rgb_matrix_color", 3, 4]
+                }
+                ]
+            },
+            {
+                "label": "System",
+                "content": [
+				{
+					"label": "Soft Reset (restart keyboard)",
+					"type": "button",
+					"options": [99],
+					"content": ["id_custom_01button", 0, 6]
+				},
+				{
+					"label": "Reset to DFU (Bootloader mode)",
+					"type": "button",
+					"options": [99],
+					"content": ["id_custom_03button", 0, 8]
+				}
+                ]
+            }
+            ]
+        }
+    ],
+    "matrix": { "rows": 5, "cols": 4 },
+    "layouts": {
+        "keymap": [
+            [{"a":7,"w":7.25,"h":0.5,"d":true},""],
+            [{"y":-0.75,"w":0.5,"h":4,"d":true},"",{"x":-0.25,"c":"#aaaaaa","a":4},"0,0",{"c":"#cccccc"},"0,1","0,2","0,3",{"x":2.5,"a":7,"w":0.5,"h":4,"d":true},""],
+            [{"x":0.25,"a":4},"1,0","1,1","1,2","1,3"],
+            [{"y":-0.25,"x":4.75,"c":"#777777","w":2,"h":2},"4,2\n\n\n\n\n\n\n\n\ne0"],
+            [{"y":-0.75,"x":0.25,"c":"#cccccc"},"2,0","2,1","2,2","2,3"],
+            [{"x":0.25},"3,0","3,1","3,2","3,3"],
+            [{"y":-0.25,"a":7,"w":7.25,"h":0.5,"d":true},""]
+        ]
+    }
+}

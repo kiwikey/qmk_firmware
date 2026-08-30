@@ -308,8 +308,8 @@ void action_breakout(void) {
 
 void action_debug(void) {
 	char buf[32];
-	// qp_rect(my_display, 150, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
-	// qp_drawtext(my_display, 150, font_oled->line_height*0, font_oled, "EEPROM DEBUG");
+	qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
+	qp_drawtext(my_display, 150, font_oled->line_height*0, font_oled, "EEPROM DEBUG");
 	snprintf(buf, sizeof(buf), "layer:%d anim:%d",     eepdata.active_layer, eepdata.display_bootanim);
 	qp_drawtext(my_display, 180, font_oled->line_height*1, font_oled, buf);
 	snprintf(buf, sizeof(buf), "timeout:%d bright:%d", eepdata.display_timeout, eepdata.display_brightness);

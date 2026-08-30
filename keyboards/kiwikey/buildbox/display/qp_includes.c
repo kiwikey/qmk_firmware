@@ -93,7 +93,7 @@ void qp_init_load_files(void) {
 		img_anya01        = qp_load_image_mem(gfx_anya01);
 		// gif_pusheen    = qp_load_image_mem(gfx_pusheen_240px);
 		gif_nyan120px     = qp_load_image_mem(gfx_gif_nyan120px);
-		gif_cat01         = qp_load_image_mem(gif_cat01);
+		gif_cat01         = qp_load_image_mem(gfx_gif_cat01);
 		// gif_cat02      = qp_load_image_mem(gfx_gif_cat02);
 		// gif_dog01      = qp_load_image_mem(gfx_gif_dog01);
 }

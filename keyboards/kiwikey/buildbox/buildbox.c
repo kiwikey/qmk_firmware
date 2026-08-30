@@ -104,8 +104,6 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) { // Li
 		RGB rgb = hsv_to_rgb(hsv);
 
 		for (uint8_t i = led_min; i < led_max; i++) {
-			dprintf("g_led_config.flags[%d] = %d",i, g_led_config.flags[i]);
-			// if (g_led_config.flags[i] & ((eepdata.lighting_flags+1) << 1)) {
 			if (g_led_config.flags[i] == LED_FLAG_INDICATOR) {
 				rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
 			}

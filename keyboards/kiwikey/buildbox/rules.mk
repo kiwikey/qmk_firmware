@@ -20,6 +20,7 @@ SRC += matrix.c
 QUANTUM_LIB_SRC += i2c_master.c
 SRC += \
 	features/via_custom.c               \
+	features/eeprom_custom.c            \
 	features/knob_custom.c              \
 	features/webhid_stream.c            \
 	features/webhid_shadow.c            \
