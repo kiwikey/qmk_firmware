@@ -74,6 +74,21 @@ int8_t get_direction(const magnetic_encoder_t *enc) {
     return 0;
 }
 
+// Reads the current angle and sets prev_angle = new_angle to it, so the next
+// process_magnetic_encoder() tick measures movement fresh from here instead
+// of against a stale angle from before the magnet was absent - the magnet
+// can be reinstalled at a completely different physical position, and
+// without this, that gap would be misread as a real rotation.
+static void magnetic_encoder_reprime_angle(void) {
+    int16_t raw = as5600_read_angle();
+    if (raw >= 0) {
+        magnetic_encoder.prev_angle = (uint16_t)raw;
+        magnetic_encoder.new_angle  = magnetic_encoder.prev_angle;
+    } else {
+        magnetic_encoder.is_present = false;
+    }
+}
+
 void process_magnetic_encoder(void) {
     if (!magnetic_encoder.is_present) return;
 
@@ -114,7 +129,10 @@ void housekeeping_task_magnetic_encoder(void) {
         static uint32_t last_retry = 0;
         if (timer_elapsed32(last_retry) >= AS5600_PRESENCE_RETRY_MS) {
             last_retry = timer_read32();
-            magnetic_encoder.is_present = is_magnet_detected();
+            if (is_magnet_detected()) {
+                magnetic_encoder.is_present = true;
+                magnetic_encoder_reprime_angle(); // avoid a spurious jump from the stale pre-removal angle
+            }
         }
     }
 }
@@ -123,12 +141,6 @@ void keyboard_post_init_magnetic_encoder(void) {
     i2c_init();
     magnetic_encoder.is_present = is_magnet_detected();
     if (magnetic_encoder.is_present) {
-        int16_t raw = as5600_read_angle();
-        if (raw >= 0) {
-            magnetic_encoder.prev_angle = (uint16_t)raw;
-            magnetic_encoder.new_angle  = magnetic_encoder.prev_angle;
-        } else {
-            magnetic_encoder.is_present = false;
-        }
+        magnetic_encoder_reprime_angle();
     }
 }

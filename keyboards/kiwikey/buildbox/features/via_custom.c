@@ -15,8 +15,8 @@ extern uint16_t flag_widget_layer_changed;
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 /* via_custom_value_command_kb dispatches by channel_id:
-     id_custom_channel (0)         - this keyboard's own config, handled inline below
-     WEBHID_CONFIG_CHANNEL_ID (1)  - forwarded to webhid_stream_handle_config()
+     id_custom_channel (0)            - this keyboard's own config, handled inline below
+     WEBHID_CONFIG_CHANNEL_ID (0x20)  - forwarded to webhid_stream_handle_config()
    Only these command_ids are handled on either channel:
         id_custom_set_value                     = 0x07,
         id_custom_get_value                     = 0x08,
@@ -91,6 +91,15 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
     if (*command_id == id_dynamic_keymap_set_keycode) {
         flag_display_keycode_changed = ( 0x1000 | (command_data[0]<<8) | (command_data[1]<<4) | command_data[2]);
     }
+
+#if defined(BACKLIGHT_ENABLE)
+    if (*command_id == id_custom_set_value && data[1] == id_qmk_backlight_channel && data[2] == id_qmk_backlight_brightness) {
+        uint8_t level = ((uint16_t)data[3] * BACKLIGHT_LEVELS) / UINT8_MAX;
+        eepdata.display_brightness = (level == 0) ? 1 : level;
+    } else if (*command_id == id_custom_save && data[1] == id_qmk_backlight_channel) {
+        via_config_save(); // this channel never reaches via_custom_value_command_kb(), so the usual save path can't run
+    }
+#endif // defined(BACKLIGHT_ENABLE)
 
 	return false;
 }

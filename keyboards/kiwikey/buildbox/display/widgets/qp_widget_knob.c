@@ -12,11 +12,8 @@
 #include "features/eeprom_custom.h"
 #include "features/knob_custom.h"
 
-// Screen position of the DOT as it was last actually drawn. Compared against
-// on each update so that a run of small encoder ticks accumulates instead of
-// each tick's tiny sensor-to-sensor delta being (mis)judged as "no movement".
-static int last_drawn_x = 0;
-static int last_drawn_y = 0;
+static int last_drawn_x = WIDGET_KNOB_CENTERX;
+static int last_drawn_y = WIDGET_KNOB_CENTERY;
 
 // Draws the DOT at the encoder's current angle (does not erase anything first).
 static void widget_knob_draw_dot(void) {

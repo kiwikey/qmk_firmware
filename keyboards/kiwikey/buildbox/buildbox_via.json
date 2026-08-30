@@ -2,7 +2,7 @@
     "name": "BuildBox v1",
     "vendorId": "0x4B57",
     "productId": "0xBB00",
-    "keycodes": ["qmk_lighting"],
+    "keycodes": ["qmk_rgb_matrix_keycodes"],
     "menus": [
 		{
             "label": "BUILDBOX CONFIGS",
