@@ -10,6 +10,7 @@ extern uint16_t flag_widget_layer_changed;
     #include "display/qp_graphics.h"
 	#include "display/widgets/qp_menu.h"
 	#include "display/widgets/qp_widget_breakout.h"
+	#include "display/widgets/tutorial.h"
 	// #include "qp/qp_ui.h"
 	// extern painter_device_t my_display;
 	// extern bool display_rotate_flag;
@@ -25,7 +26,10 @@ static deferred_token theme_color_repaint_token = INVALID_DEFERRED_TOKEN;
 
 static uint32_t theme_color_repaint_callback(uint32_t trigger_time, void *cb_arg) {
 	theme_color_repaint_token = INVALID_DEFERRED_TOKEN;
-	if (menu_state == NOT_IN_MENU && !breakout_is_active()) {
+	// The tutorial owns the whole screen while it's showing - don't let a VIA
+	// theme-color drag redraw the idle screen out from under it (same reasoning
+	// as the housekeeping_task_display()/layer_state_set_kb() guards elsewhere).
+	if (menu_state == NOT_IN_MENU && !breakout_is_active() && !tutorial_is_active()) {
 		ui_refresh();
 	}
 	return 0; // one-shot, don't requeue
