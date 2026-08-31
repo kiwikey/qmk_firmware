@@ -26,18 +26,6 @@
 					"type": "toggle",
 					"content": ["id_layer_indicator_enable", 0, 1]
 				},
-                {
-					"showIf": "{id_layer_indicator_enable} == 1",
-                    "label": "Applied to",
-                    "type": "dropdown",
-                    "options": [
-                        "Rotary Knob",
-						"Underglow LEDs",
-                        "Backlight LEDs",
-                        "Both (all LEDs)"
-                    ],
-					"content": ["id_layer_indicator_setled", 0, 2]
-                },
 				{
 					"showIf": "{id_layer_indicator_enable} == 1",
 					"label": "Layer [0] - Default",
@@ -70,7 +58,7 @@
                 {
                     "label": "RGB Wheel",
                     "type": "dropdown",
-                    "options": [ "Default", "Layer", "Off" ],
+                    "options": [ "Off", "Default", "Layer" ],
 					"content": [ "id_rgb_wheel", 0, 9 ]
                 },
                 {
@@ -78,6 +66,12 @@
                     "type": "dropdown",
                     "options": [ "Horizontal Scroll", "Vertical Scroll", "Volume", "User Custom" ],
 					"content": [ "id_knob_func", 0, 10 ]
+                },
+                {
+                    "label": "Knob Sensitivity",
+                    "type": "dropdown",
+                    "options": [ "Low", "Medium", "High" ],
+					"content": [ "id_knob_sensitivity", 0, 12 ]
                 }
                 ]
             },
@@ -85,7 +79,12 @@
                 "label": "LCD Display",
                 "content": [
                 {
-                    "label": "LCD Backlight",
+                    "label": "Theme Color",
+                    "type": "color",
+					"content": ["id_theme_color", 0, 11]
+                },
+                {
+                    "label": "LCD Brightness",
                     "type": "range",
                     "options": [0, 255],
 					"content": ["id_qmk_backlight_brightness", 1, 1]

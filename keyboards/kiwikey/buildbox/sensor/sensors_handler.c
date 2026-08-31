@@ -12,6 +12,7 @@
 #include "display/widgets/qp_widget_knob.h"
 #include "display/widgets/qp_menu.h"
 #include "display/widgets/qp_widget_breakout.h"
+#include "display/widgets/tutorial.h"
 
 int16_t accumulator = 0;
 uint32_t last_knob_movement_time = 0;
@@ -28,10 +29,11 @@ void housekeeping_task_sensors_handler(void) {
 
 	if (magnet_was_present != (int8_t)magnetic_encoder.is_present) {
 		magnet_was_present = magnetic_encoder.is_present;
-		// The knob widget is only visible on the idle screen; menu/breakout
-		// already redraw it correctly (via ui_refresh -> widget_knob_init)
-		// when they exit, so skip poking the display while they're active.
-		if (menu_state == NOT_IN_MENU && !breakout_is_active()) {
+		// The knob widget is only visible on the idle screen; menu/breakout/
+		// tutorial already redraw it correctly (via ui_refresh -> widget_knob_init,
+		// or don't show it at all) when they exit, so skip poking the display
+		// while they're active.
+		if (menu_state == NOT_IN_MENU && !breakout_is_active() && !tutorial_is_active()) {
 			magnet_was_present ? widget_knob_show_dot() : widget_knob_show_missing();
 		}
 	}
@@ -68,6 +70,12 @@ void magnetic_encoder_update_kb(bool direction) {
             breakout_encoder_tick(CCW);
             accumulator += BREAKOUT_STEP_SIZE;
         }
+    } else if (tutorial_is_active()) {
+        // Screen navigation is buttons-only, so this never falls through to
+        // mouse-wheel/volume/etc below - but the knob screen shows a live dot
+        // that should still track real rotation (tutorial_knob_rotated() is a
+        // no-op on every other screen).
+        tutorial_knob_rotated();
     } else if (menu_state == NOT_IN_MENU) { // While in main screen
         widget_knob_update(magnetic_encoder.prev_angle, magnetic_encoder.new_angle);
 
@@ -79,14 +87,19 @@ void magnetic_encoder_update_kb(bool direction) {
             default: break; // KNOB_FUNC_CUSTOM - no built-in action yet
         }
 
-        while (accumulator >= STEP_SIZE) {
+        uint16_t sensitivity_threshold = knob_sensitivity_step[eepdata.knob_sensitivity < KNOB_SENSITIVITY_COUNT ? eepdata.knob_sensitivity : KNOB_SENSITIVITY_MEDIUM];
+        while (accumulator >= sensitivity_threshold) {
             if (code_cw != KC_NO) tap_code16(code_cw);
-            accumulator -= STEP_SIZE;
+            accumulator -= sensitivity_threshold;
         }
-        while (accumulator <= -STEP_SIZE) {
+        while (accumulator <= -sensitivity_threshold) {
             if (code_ccw != KC_NO) tap_code16(code_ccw);
-            accumulator += STEP_SIZE;
+            accumulator += sensitivity_threshold;
         }
+    } else if (debug_screen_is_active()) {
+        // Debug is a static info dump (menu_state stays MAIN_MENU while it's
+        // shown, since MENU_DEBUG never enters SUB_MENU) - ignore rotation
+        // instead of letting it fall through to menu list navigation below.
     } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU) { // While in Menu
         while (accumulator >= MENU_STEP_SIZE) {
             process_encoder_rotate(CW);
@@ -187,6 +200,20 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_CUSTOM) ? KNOB_FUNC_HSCROLL : eepdata.knob_func + 1;
 					} else {         // previous
 						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_HSCROLL) ? KNOB_FUNC_CUSTOM : eepdata.knob_func - 1;
+					}
+					value_changed = true;
+					break;
+				case MENU_THEME_COLOR:
+					// uint8_t overflow wraps 0..255 cleanly - hue is circular, so no clamping needed
+					eepdata.theme_hue += clockwise ? THEME_COLOR_HUE_STEP : -THEME_COLOR_HUE_STEP;
+					value_changed = true;
+					break;
+				case MENU_KNOB_SENSITIVITY:
+					// 3 fixed levels (LOW/MEDIUM/HIGH), cycled the same way as MENU_KNOB_FUNC
+					if (clockwise) { // next (less sensitive -> more sensitive)
+						eepdata.knob_sensitivity = (eepdata.knob_sensitivity == KNOB_SENSITIVITY_HIGH) ? KNOB_SENSITIVITY_LOW : eepdata.knob_sensitivity + 1;
+					} else {         // previous
+						eepdata.knob_sensitivity = (eepdata.knob_sensitivity == KNOB_SENSITIVITY_LOW) ? KNOB_SENSITIVITY_HIGH : eepdata.knob_sensitivity - 1;
 					}
 					value_changed = true;
 					break;

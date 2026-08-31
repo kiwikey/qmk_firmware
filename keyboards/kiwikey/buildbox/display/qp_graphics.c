@@ -10,6 +10,7 @@
 #include "display/widgets/qp_widget_status.h"
 #include "display/widgets/qp_menu.h"
 #include "display/widgets/qp_widget_breakout.h"
+#include "display/widgets/tutorial.h"
 
 painter_device_t my_display;
 bool     booting = false; // will be TRUE during boot animation
@@ -56,11 +57,23 @@ void display_init(void) {
 	qp_init_load_files();
 }
 
+// What normally shows once boot is done - the idle screen, unless this is the
+// very first boot (eepdata.unbox_tutorial), in which case the tutorial takes
+// over the idle screen's spot instead. Shared by both boot-animation-enabled
+// and -disabled paths below.
+static void show_idle_screen(void) {
+	if (eepdata.unbox_tutorial) {
+		tutorial_start();
+	} else {
+		ui_refresh();
+	}
+}
+
 uint32_t finish_boot_animation(uint32_t trigger_time, void *cb_arg) {
     booting = false;
 	accumulator = 0; // All knob rotation during boot animation is cleared
 	qp_stop_animation(my_anim);
-	ui_refresh();
+	show_idle_screen();
     return 0;   // Don't schedule again
 }
 
@@ -71,7 +84,7 @@ void keyboard_post_init_display(void) {
 		my_anim = qp_animate(my_display, 0, 90, gif_bootup01);
 		defer_exec(BOOT_DURATION, finish_boot_animation, NULL);
 	} else {
-		ui_refresh();
+		show_idle_screen();
 	}
 }
 
@@ -87,29 +100,34 @@ void ui_refresh(void) {
 }
 
 void housekeeping_task_display(void) { // Check all flags
-	if (flag_display_keycode_changed & 0x1000) {
-		uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
-		if (layer == get_highest_layer(layer_state)) { // only process if that changed layer is being activated
-			uint16_t row = (flag_display_keycode_changed & 0x00F0) >> 4;
-			uint16_t col = flag_display_keycode_changed & 0x00F;
-			widget_matrix_render_singlebutton(row,
-											  col,
-											  WIDGET_MATRIX_BUTTON_OFF,
-											  true,
-											  layer);
+	// The tutorial owns the whole screen while it's showing - none of these
+	// idle-screen widgets should draw over it (widget_status_render_uptime()
+	// was doing exactly that, since menu_state stays NOT_IN_MENU throughout).
+	if (!tutorial_is_active()) {
+		if (flag_display_keycode_changed & 0x1000) {
+			uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
+			if (layer == get_highest_layer(layer_state)) { // only process if that changed layer is being activated
+				uint16_t row = (flag_display_keycode_changed & 0x00F0) >> 4;
+				uint16_t col = flag_display_keycode_changed & 0x00F;
+				widget_matrix_render_singlebutton(row,
+												  col,
+												  WIDGET_MATRIX_BUTTON_OFF,
+												  true,
+												  layer);
+			}
+			flag_display_keycode_changed = 0x0000;
 		}
-		flag_display_keycode_changed = 0x0000;
-	}
 
-	if (flag_widget_layer_changed) { // 0 means nothing changed
-		if ((flag_widget_layer_changed - 1) == get_highest_layer(layer_state)) {
-			widget_layer_render_layername(flag_widget_layer_changed - 1);
+		if (flag_widget_layer_changed) { // 0 means nothing changed
+			if ((flag_widget_layer_changed - 1) == get_highest_layer(layer_state)) {
+				widget_layer_render_layername(flag_widget_layer_changed - 1);
+			}
+			flag_widget_layer_changed = 0;
 		}
-		flag_widget_layer_changed = 0;
-	}
 
-	if (menu_state == NOT_IN_MENU) {
-		widget_status_render_uptime();
+		if (menu_state == NOT_IN_MENU) {
+			widget_status_render_uptime();
+		}
 	}
 
 	// LCD Timeout: cut the backlight after N seconds of no matrix/encoder activity.
@@ -130,6 +148,31 @@ void housekeeping_task_display(void) { // Check all flags
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 	if (booting) return false;
+
+	/*** If the first-boot tutorial is showing :
+		+ Pressing Button 1 -> Cancel (screen 0) / Prev (every screen after)
+		+ Pressing Button 2 -> Next (or finish, on the last screen)
+		+ TUTORIAL_SCREEN_MATRIX only: any other key still lights up on-screen,
+		  same as the idle screen's widget_matrix_update() below - a live demo
+		  of what real interactivity looks like. No keycode is ever actually
+		  sent to the host during the tutorial (always returns false).
+	***/
+	if (tutorial_is_active()) {
+		switch (keycode) {
+			case KC_BUTTON_1:
+				tutorial_button_action(false, record->event.pressed);
+				break;
+			case KC_BUTTON_2:
+				tutorial_button_action(true, record->event.pressed);
+				break;
+			default:
+				if (tutorial_matrix_demo_is_active()) {
+					widget_matrix_update(record->event.key.col, record->event.key.row);
+				}
+				break;
+		}
+		return false; // press AND release both forwarded, so tutorial.c can track hold-state
+	}
 
 	/*** If playing Breakout :
 		+ Pressing Button 1 -> exit the game (back to default screen)

@@ -9,9 +9,27 @@ extern uint16_t flag_widget_layer_changed;
 #if defined(QUANTUM_PAINTER_ENABLE)
     #include "display/qp_graphics.h"
 	#include "display/widgets/qp_menu.h"
+	#include "display/widgets/qp_widget_breakout.h"
 	// #include "qp/qp_ui.h"
 	// extern painter_device_t my_display;
 	// extern bool display_rotate_flag;
+
+// VIA's color picker streams a set_value packet per drag tick - repainting the
+// whole idle screen on every one of those would make the TFT stutter/flicker
+// continuously while the user is still dragging. Debounce with a trailing
+// edge instead: each incoming packet pushes this deferred repaint 1s further
+// into the future, so it only actually fires once, using the latest hue,
+// after packets stop arriving for a full second.
+#define THEME_COLOR_REPAINT_DEBOUNCE_MS 1000
+static deferred_token theme_color_repaint_token = INVALID_DEFERRED_TOKEN;
+
+static uint32_t theme_color_repaint_callback(uint32_t trigger_time, void *cb_arg) {
+	theme_color_repaint_token = INVALID_DEFERRED_TOKEN;
+	if (menu_state == NOT_IN_MENU && !breakout_is_active()) {
+		ui_refresh();
+	}
+	return 0; // one-shot, don't requeue
+}
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 /* via_custom_value_command_kb dispatches by channel_id:
@@ -121,10 +139,6 @@ void via_config_set_value( uint8_t *data ) {
 			eepdata.lighting_layers = *value_data;
             break;
         }
-        case id_rgb_layers_flags: {
-			eepdata.lighting_flags = *value_data;
-            break;
-        }
         // A packet of "RGB Layer color changing" from VIA:
         //   - First 2 bytes above are already handled in 'via_custom_value_command_kb'
         //      [ ] = id_custom_set_value = 0x07 (command_id)
@@ -151,6 +165,10 @@ void via_config_set_value( uint8_t *data ) {
 			eepdata.knob_func = *value_data;
 			break;
 		}
+		case id_knob_sensitivity: {
+			eepdata.knob_sensitivity = *value_data;
+			break;
+		}
 
 		// LCD CONFIGS
         case id_boot_animation: {
@@ -159,6 +177,19 @@ void via_config_set_value( uint8_t *data ) {
         }
 		case id_display_timeout: {
 			eepdata.display_timeout = (*value_data + 1) * DISPLAY_TIMEOUT_STEP;
+			break;
+		}
+		case id_theme_color: {
+			// "color" type sends [hue, sat]; only hue is stored - GLOBAL_THEME_COLOR
+			// (display/defines.h) keeps sat fixed at 255, there's no theme_sat field
+			eepdata.theme_hue = data[1];
+#if defined(QUANTUM_PAINTER_ENABLE)
+			// See theme_color_repaint_callback() above: debounced, not immediate.
+			if (theme_color_repaint_token == INVALID_DEFERRED_TOKEN ||
+				!extend_deferred_exec(theme_color_repaint_token, THEME_COLOR_REPAINT_DEBOUNCE_MS)) {
+				theme_color_repaint_token = defer_exec(THEME_COLOR_REPAINT_DEBOUNCE_MS, theme_color_repaint_callback, NULL);
+			}
+#endif // defined(QUANTUM_PAINTER_ENABLE)
 			break;
 		}
 
@@ -190,10 +221,6 @@ void via_config_get_value( uint8_t *data ) {
 			value_data[0] = eepdata.lighting_layers;
             break;
         }
-        case id_rgb_layers_flags: {
-			value_data[0] = eepdata.lighting_flags;
-            break;
-        }
         case id_rgb_layers_hue: { // going to send an array
 			// value_data[0] is array index
 			// value_data[1] is value of HUE
@@ -213,6 +240,10 @@ void via_config_get_value( uint8_t *data ) {
             value_data[0] = eepdata.knob_func;
             break;
         }
+        case id_knob_sensitivity: {
+            value_data[0] = eepdata.knob_sensitivity;
+            break;
+        }
 
 		// LCD CONFIGS
         case id_boot_animation: {
@@ -221,6 +252,11 @@ void via_config_get_value( uint8_t *data ) {
         }
 		case id_display_timeout: {
             value_data[0] = (eepdata.display_timeout / DISPLAY_TIMEOUT_STEP) - 1;
+			break;
+		}
+		case id_theme_color: {
+			value_data[0] = eepdata.theme_hue;
+			value_data[1] = 255; // sat is fixed, matches GLOBAL_THEME_COLOR (display/defines.h)
 			break;
 		}
     }

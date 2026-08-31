@@ -18,6 +18,7 @@
 	#include "display/widgets/qp_widget_knob.h"
 	#include "display/widgets/qp_menu.h"
 	#include "display/widgets/qp_widget_breakout.h"
+	#include "display/widgets/tutorial.h"
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 EEPROM_CUSTOM_DATA eepdata;
@@ -27,12 +28,13 @@ EEPROM_CUSTOM_DATA eepdata_default = {
 	DISPLAY_TIMEOUT_MIN,      // LCD Timeout 30s
 	BACKLIGHT_DEFAULT_LEVEL,  // LCD Brightness default (10 = max)
 	0,                        // Lighting Layers OFF
-	0,                        // Lighting Layers applied to Knob's LEDs
 	{ 126, 210,  42,  84 },   // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
 	{ 255, 255, 255, 255 },   // Lighting Layers' SATs: maximum (255)
 	1,                        // Knob special effect enabled
 	KNOB_FUNC_VOLUME,         // Knob: Volume
 	213,                      // Theme HUE default
+	KNOB_SENSITIVITY_MEDIUM,  // Knob-function activation sensitivity default
+	1,                        // Unbox tutorial: undone (show it on next boot)
 	7                         // Checksum is always 7
 };
 
@@ -60,7 +62,7 @@ void keyboard_post_init_kb(void) {
 		// backlight_level(10);
 	#endif // defined(BACKLIGHT_ENABLE)
 
-	keyboard_post_init_webhid_stream();
+	// keyboard_post_init_webhid_stream();
 	keyboard_post_init_user();
 }
 
@@ -81,7 +83,11 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 }
 
 layer_state_t layer_state_set_kb(layer_state_t state) {
-	if (!booting && !ui_refresh_pending) {
+	// Same reasoning as the housekeeping_task_display() guard in qp_graphics.c -
+	// the tutorial owns the whole screen while it's showing, so a layer change
+	// (e.g. TUTORIAL_SCREEN_MATRIX rendering, or a layer key elsewhere on the
+	// keymap) must not redraw the idle screen's layer/matrix widgets over it.
+	if (!booting && !ui_refresh_pending && !tutorial_is_active()) {
 		widget_layer_render_layername(get_highest_layer(state));
 		widget_layer_render_navigation(get_highest_layer(state));
 		widget_matrix_keymap_render(get_highest_layer(state));

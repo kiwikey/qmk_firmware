@@ -14,7 +14,12 @@
 // #define WIDGET_MATRIX_BG          0,0,40
 #define WIDGET_MATRIX_BUTTON_BG   GLOBAL_BG_COLOR
 #define WIDGET_MATRIX_BUTTON_OFF  GLOBAL_THEME_COLOR
-#define WIDGET_MATRIX_BUTTON_ON   HSV_YELLOW
+// Complementary hue (opposite side of the wheel, wraps via uint8_t overflow)
+// instead of a fixed HSV_YELLOW - guarantees contrast against
+// WIDGET_MATRIX_BUTTON_OFF (GLOBAL_THEME_COLOR) no matter what hue the user
+// picks in the Settings Menu, instead of the two matching when theme_hue
+// happens to land near yellow.
+#define WIDGET_MATRIX_BUTTON_ON   eepdata.theme_hue + 128, 255, 255
 #define WIDGET_MATRIX_KC_COLOR    HSV_WHITE
 #define WIDGET_MATRIX_KC_BG       WIDGET_MATRIX_BUTTON_BG
 // #define WIDGET_MATRIX_LABEL_BG    HSV_YELLOW

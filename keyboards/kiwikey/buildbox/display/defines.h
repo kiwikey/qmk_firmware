@@ -1,11 +1,15 @@
 #pragma once
 
+#include "features/eeprom_custom.h" // eepdata.theme_hue, see GLOBAL_THEME_COLOR below
+
 #define NULL_VALUE 0
 
 #define CW         true
 #define CCW        false
 
-#define GLOBAL_THEME_COLOR  HSV_MAGENTA
+// hue is user-adjustable (Settings Menu: MENU_THEME_COLOR) and EEPROM-persisted
+// via eepdata.theme_hue; sat/val stay fixed since there's no theme_sat field.
+#define GLOBAL_THEME_COLOR  eepdata.theme_hue, 255, 255
 #define GLOBAL_BG_COLOR     HSV_BLACK
 
 /*** Definitions of (almost) all positions, colors, texts,... ***/

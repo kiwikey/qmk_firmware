@@ -40,17 +40,22 @@ static void widget_knob_draw_missing(void) {
 								WIDGET_KNOB_BG_COLOR);
 }
 
-void widget_knob_init(void) {
+// Just the static ring - no dot/missing indicator, no live encoder state.
+void widget_knob_draw_ring(uint16_t centerx, uint16_t centery, uint16_t radius) {
 	// Big knob, fill with WIDGET_KNOB_OUTTER_COLOR
 	qp_circle(my_display,
-			  WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
-			  WIDGET_KNOB_RADIUS,
+			  centerx, centery,
+			  radius,
 			  WIDGET_KNOB_OUTTER_COLOR, true);
 	// Fill inside knob, with a smaller diameter of WIDGET_KNOB_OUTTER_THICKNESS
 	qp_circle(my_display,
-			  WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
-			  WIDGET_KNOB_RADIUS - WIDGET_KNOB_OUTTER_THICKNESS,
+			  centerx, centery,
+			  radius - WIDGET_KNOB_OUTTER_THICKNESS,
 			  WIDGET_KNOB_BG_COLOR, true);
+}
+
+void widget_knob_init(void) {
+	widget_knob_draw_ring(WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY, WIDGET_KNOB_RADIUS);
 
 	if (magnetic_encoder.is_present) {
 		widget_knob_draw_dot();

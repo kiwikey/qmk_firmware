@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "FW V260829"
+#define FW_VERSION "FW V260831"
 
 #define MATRIX_COLS 4
 #define MATRIX_ROWS 5
@@ -17,7 +17,7 @@
 
 #if defined(VIA_ENABLE)
 	#define DYNAMIC_KEYMAP_LAYER_COUNT 4
-	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 18 // must match sizeof(EEPROM_CUSTOM_DATA) - bump this whenever a field is added/removed
+	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 19 // must match sizeof(EEPROM_CUSTOM_DATA) - bump this whenever a field is added/removed
 #endif // defined(VIA_ENABLE)
 
 #if defined(QUANTUM_PAINTER_ENABLE)

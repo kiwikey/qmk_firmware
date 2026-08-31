@@ -37,7 +37,8 @@ SRC += \
 	display/widgets/qp_widget_layer.c   \
 	display/widgets/qp_widget_knob.c    \
 	display/widgets/qp_widget_status.c  \
-	display/widgets/qp_widget_breakout.c
+	display/widgets/qp_widget_breakout.c\
+	display/widgets/tutorial.c
 
 # FONTS
 SRC += \
