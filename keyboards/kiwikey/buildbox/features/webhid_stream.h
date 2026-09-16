@@ -37,7 +37,7 @@
  *     0x00); the parser just skips bytes while hunting for the next 0xA5.
  *   - All multi-byte fields are little-endian (native for RP2040 and for
  *     JS DataView with `littleEndian: true`).
- *   - Colors on the wire are RGB565 (2 bytes), matching the ILI9341's
+ *   - Colors on the wire are RGB565 (2 bytes), matching the display panel's
  *     native format — smaller than sending HSV/RGB888 and what the browser
  *     needs to paint pixels anyway.
  *

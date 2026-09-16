@@ -29,6 +29,9 @@ uint8_t flag_widget_layer_changed = 0;
 // 2 = layer 1 changed
 
 void display_init(void) {
+	// Which factory function/panel size to use follows config.h's DISPLAY_DRIVER -
+	// change that one define to switch panels, nothing here needs editing.
+#if DISPLAY_DRIVER == DISPLAY_DRIVER_ILI9341
 	my_display = qp_ili9341_make_spi_device(
 		ILI9341_WIDTH,
 		ILI9341_HEIGHT,
@@ -38,18 +41,19 @@ void display_init(void) {
 		DISPLAY_SPI_DIVISOR,
 		DISPLAY_SPI_MODE
 	);
-	qp_init(my_display, QP_ROTATION_90);   // Initialise my_display
-	// my_display = qp_st7789_make_spi_device(
-	// 	ST7789_WIDTH,
-	// 	ST7789_HEIGHT,
-	// 	DISPLAY_CS_PIN,
-	// 	DISPLAY_DC_PIN,
-	// 	DISPLAY_RST_PIN,
-	// 	DISPLAY_SPI_DIVISOR,
-	// 	DISPLAY_SPI_MODE
-	// );
-	// qp_init(my_display, QP_ROTATION_270);   // Initialise my_display
-	
+#elif DISPLAY_DRIVER == DISPLAY_DRIVER_ST7789
+	my_display = qp_st7789_make_spi_device(
+		ST7789_WIDTH,
+		ST7789_HEIGHT,
+		DISPLAY_CS_PIN,
+		DISPLAY_DC_PIN,
+		DISPLAY_RST_PIN,
+		DISPLAY_SPI_DIVISOR,
+		DISPLAY_SPI_MODE
+	);
+#endif
+	qp_init(my_display, DISPLAY_ROTATION);   // Initialise my_display
+
 	qp_power(my_display, true);
 	qp_clear(my_display);
 	qp_rect(my_display, 0, 0, 319, 239, GLOBAL_BG_COLOR, true);

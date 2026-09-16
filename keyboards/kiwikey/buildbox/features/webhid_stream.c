@@ -105,10 +105,10 @@ void webhid_stream_set_enabled(bool new_enabled) {
         tx_count = 0;
         uint8_t hello[5] = {
             WEBHID_PROTOCOL_VERSION,
-            (uint8_t)(ILI9341_WIDTH & 0xFF),
-            (uint8_t)(ILI9341_WIDTH >> 8),
-            (uint8_t)(ILI9341_HEIGHT & 0xFF),
-            (uint8_t)(ILI9341_HEIGHT >> 8),
+            (uint8_t)(DISPLAY_WIDTH & 0xFF),
+            (uint8_t)(DISPLAY_WIDTH >> 8),
+            (uint8_t)(DISPLAY_HEIGHT & 0xFF),
+            (uint8_t)(DISPLAY_HEIGHT >> 8),
         };
         webhid_stream_send(OP_HELLO, hello, sizeof(hello));
 

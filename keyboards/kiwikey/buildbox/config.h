@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "FW V260831"
+#define FW_VERSION "FW V260904"
 
 #define MATRIX_COLS 4
 #define MATRIX_ROWS 5
@@ -21,37 +21,45 @@
 #endif // defined(VIA_ENABLE)
 
 #if defined(QUANTUM_PAINTER_ENABLE)
-	/*** SPI DRIVER DEFINITIONS ***/
+	// Which TFT panel this build targets - change this ONE line to switch, then
+	// rebuild. Both drivers are always compiled in (see rules.mk), and every
+	// per-panel setting below (CS pin, SPI mode, rotation, size) is grouped
+	// under the matching #if branch, so nothing else needs editing.
+	#define DISPLAY_DRIVER_ILI9341 1
+	#define DISPLAY_DRIVER_ST7789  2
+	#define DISPLAY_DRIVER         DISPLAY_DRIVER_ILI9341
+
+	/*** SPI DRIVER DEFINITIONS (shared - same SPI bus/DC/RST wiring for both panels) ***/
 	#define SPI_DRIVER           SPID1
-
-	// #define SPI_SCK_PIN          GP14
-	// #define SPI_MOSI_PIN         GP15
-	// #define DISPLAY_CS_PIN       GP13
-	// #define DISPLAY_DC_PIN       GP12
-	// #define DISPLAY_RST_PIN      GP9
-	// #define SPI_SCK_PAL_MODE  5
-	// #define SPI_MOSI_PAL_MODE 5
-	// #define SPI_MISO_PAL_MODE 5
-
 	#define SPI_SCK_PIN          GP14
 	#define SPI_MOSI_PIN         GP15
-	#define DISPLAY_CS_PIN       GP8
 	#define DISPLAY_DC_PIN       GP12
 	#define DISPLAY_RST_PIN      GP9
+	#define DISPLAY_SPI_DIVISOR  4
 	// #define SPI_SCK_PAL_MODE  5
 	// #define SPI_MOSI_PAL_MODE 5
 	// #define SPI_MISO_PAL_MODE 5
 
-	#define DISPLAY_SPI_DIVISOR 4
-	// #define DISPLAY_SPI_MODE    3 // ST7789 240*240 works with mode 2 or 3 only, not sure why
-	#define DISPLAY_SPI_MODE    0 // ST7789 240*240 works with mode 2 or 3 only, not sure why
-	
 	/*** TFT DISPLAY CONFIGURATIONS ***/
-	#define ST7789_WIDTH  320
-	#define ST7789_HEIGHT 240
-	
 	#define ILI9341_WIDTH  320
 	#define ILI9341_HEIGHT 240
+	#define ST7789_WIDTH   320
+	#define ST7789_HEIGHT  240
+
+	// Per-panel settings - only the DISPLAY_DRIVER branch selected above applies.
+	#if DISPLAY_DRIVER == DISPLAY_DRIVER_ILI9341
+		#define DISPLAY_CS_PIN   GP8
+		#define DISPLAY_SPI_MODE 0
+		#define DISPLAY_ROTATION QP_ROTATION_90
+		#define DISPLAY_WIDTH    ILI9341_WIDTH
+		#define DISPLAY_HEIGHT   ILI9341_HEIGHT
+	#elif DISPLAY_DRIVER == DISPLAY_DRIVER_ST7789
+		#define DISPLAY_CS_PIN   GP13
+		#define DISPLAY_SPI_MODE 3 // ST7789 works with mode 2 or 3 only, not sure why
+		#define DISPLAY_ROTATION QP_ROTATION_270
+		#define DISPLAY_WIDTH    ST7789_WIDTH
+		#define DISPLAY_HEIGHT   ST7789_HEIGHT
+	#endif
 
 	/*** QUANTUM PAINTER CONFIGURATION ***/
 	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT        0   // LCD Timeout handles by custom code
@@ -68,12 +76,12 @@
 /*** PWM DRIVER DEFINITIONS ***/
 // There is no official API for PWM, so PWM Backlight is used
 // GPIO8 - PWM4 A
-// #define BACKLIGHT_PWM_DRIVER    PWMD4
-// #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_A
+#define BACKLIGHT_PWM_DRIVER    PWMD4
+#define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_A
 
 // GPIO13 - PWM6 B
-#define BACKLIGHT_PWM_DRIVER    PWMD6
-#define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
+// #define BACKLIGHT_PWM_DRIVER    PWMD6
+// #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
 #define BACKLIGHT_PAL_MODE      (PAL_MODE_ALTERNATE_PWM | PAL_RP_PAD_DRIVE12 | PAL_RP_GPIO_OE)
 // #define BACKLIGHT_PAL_MODE      2
-#define BACKLIGHT_DEFAULT_LEVEL 10 // defined in keyboard.json
+// #define BACKLIGHT_DEFAULT_LEVEL 10 // defined in keyboard.json

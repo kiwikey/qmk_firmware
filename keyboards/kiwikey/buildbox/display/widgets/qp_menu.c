@@ -371,9 +371,10 @@ void action_debug(void) {
 	qp_drawtext(my_display, 0, nanoplex16->line_height*line++, nanoplex16, "*** DEBUG ***");
 
 	qp_drawtext(my_display, 0, nanoplex16->line_height*line++, nanoplex16, "Display");
-	snprintf(buf, sizeof(buf), "+ resolution: %d*%d px", ILI9341_WIDTH, ILI9341_HEIGHT);
+	snprintf(buf, sizeof(buf), "+ resolution: %d*%d px", DISPLAY_WIDTH, DISPLAY_HEIGHT);
 	qp_drawtext(my_display, 0, nanoplex16->line_height*line++, nanoplex16, buf);
-	qp_drawtext(my_display, 0, nanoplex16->line_height*line++, nanoplex16, "+ driver: ILI9341");
+	qp_drawtext(my_display, 0, nanoplex16->line_height*line++, nanoplex16,
+	            (DISPLAY_DRIVER == DISPLAY_DRIVER_ST7789) ? "+ driver: ST7789" : "+ driver: ILI9341");
 
 	qp_drawtext(my_display, 0, nanoplex16->line_height*line++, nanoplex16, "EEPROM");
 	snprintf(buf, sizeof(buf), "+ layer:%d anim:%d",     eepdata.active_layer, eepdata.display_bootanim);
