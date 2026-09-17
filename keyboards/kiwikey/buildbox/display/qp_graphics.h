@@ -20,5 +20,6 @@ void ui_refresh(void);
 void keyboard_post_init_display(void);
 void housekeeping_task_display(void);
 bool process_record_display(uint16_t keycode, keyrecord_t *record);
+bool display_is_asleep(void); // true while the backlight is zeroed for the idle timeout - see housekeeping_task_display()
 
 void test_fonts(void);

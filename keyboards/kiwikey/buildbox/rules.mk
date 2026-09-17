@@ -7,12 +7,9 @@ COMBO_ENABLE          = yes
 
 INTROSPECTION_KEYMAP_C = features/combos.c
 
-# QUANTUM PAINTER
+# QUANTUM PAINTER - choose only 1 driver to enable
 QUANTUM_PAINTER_ENABLE = yes
-# Both panel drivers are always compiled in - config.h's DISPLAY_DRIVER picks
-# which one actually gets instantiated at runtime (display/qp_graphics.c), so
-# this file never needs touching when switching panels.
-QUANTUM_PAINTER_DRIVERS += ili9341_spi
+# QUANTUM_PAINTER_DRIVERS += ili9341_spi
 QUANTUM_PAINTER_DRIVERS += st7789_spi
 
 # CUSTOM MATRIX

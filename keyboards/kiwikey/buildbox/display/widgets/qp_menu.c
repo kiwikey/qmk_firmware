@@ -29,6 +29,13 @@ uint8_t menu_cursor = MENU_1STLINE_POS;
 // (process_encoder_rotate()) and redrawing the menu list right over it.
 static bool debug_screen_active = false;
 
+// MENU_BOOTTODFU is ischangeable=false too, so pressing Button 2 on it calls
+// menu_action() -> action_resettodfu() again on every press (same generic
+// MAIN_MENU routing debug/breakout/tutorial already rely on) - this just
+// tracks whether the confirmation screen has already been shown once, so the
+// first press shows it and the second one actually resets.
+static bool dfu_confirm_active = false;
+
 static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen);
 static void menu_truncate_to_width(char *str, painter_font_handle_t font, uint16_t max_width);
 
@@ -71,6 +78,7 @@ void menu_exit(void) {
     menu_state  = NOT_IN_MENU;
 	accumulator = 0;
 	debug_screen_active = false;
+	dfu_confirm_active  = false;
 
 	menu_cursor = MENU_1STLINE_POS; // ignore cursor's latest position, reset to 1st menu line
 	eeprom_update_custom(); // update all custom EEPROM values (if necessary)
@@ -340,6 +348,31 @@ void action_aboutbuildbox(void) {
 }
 
 void action_resettodfu(void) {
+	if (!dfu_confirm_active) {
+		dfu_confirm_active = true;
+
+		qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
+		qp_drawtext_recolor_center(my_display, ST7789_WIDTH/2, TUTORIAL_TITLE_POSY, TUTORIAL_TITLE_FONT,
+			"Enter Bootloader Mode",
+			HSV_WHITE, MENU_BACKGROUND);
+		qp_drawtext_recolor(my_display, 20, TUTORIAL_TITLE_POSY*3, TUTORIAL_BODY_FONT,
+			"- An external drive will appear in",
+			HSV_WHITE, MENU_BACKGROUND);
+		qp_drawtext_recolor(my_display, 20, TUTORIAL_TITLE_POSY*4, TUTORIAL_BODY_FONT,
+			"                     your computer",
+			HSV_WHITE, MENU_BACKGROUND);
+		qp_drawtext_recolor(my_display, 20, TUTORIAL_TITLE_POSY*6, TUTORIAL_BODY_FONT,
+			"- Copy firmware file to it",
+			HSV_WHITE, MENU_BACKGROUND);
+
+		qp_circle(my_display, TUTORIAL_BUTTON1_CENTERX, TUTORIAL_BUTTON_CENTERY, TUTORIAL_BUTTON_RADIUS, GLOBAL_THEME_COLOR, true);
+		qp_drawtext_recolor_center(my_display, TUTORIAL_BUTTON1_CENTERX, TUTORIAL_BUTTON_LABEL_POSY, TUTORIAL_BUTTON_FONT, "Cancel", HSV_WHITE, MENU_BACKGROUND);
+		qp_circle(my_display, TUTORIAL_BUTTON2_CENTERX, TUTORIAL_BUTTON_CENTERY, TUTORIAL_BUTTON_RADIUS, GLOBAL_THEME_COLOR, true);
+		qp_drawtext_recolor_center(my_display, TUTORIAL_BUTTON2_CENTERX, TUTORIAL_BUTTON_LABEL_POSY, TUTORIAL_BUTTON_FONT, "OK", HSV_WHITE, MENU_BACKGROUND);
+		qp_flush(my_display);
+		return;
+	}
+
 	// rgb_matrix_set_color_all(RGB_BLACK);
 	reset_keyboard();
 }
@@ -362,6 +395,10 @@ bool debug_screen_is_active(void) {
 	return debug_screen_active;
 }
 
+bool dfu_confirm_screen_is_active(void) {
+	return dfu_confirm_active;
+}
+
 void action_debug(void) {
 	debug_screen_active = true;
 	char buf[40]; // longest line is "+ theme_color: [ 255, 255, 255 ]" (33 chars + null)
@@ -374,7 +411,12 @@ void action_debug(void) {
 	snprintf(buf, sizeof(buf), "+ resolution: %d*%d px", DISPLAY_WIDTH, DISPLAY_HEIGHT);
 	qp_drawtext(my_display, 0, nanoplex16->line_height*line++, nanoplex16, buf);
 	qp_drawtext(my_display, 0, nanoplex16->line_height*line++, nanoplex16,
-	            (DISPLAY_DRIVER == DISPLAY_DRIVER_ST7789) ? "+ driver: ST7789" : "+ driver: ILI9341");
+		#if defined(QUANTUM_PAINTER_ST7789_SPI_ENABLE)
+		"+ driver: ST7789"
+		#else
+		"+ driver: ILI9341"
+		#endif
+	);
 
 	qp_drawtext(my_display, 0, nanoplex16->line_height*line++, nanoplex16, "EEPROM");
 	snprintf(buf, sizeof(buf), "+ layer:%d anim:%d",     eepdata.active_layer, eepdata.display_bootanim);

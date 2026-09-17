@@ -17,6 +17,10 @@ bool     booting = false; // will be TRUE during boot animation
 bool     ui_refresh_pending = false;
 static bool display_asleep = false;
 
+bool display_is_asleep(void) {
+	return display_asleep;
+}
+
 uint16_t flag_display_keycode_changed = 0x0000;
 // flag_display_keycode_changed: contains layer, row, col of changed key
 // Mask:     00          00      00       00
@@ -29,9 +33,7 @@ uint8_t flag_widget_layer_changed = 0;
 // 2 = layer 1 changed
 
 void display_init(void) {
-	// Which factory function/panel size to use follows config.h's DISPLAY_DRIVER -
-	// change that one define to switch panels, nothing here needs editing.
-#if DISPLAY_DRIVER == DISPLAY_DRIVER_ILI9341
+#if defined(QUANTUM_PAINTER_ILI9341_SPI_ENABLE)
 	my_display = qp_ili9341_make_spi_device(
 		ILI9341_WIDTH,
 		ILI9341_HEIGHT,
@@ -41,7 +43,7 @@ void display_init(void) {
 		DISPLAY_SPI_DIVISOR,
 		DISPLAY_SPI_MODE
 	);
-#elif DISPLAY_DRIVER == DISPLAY_DRIVER_ST7789
+#elif defined(QUANTUM_PAINTER_ST7789_SPI_ENABLE)
 	my_display = qp_st7789_make_spi_device(
 		ST7789_WIDTH,
 		ST7789_HEIGHT,
@@ -150,8 +152,33 @@ void housekeeping_task_display(void) { // Check all flags
 	}
 }
 
+// Tracks the one key whose press woke the display from idle, so its matching
+// release can be swallowed too (see the wake-up check in process_record_display()).
+static bool    waking_press_pending = false;
+static uint8_t waking_press_row, waking_press_col;
+
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 	if (booting) return false;
+
+	/*** If the display is asleep (idle timeout - see housekeeping_task_display()):
+		the first keypress only wakes the backlight, it's not meant to act as
+		input - the user is just reaching for the board, not intentionally
+		using it yet. Swallow that one press and its matching release; every
+		following key press behaves normally.
+	***/
+	if (record->event.pressed) {
+		if (display_is_asleep()) {
+			waking_press_pending = true;
+			waking_press_row     = record->event.key.row;
+			waking_press_col     = record->event.key.col;
+			return false;
+		}
+	} else if (waking_press_pending &&
+	           record->event.key.row == waking_press_row &&
+	           record->event.key.col == waking_press_col) {
+		waking_press_pending = false;
+		return false;
+	}
 
 	/*** If the first-boot tutorial is showing :
 		+ Pressing Button 1 -> Cancel (screen 0) / Prev (every screen after)

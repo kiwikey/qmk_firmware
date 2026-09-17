@@ -96,10 +96,11 @@ void magnetic_encoder_update_kb(bool direction) {
             if (code_ccw != KC_NO) tap_code16(code_ccw);
             accumulator += sensitivity_threshold;
         }
-    } else if (debug_screen_is_active()) {
-        // Debug is a static info dump (menu_state stays MAIN_MENU while it's
-        // shown, since MENU_DEBUG never enters SUB_MENU) - ignore rotation
-        // instead of letting it fall through to menu list navigation below.
+    } else if (debug_screen_is_active() || dfu_confirm_screen_is_active()) {
+        // Both are static screens (menu_state stays MAIN_MENU while shown,
+        // since MENU_DEBUG/MENU_BOOTTODFU never enter SUB_MENU) - ignore
+        // rotation instead of letting it fall through to menu list navigation
+        // below and redraw the list right over them.
     } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU) { // While in Menu
         while (accumulator >= MENU_STEP_SIZE) {
             process_encoder_rotate(CW);

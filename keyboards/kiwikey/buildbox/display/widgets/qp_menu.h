@@ -70,6 +70,7 @@
 	void menu_action(void);
 	void eeprom_update_custom(void); // TODO
 	bool debug_screen_is_active(void); // see action_debug() (qp_menu.c) - encoder rotation is ignored while true
+	bool dfu_confirm_screen_is_active(void); // see action_resettodfu() (qp_menu.c) - encoder rotation is ignored while true
 /**********************************/
 
 enum menu_label_list_references {
