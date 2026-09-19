@@ -12,6 +12,39 @@
 #define GLOBAL_THEME_COLOR  eepdata.theme_hue, 255, 255
 #define GLOBAL_BG_COLOR     HSV_BLACK
 
+// eepdata.theme_hue is picked from a fixed list of named presets in
+// MENU_THEME_COLOR (knob cycles through this array, see sensors_handler.c)
+// instead of a continuous hue wheel - hue values are QMK's own HSV_*
+// constants (quantum/color.h) for recognizability.
+typedef struct {
+	uint8_t     hue;
+	const char *name;
+} theme_color_preset_t;
+
+#define THEME_COLOR_PRESET_COUNT 10
+
+static const theme_color_preset_t theme_color_presets[THEME_COLOR_PRESET_COUNT] = {
+	{   0, "Red"     },
+	{  21, "Orange"  },
+	{  43, "Yellow"  },
+	{  64, "Lime"    },
+	{  85, "Green"   },
+	{ 106, "Spring"  },
+	{ 128, "Cyan"    },
+	{ 170, "Blue"    },
+	{ 191, "Purple"  },
+	{ 213, "Magenta" },
+};
+
+// Index into theme_color_presets[] matching `hue` exactly, or 0 if it isn't
+// one of the presets (e.g. eepdata.theme_hue still at its EEPROM default).
+static inline uint8_t theme_color_preset_index(uint8_t hue) {
+	for (uint8_t i = 0; i < THEME_COLOR_PRESET_COUNT; i++) {
+		if (theme_color_presets[i].hue == hue) return i;
+	}
+	return 0;
+}
+
 /*** Definitions of (almost) all positions, colors, texts,... ***/
 
 // #define UI_COLOR_BACKGROUND     HSV_BLACK

@@ -204,11 +204,19 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 					}
 					value_changed = true;
 					break;
-				case MENU_THEME_COLOR:
-					// uint8_t overflow wraps 0..255 cleanly - hue is circular, so no clamping needed
-					eepdata.theme_hue += clockwise ? THEME_COLOR_HUE_STEP : -THEME_COLOR_HUE_STEP;
+				case MENU_THEME_COLOR: {
+					// Cycle through the named presets (theme_color_presets[], display/defines.h),
+					// same way as MENU_KNOB_FUNC/MENU_KNOB_SENSITIVITY.
+					uint8_t index = theme_color_preset_index(eepdata.theme_hue);
+					if (clockwise) {
+						index = (index == THEME_COLOR_PRESET_COUNT - 1) ? 0 : index + 1;
+					} else {
+						index = (index == 0) ? THEME_COLOR_PRESET_COUNT - 1 : index - 1;
+					}
+					eepdata.theme_hue = theme_color_presets[index].hue;
 					value_changed = true;
 					break;
+				}
 				case MENU_KNOB_SENSITIVITY:
 					// 3 fixed levels (LOW/MEDIUM/HIGH), cycled the same way as MENU_KNOB_FUNC
 					if (clockwise) { // next (less sensitive -> more sensitive)

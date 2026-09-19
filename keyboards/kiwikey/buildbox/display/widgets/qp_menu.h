@@ -9,31 +9,19 @@
 #define MENU_CURSOR_COLOR       GLOBAL_THEME_COLOR
 
 #define MENU_WIDTH              320 - MENU_POSX
-#define MENU_LABEL_WIDTH        220
+#define MENU_LABEL_WIDTH        210
 #define MENU_SIDEBAR_POSX       MENU_LABEL_WIDTH
 
 #define MENU_TITLE_POSY         20        // centered to LCD's width, so no POSX needed
 #define MENU_FONT               nanoplex32
 #define MENU_FONT_HEIGHT        (MENU_FONT->line_height)
 #define MENU_LINE_HEIGHT        23  // Height for each menu line
-#define MENU_POSX               15
+#define MENU_POSX               10
 #define MENU_POSY               40
 
 #define MENU_SIDEBAR_TEXT_PADDING  10
 #define MENU_SIDEBAR_TEXT_POSX     (MENU_SIDEBAR_POSX + MENU_SIDEBAR_TEXT_PADDING)
 #define MENU_SIDEBAR_MAX_TEXTWIDTH (MENU_SIDEBAR_TEXT_POSX - MENU_SIDEBAR_TEXT_PADDING) // long values get truncated to fit this
-
-// MENU_THEME_COLOR's sidebar swatch (see menu_render_sidebar()) - fits inside
-// MENU_LINE_HEIGHT and starts at MENU_SIDEBAR_TEXT_POSX, well clear of
-// MENU_PAGINATION_ARROW_POSX (295)
-#define MENU_COLOR_SWATCH_WIDTH   36
-#define MENU_COLOR_SWATCH_HEIGHT  14
-#define MENU_COLOR_SWATCH_CORNER  4
-// Gap between the swatch and each rotate-to-change arrow (ico16_arrow_left/right,
-// 8x16), shown flanking it only while its SUB_MENU is open. Total active-state
-// width: 8 + gap + 36 + gap + 8 = 60, starting at MENU_SIDEBAR_TEXT_POSX (230),
-// still clear of MENU_PAGINATION_ARROW_POSX (295).
-#define MENU_COLOR_ARROW_GAP      4
 
 #define MENU_CURSOR_ICON_WIDTH     8  // ico16_arrow_right is 8x16
 #define MENU_CURSOR_ICON_HEIGHT    16

@@ -150,7 +150,7 @@ void menu_printlist(void) { // Print the menu list, total MENU_LINESPERPAGE line
 	for (uint8_t i = page_start; i < page_end; i++) {
 		// Menu label
 		qp_drawtext(my_display,
-					MENU_POSX + MENU_CURSOR_ICON_WIDTH + 10,
+					MENU_POSX + MENU_CURSOR_ICON_WIDTH + 5,
 					MENU_POSY + (i - page_start)*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2, // magic math?
 					MENU_FONT,
 					menu_label_list[i]);
@@ -234,8 +234,8 @@ static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 		case MENU_KNOB_FUNC:
 			snprintf(buf, buflen, "%s", knob_func_menu_text[eepdata.knob_func < KNOB_FUNC_COUNT ? eepdata.knob_func : KNOB_FUNC_CUSTOM]);
 			break;
-		// MENU_THEME_COLOR is not handled here - menu_render_sidebar() draws a
-		// color swatch for it instead of going through this text path at all.
+		// MENU_THEME_COLOR is not handled here - menu_render_sidebar() draws its
+		// preset name directly instead of going through this text path at all.
 		case MENU_KNOB_SENSITIVITY:
 			snprintf(buf, buflen, "%s", knob_sensitivity_menu_text[eepdata.knob_sensitivity < KNOB_SENSITIVITY_COUNT ? eepdata.knob_sensitivity : KNOB_SENSITIVITY_MEDIUM]);
 			break;
@@ -263,29 +263,22 @@ void menu_render_sidebar(uint8_t item_pos, uint8_t row) {
 	        MENU_BACKGROUND, true);
 
 	if (item_pos == MENU_THEME_COLOR) {
-		// A raw hue number means nothing at a glance - show the actual color
-		// instead. This is GLOBAL_THEME_COLOR (display/defines.h) itself, so it's
-		// always exactly what the rest of the UI is currently themed with.
+		// Named preset (theme_color_presets[], display/defines.h), drawn in its
+		// own color - the color itself is the content here, so unlike the
+		// generic text branch below it doesn't swap to white when inactive.
 		// process_encoder_rotate() calls menu_render_sidebar() on every knob
-		// tick while this item's SUB_MENU is open, so the swatch updates live.
-		bool is_active = (menu_state == SUB_MENU && item_pos == menu_cursor);
+		// tick while this item's SUB_MENU is open, so this updates live.
+		uint8_t index = theme_color_preset_index(eepdata.theme_hue);
+		char    value_str[16];
+		snprintf(value_str, sizeof(value_str), "%s", theme_color_presets[index].name);
+		menu_truncate_to_width(value_str, MENU_FONT, MENU_SIDEBAR_MAX_TEXTWIDTH);
 
-		// Space for the left arrow is always reserved, active or not, so the
-		// swatch itself never moves between the two states - only whether the
-		// arrows are actually drawn in that reserved space changes.
-		uint16_t swatch_left = MENU_SIDEBAR_TEXT_POSX + ico16_arrow_left->width + MENU_COLOR_ARROW_GAP;
-		uint16_t swatch_top  = MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_COLOR_SWATCH_HEIGHT)/2;
-		qp_roundrect(my_display,
-		             swatch_left, swatch_top,
-		             swatch_left + MENU_COLOR_SWATCH_WIDTH - 1, swatch_top + MENU_COLOR_SWATCH_HEIGHT - 1,
-		             GLOBAL_THEME_COLOR, true,
-		             MENU_COLOR_SWATCH_CORNER, true, true);
-
-		if (is_active) {
-			uint16_t arrow_y = MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - ico16_arrow_left->height)/2;
-			qp_drawimage_recolor(my_display, MENU_SIDEBAR_TEXT_POSX, arrow_y, ico16_arrow_left, HSV_WHITE, MENU_BACKGROUND);
-			qp_drawimage_recolor(my_display, swatch_left + MENU_COLOR_SWATCH_WIDTH + MENU_COLOR_ARROW_GAP, arrow_y, ico16_arrow_right, HSV_WHITE, MENU_BACKGROUND);
-		}
+		qp_drawtext_recolor(my_display,
+		                    MENU_SIDEBAR_TEXT_POSX,
+		                    MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2,
+		                    MENU_FONT, value_str,
+		                    theme_color_presets[index].hue, 255, 255,
+		                    MENU_BACKGROUND);
 		return;
 	}
 

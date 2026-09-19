@@ -5,8 +5,6 @@
 
 #define MENU_STEP_SIZE  512
 
-#define THEME_COLOR_HUE_STEP 8 // eepdata.theme_hue step per encoder tick in MENU_THEME_COLOR (wraps via uint8_t overflow, 0..255 is a full hue circle)
-
 #define KNOB_SENSITIVITY_LOW    0 // needs the most rotation per activation
 #define KNOB_SENSITIVITY_MEDIUM 1
 #define KNOB_SENSITIVITY_HIGH   2 // needs the least rotation per activation

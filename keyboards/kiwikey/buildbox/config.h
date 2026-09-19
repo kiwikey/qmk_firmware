@@ -1,11 +1,11 @@
 #pragma once
 
-#define FW_VERSION "FW V260904"
+#define FW_VERSION "FW V260919"
 
 #define MATRIX_COLS 4
 #define MATRIX_ROWS 5
 
-#define I2C_DRIVER I2CD1
+#define I2C_DRIVER   I2CD1
 #define I2C1_SDA_PIN GP10
 #define I2C1_SCL_PIN GP11
 
