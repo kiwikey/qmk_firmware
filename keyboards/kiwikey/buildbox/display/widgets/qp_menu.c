@@ -69,6 +69,15 @@ void menu_init(void) {
 							   FW_VERSION,
 							   HSV_WHITE,
 							   HSV_BLACK); // Version number
+
+	uint8_t dot_radius = 10;
+	qp_circle(my_display, 10 + dot_radius, 225, dot_radius, GLOBAL_THEME_COLOR, true);
+	qp_drawtext_recolor(my_display, 10 + dot_radius*2 + 6, 232 - MENU_FONT_HEIGHT/2, font_oled, "Exit", HSV_WHITE, HSV_BLACK);
+
+	uint16_t ok_width = qp_textwidth(font_oled, "OK");
+	qp_drawtext_recolor(my_display, 310 - dot_radius*2 - 4 - ok_width, 232 - MENU_FONT_HEIGHT/2, font_oled, "OK", HSV_WHITE, HSV_BLACK);
+	qp_circle(my_display, 310 - dot_radius, 225, dot_radius, GLOBAL_THEME_COLOR, true);
+
 	menu_printlist();               // Print the menu list and sidebar (value)
 	menu_set_cursor(menu_cursor);   // Set the cursor
 	qp_flush(my_display);
