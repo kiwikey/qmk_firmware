@@ -222,7 +222,7 @@ static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 				default:                  snprintf(buf, buflen, "OFF");    break;
 			}
 			break;
-		case MENU_ANIMATION:
+		case MENU_INTROANIM:
 			snprintf(buf, buflen, "%s", eepdata.display_bootanim ? "ON" : "OFF");
 			break;
 		case MENU_DISPLAYTIMEOUT:
@@ -315,7 +315,7 @@ void menu_action(void) {
 		case MENU_RGB_BRIGHTNESS:
 		case MENU_RGB_MODE:
 		case MENU_KNOB_RGB:
-		case MENU_ANIMATION:
+		case MENU_INTROANIM:
 		case MENU_DISPLAYTIMEOUT:
 		case MENU_KNOB_FUNC:
 		case MENU_THEME_COLOR:
@@ -324,9 +324,9 @@ void menu_action(void) {
 		case MENU_BOOTTODFU:
 			action_resettodfu();
 			break;
-		case MENU_DEBUG:
-			action_debug();
-			break;
+		// case MENU_DEBUG:
+		// 	action_debug();
+		// 	break;
 		case MENU_BREAKOUT:
 			action_breakout();
 			break;
@@ -445,7 +445,6 @@ void action_debug(void) {
 // 	eeconfig_disable();
 // 	soft_reset_keyboard();
 // }
-
 
 void eeprom_update_custom(void) {
 	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));

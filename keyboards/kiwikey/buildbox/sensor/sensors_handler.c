@@ -121,10 +121,16 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 		if (menu_state == MAIN_MENU) {
 			if (clockwise) { // Turn clockwise => DOWN
 				menu_cursor++;
+				if (menu_cursor == DIVIDER_MENU) { // Special case: divider line
+					menu_cursor++;
+				}
 				if (menu_cursor == MENU_LINESPERPAGE+1) // when jumping to next page, re-print the list
 					menu_printlist();
 			} else {         // Turn counter-clockwise => UP
 				menu_cursor--;
+				if (menu_cursor == DIVIDER_MENU) { // Special case: divider line
+					menu_cursor--;
+				}
 				if (menu_cursor == MENU_LINESPERPAGE)
 					menu_printlist();
 			}
@@ -180,7 +186,7 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 					}
 					value_changed = true;
 					break;
-				case MENU_ANIMATION: // DONE
+				case MENU_INTROANIM: // DONE
 					eepdata.display_bootanim ^= 1;
 					value_changed = true;
 					break;

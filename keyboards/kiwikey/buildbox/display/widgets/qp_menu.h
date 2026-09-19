@@ -33,7 +33,7 @@
 #define MENU_PAGINATION_DOWN_POSY     195
 
 #define MENU_1STLINE_POS    1
-#define MENU_MAXITEMS       14
+#define MENU_MAXITEMS       14 // including divider line
 #define MENU_LINESPERPAGE   7
 
 /* GLOBAL VARIATIONS - common use */
@@ -72,10 +72,11 @@ enum menu_label_list_references {
 	MENU_KNOB_SENSITIVITY,
 
 	MENU_THEME_COLOR,
-	MENU_ANIMATION,
+	MENU_INTROANIM,
+	DIVIDER_MENU, // Divider line
 	MENU_ABOUT,
 	MENU_BREAKOUT,
-	MENU_DEBUG,
+	// MENU_DEBUG,
 	MENU_BOOTTODFU,
 	MENU_TUTORIAL
 };
@@ -91,9 +92,10 @@ static const char * const menu_label_list[MENU_MAXITEMS] = {
 
 	"THEME COLOR",
 	"BUILDBOX INTRO",
+	"   ------",
 	"ABOUT BUILDBOX",
 	"SECRET GAME",
-	"DEBUG",
+	// "DEBUG",
 	"BOOT TO DFU",
 	"QUICK TUTORIAL"
 };
@@ -112,8 +114,9 @@ static const bool menu_label_list_ischangeable[MENU_MAXITEMS+1] = {
 	true,
 	true,
 	false,
-	false, // (Breakout Game - triggers immediately, no sub-menu)
 	false,
+	false, // (Breakout Game - triggers immediately, no sub-menu)
+	// false,
 	false,
 	false // (Tutorial - triggers immediately, no sub-menu)
 };
