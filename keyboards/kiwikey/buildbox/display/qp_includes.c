@@ -9,11 +9,13 @@
 	#include "resources/fonts/font_oled.qff.h"
 	#include "resources/fonts/nanoplex16.qff.h"
 	#include "resources/fonts/nanoplex32.qff.h"
+	#include "resources/fonts/font16.qff.h"
 	painter_font_handle_t  thintel16;
 	painter_font_handle_t  thintel32;
 	painter_font_handle_t  font_oled;
 	painter_font_handle_t  nanoplex16;
 	painter_font_handle_t  nanoplex32;
+	painter_font_handle_t  font16;
 
 /* ICONS */
 	// #include "resources/icons/lock-caps-ON.qgf.h"
@@ -73,6 +75,7 @@ void qp_init_load_files(void) {
 		font_oled         = qp_load_font_mem(font_oled_font);
 		nanoplex16        = qp_load_font_mem(font_nanoplex16);
 		nanoplex32        = qp_load_font_mem(font_nanoplex32);
+		font16            = qp_load_font_mem(font_font16);
 
 	/* ICONS */
 		// lock_caps_on     = qp_load_image_mem(gfx_lock_caps_ON);

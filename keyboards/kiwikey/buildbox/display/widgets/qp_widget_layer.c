@@ -63,14 +63,14 @@ void widget_layer_render_navigation(uint8_t layer) {
 
 	qp_rect(my_display,
 			textnav1_posx,
-			WIDGET_LAYER_NAV_POSY1,
+			WIDGET_LAYER_NAV_POSY1 -2,
 			319,
 			WIDGET_LAYER_NAV_POSY1 + WIDGET_LAYER_NAV_FONT->line_height,
 			GLOBAL_BG_COLOR, true
 	);
 	qp_rect(my_display,
 			textnav1_posx,
-			WIDGET_LAYER_NAV_POSY2,
+			WIDGET_LAYER_NAV_POSY2 -2,
 			WIDGET_LAYER_NAV_POSX2 - 5,
 			WIDGET_LAYER_NAV_POSY2 + WIDGET_LAYER_NAV_FONT->line_height,
 			GLOBAL_BG_COLOR, true
@@ -78,14 +78,14 @@ void widget_layer_render_navigation(uint8_t layer) {
 
 	qp_drawtext_recolor(my_display,
 						textnav1_posx,
-						WIDGET_LAYER_NAV_POSY1 +1, // Better alignment
+						WIDGET_LAYER_NAV_POSY1 -2, // Better alignment
 						WIDGET_LAYER_NAV_FONT,
 						layer_names[prev_layer],
 						HSV_WHITE,
 						GLOBAL_BG_COLOR);
 	qp_drawtext_recolor(my_display,
 						textnav2_posx,
-						WIDGET_LAYER_NAV_POSY2 +1, // Better alignment
+						WIDGET_LAYER_NAV_POSY2 -2, // Better alignment
 						WIDGET_LAYER_NAV_FONT,
 						layer_names[next_layer],
 						HSV_WHITE,

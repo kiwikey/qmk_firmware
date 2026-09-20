@@ -7,8 +7,8 @@
 //  X (  Keycode             , Hex   ,    Text String   )
 
 #define KEYCODE_LIST \
-    X (  KC_NO                                        , 0x0000,    " "     ) \
-    X (  KC_TRANSPARENT                               , 0x0001,    " "     ) \
+    X (  KC_NO                                        , 0x0000,    "NO"     ) \
+    X (  KC_TRANSPARENT                               , 0x0001,    "TRANS"     ) \
     X (  KC_A                                         , 0x0004,    "a"     ) \
     X (  KC_B                                         , 0x0005,    "b"     ) \
     X (  KC_C                                         , 0x0006,    "c"     ) \
@@ -81,39 +81,51 @@
     X (  KC_KP_9                                      , 0x0061,    "9"     ) \
     X (  KC_KP_0                                      , 0x0062,    "0"     ) \
     X (  KC_KP_DOT                                    , 0x0063,    "."     ) \
-    X (  KC_AUDIO_MUTE                                , 0x00A8,    "X"     ) \
-    X (  KC_AUDIO_VOL_UP                              , 0x00A9,    "V+"     ) \
-    X (  KC_AUDIO_VOL_DOWN                            , 0x00AA,    "V-"     ) \
-    X (  KC_MEDIA_NEXT_TRACK                          , 0x00AB,    ">>"     ) \
-    X (  KC_MEDIA_PREV_TRACK                          , 0x00AC,    "<<"     ) \
-    X (  KC_MEDIA_STOP                                , 0x00AD,    "STP"     ) \
-    X (  KC_MEDIA_PLAY_PAUSE                          , 0x00AE,    "P/P"     ) \
-    X (  KC_MEDIA_SELECT                              , 0x00AF,    "PLR"     ) \
+    X (  KC_F13                                       , 0x0068,    "F13"     ) \
+    X (  KC_F14                                       , 0x0069,    "F14"     ) \
+    X (  KC_F15                                       , 0x006A,    "F15"     ) \
+    X (  KC_F16                                       , 0x006B,    "F16"     ) \
+    X (  KC_F17                                       , 0x006C,    "F17"     ) \
+    X (  KC_F18                                       , 0x006D,    "F18"     ) \
+    X (  KC_F19                                       , 0x006E,    "F19"     ) \
+    X (  KC_F20                                       , 0x006F,    "F20"     ) \
+    X (  KC_F21                                       , 0x0070,    "F21"     ) \
+    X (  KC_F22                                       , 0x0071,    "F22"     ) \
+    X (  KC_F23                                       , 0x0072,    "F23"     ) \
+    X (  KC_F24                                       , 0x0073,    "F24"     ) \
+    X (  KC_AUDIO_MUTE                                , 0x00A8,    "Mute"     ) \
+    X (  KC_AUDIO_VOL_UP                              , 0x00A9,    "Vol+"     ) \
+    X (  KC_AUDIO_VOL_DOWN                            , 0x00AA,    "Vol-"     ) \
+    X (  KC_MEDIA_NEXT_TRACK                          , 0x00AB,    "Next"     ) \
+    X (  KC_MEDIA_PREV_TRACK                          , 0x00AC,    "Prev"     ) \
+    X (  KC_MEDIA_STOP                                , 0x00AD,    "Stop"     ) \
+    X (  KC_MEDIA_PLAY_PAUSE                          , 0x00AE,    "Play"     ) \
+    X (  KC_MEDIA_SELECT                              , 0x00AF,    "Media"     ) \
     X (  KC_CALCULATOR                                , 0x00B2,    "Cal"     ) \
     X (  KC_MY_COMPUTER                               , 0x00B3,    "Com"     ) \
     X (  KC_WWW_HOME                                  , 0x00B5,    "Web"     ) \
     X (  KC_WWW_BACK                                  , 0x00B6,    "<"     ) \
     X (  KC_WWW_FORWARD                               , 0x00B7,    ">"     ) \
     X (  KC_WWW_REFRESH                               , 0x00B9,    "F5"     ) \
-    X (  QK_MOUSE_CURSOR_UP                           , 0x00CD,    "^"     ) \
-    X (  QK_MOUSE_CURSOR_DOWN                         , 0x00CE,    "v"     ) \
-    X (  QK_MOUSE_CURSOR_LEFT                         , 0x00CF,    "<"     ) \
-    X (  QK_MOUSE_CURSOR_RIGHT                        , 0x00D0,    ">"     ) \
+    X (  QK_MOUSE_CURSOR_UP                           , 0x00CD,    "UP"     ) \
+    X (  QK_MOUSE_CURSOR_DOWN                         , 0x00CE,    "DOWN"     ) \
+    X (  QK_MOUSE_CURSOR_LEFT                         , 0x00CF,    "LEFT"     ) \
+    X (  QK_MOUSE_CURSOR_RIGHT                        , 0x00D0,    "RIGHT"     ) \
     X (  QK_MOUSE_BUTTON_1                            , 0x00D1,    "L"     ) \
     X (  QK_MOUSE_BUTTON_2                            , 0x00D2,    "R"     ) \
-    X (  QK_MOUSE_BUTTON_6                            , 0x00D6,    "BT1"     ) \
-    X (  QK_MOUSE_BUTTON_7                            , 0x00D7,    "BT2"     ) \
-    X (  QK_MOUSE_BUTTON_8                            , 0x00D8,    "BT3"     ) \
+    X (  QK_MOUSE_BUTTON_6                            , 0x00D6,    "Bt1"     ) \
+    X (  QK_MOUSE_BUTTON_7                            , 0x00D7,    "Bt2"     ) \
+    X (  QK_MOUSE_BUTTON_8                            , 0x00D8,    "Bt3"     ) \
     X (  QK_MOUSE_WHEEL_UP                            , 0x00D9,    "W^"     ) \
     X (  QK_MOUSE_WHEEL_DOWN                          , 0x00DA,    "Wv"     ) \
     X (  QK_MOUSE_WHEEL_LEFT                          , 0x00DB,    "<W"     ) \
     X (  QK_MOUSE_WHEEL_RIGHT                         , 0x00DC,    "W>"     ) \
     X (  KC_LEFT_CTRL                                 , 0x00E0,    "Cmd"     ) \
-    X (  KC_LEFT_SHIFT                                , 0x00E1,    "Shf"     ) \
+    X (  KC_LEFT_SHIFT                                , 0x00E1,    "Shift"     ) \
     X (  KC_LEFT_ALT                                  , 0x00E2,    "Alt"     ) \
     X (  KC_LEFT_GUI                                  , 0x00E3,    "Win"     ) \
     X (  KC_RIGHT_CTRL                                , 0x00E4,    "Cmd"     ) \
-    X (  KC_RIGHT_SHIFT                               , 0x00E5,    "Shf"     ) \
+    X (  KC_RIGHT_SHIFT                               , 0x00E5,    "Shift"     ) \
     X (  KC_RIGHT_ALT                                 , 0x00E6,    "Alt"     ) \
     X (  KC_RIGHT_GUI                                 , 0x00E7,    "Win"     ) \
     X (  QK_MACRO_0                                   , 0x7700,    "M0"     ) \
@@ -149,10 +161,11 @@
     X (  QK_MACRO_30                                  , 0x771E,    "M30"     ) \
     X (  QK_MACRO_31                                  , 0x771F,    "M31"     ) \
     X (  QK_RGB_MATRIX_TOGGLE                         , 0x7842,    "RGB"     ) \
-    X (  QK_RGB_MATRIX_MODE_NEXT                      , 0x7843,    "Ef>"     ) \
-    X (  QK_RGB_MATRIX_MODE_PREVIOUS                  , 0x7844,    "<Ef"     ) \
+    X (  QK_RGB_MATRIX_MODE_NEXT                      , 0x7843,    "Eff >"     ) \
+    X (  QK_RGB_MATRIX_MODE_PREVIOUS                  , 0x7844,    "< Eff"     ) \
     X (  QK_RGB_MATRIX_HUE_UP                         , 0x7845,    "C>"     ) \
     X (  QK_RGB_MATRIX_HUE_DOWN                       , 0x7846,    "<C"     ) \
     X (  QK_RGB_MATRIX_VALUE_UP                       , 0x7849,    "Br+"     ) \
+    X (  QK_RGB_MATRIX_VALUE_DOWN                     , 0x784A,    "Br-"     ) \
     X (  QK_USER_0                                    , 0x7E40,    "#"     ) \
     X (  QK_USER_1                                    , 0x7E41,    "="     )

@@ -8,7 +8,7 @@
  * KILL SWITCH: comment out WEBHID_STREAM_ENABLE below and this whole feature
  * compiles down to no-op stubs. Nothing else needs to change.
  */
-#define WEBHID_STREAM_ENABLE
+// #define WEBHID_STREAM_ENABLE
 
 #include "quantum.h"
 

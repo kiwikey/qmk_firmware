@@ -46,7 +46,8 @@ SRC += \
 	display/resources/fonts/thintel32.qff.c         \
 	display/resources/fonts/font_oled.qff.c         \
 	display/resources/fonts/nanoplex16.qff.c        \
-	display/resources/fonts/nanoplex32.qff.c
+	display/resources/fonts/nanoplex32.qff.c        \
+	display/resources/fonts/font16.qff.c
 
 # ICONS
 SRC += \

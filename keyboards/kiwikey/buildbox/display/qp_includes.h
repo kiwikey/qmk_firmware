@@ -6,6 +6,7 @@
 	extern painter_font_handle_t font_oled;         // line_height =  8, width = 6
 	extern painter_font_handle_t nanoplex16;
 	extern painter_font_handle_t nanoplex32;
+	extern painter_font_handle_t font16;
 
 /* ICONS */
 	// extern painter_image_handle_t lock_caps_on;
