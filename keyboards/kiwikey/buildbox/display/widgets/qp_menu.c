@@ -58,9 +58,9 @@ void menu_init(void) {
 							   MENU_TITLE_COLOR,
 							   MENU_TITLE_BG); // Menu title
 	qp_drawimage(my_display,
-				ST7789_WIDTH/2 + qp_textwidth(thintel32, "SETTINGS")/2 + 10,
-				MENU_TITLE_POSY - MENU_FONT_HEIGHT/2,
-				ico18_heart); // decorative icon after the title
+				ST7789_WIDTH/2 - qp_textwidth(thintel32, "SETTINGS")/2 - ico22_gear->width - 10,
+				MENU_TITLE_POSY - ico22_gear->height/2 -1,
+				ico22_gear); // decorative icon after the title
     qp_line(my_display, 10, 208, 310, 208, HSV_WHITE);
 	qp_drawtext_recolor_center(my_display,
 							   ST7789_WIDTH/2,
@@ -158,6 +158,18 @@ void menu_printlist(void) { // Print the menu list, total MENU_LINESPERPAGE line
 		menu_render_sidebar(i + 1, i - page_start); // item_pos is 1-based; row is 0-based on this page
 	}
 	menu_render_pagination();
+
+	// Update menu page number: [current page no]/[total pages], eg.: "1/3"
+	uint8_t page = page_start / MENU_LINESPERPAGE;
+	char    buf[8];
+	snprintf(buf, sizeof(buf), " %d/%d", page + 1, (MENU_MAXITEMS - 1) / MENU_LINESPERPAGE + 1); // Data is counted from 0, so need to +1
+	qp_drawtext_recolor_center(my_display,
+								ST7789_WIDTH-40,
+								MENU_TITLE_POSY,
+								MENU_FONT,
+								buf,
+								MENU_TITLE_COLOR,
+								MENU_TITLE_BG);
 }
 
 void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item position (1..MENU_MAXITEMS)

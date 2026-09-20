@@ -57,6 +57,7 @@ SRC += \
 	display/resources/icons/ico16_arrow_right.qgf.c \
 	display/resources/icons/ico12_arrow_left.qgf.c  \
 	display/resources/icons/ico12_arrow_right.qgf.c \
+	display/resources/icons/ico22_gear.qgf.c        \
 	display/resources/graphics/ico18_heart.qgf.c
 
 # IMAGES & ANIMATIONS

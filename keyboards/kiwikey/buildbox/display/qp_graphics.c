@@ -106,9 +106,6 @@ void ui_refresh(void) {
 }
 
 void housekeeping_task_display(void) { // Check all flags
-	// The tutorial owns the whole screen while it's showing - none of these
-	// idle-screen widgets should draw over it (widget_status_render_uptime()
-	// was doing exactly that, since menu_state stays NOT_IN_MENU throughout).
 	if (!tutorial_is_active()) {
 		if (flag_display_keycode_changed & 0x1000) {
 			uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
@@ -129,10 +126,6 @@ void housekeeping_task_display(void) { // Check all flags
 				widget_layer_render_layername(flag_widget_layer_changed - 1);
 			}
 			flag_widget_layer_changed = 0;
-		}
-
-		if (menu_state == NOT_IN_MENU) {
-			widget_status_render_uptime();
 		}
 	}
 
