@@ -81,14 +81,14 @@ void widget_layer_render_navigation(uint8_t layer) {
 						WIDGET_LAYER_NAV_POSY1 -2, // Better alignment
 						WIDGET_LAYER_NAV_FONT,
 						layer_names[prev_layer],
-						HSV_WHITE,
+						HSV_CYAN,
 						GLOBAL_BG_COLOR);
 	qp_drawtext_recolor(my_display,
 						textnav2_posx,
 						WIDGET_LAYER_NAV_POSY2 -2, // Better alignment
 						WIDGET_LAYER_NAV_FONT,
 						layer_names[next_layer],
-						HSV_WHITE,
+						HSV_CYAN,
 						GLOBAL_BG_COLOR);
 }
 

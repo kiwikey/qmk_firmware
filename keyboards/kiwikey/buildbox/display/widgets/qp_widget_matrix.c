@@ -57,14 +57,69 @@ void widget_matrix_keymap_render(uint8_t layer) {
 	}
 }
 
+/***  Render 'line_count' pre-formatted strings, stacked and centered as one block
+	around (posx, posy) - the shared layout primitive behind every kc_* renderer below
+***/
+static void widget_matrix_render_kc_lines(uint16_t posx, uint16_t posy, const char * const lines[], uint8_t line_count) {
+	uint16_t line_h = WIDGET_MATRIX_KC_BASIC_FONT->line_height;
+	uint16_t top    = posy - (line_count * line_h) / 2;
+	for (uint8_t i = 0; i < line_count; i++) {
+		qp_drawtext_recolor_center(my_display,
+									posx,
+									top + i*line_h + line_h/2,
+									WIDGET_MATRIX_KC_BASIC_FONT,
+									lines[i],
+									WIDGET_MATRIX_KC_COLOR,
+									WIDGET_MATRIX_KC_BG);
+	}
+}
+
 /***  Render the keycode string for "basic keycodes" ***/
 void widget_matrix_render_kc_basic(uint16_t posx, uint16_t posy, uint16_t keycode) {
 	if (keycode == NULL_VALUE) return; // with matrix positions that are "blank", their keycode will be 0x0000, same as KC_NO, so must not process them
 	char buf1[5] = {0}; // maximum 4 characters + null terminator = 5 bytes
 	sprintf(buf1, "%s", keycode_to_string(keycode));
-	qp_drawtext_recolor_center(my_display, posx, posy,
-							   WIDGET_MATRIX_KC_BASIC_FONT,
-							   buf1, WIDGET_MATRIX_KC_COLOR, WIDGET_MATRIX_KC_BG);
+	const char *lines[1] = { buf1 };
+	widget_matrix_render_kc_lines(posx, posy, lines, 1);
+}
+
+/***  Render macro keycodes (QK_MACRO_0..31) as 2 lines: "MACRO" + its number ***/
+void widget_matrix_render_kc_macro(uint16_t posx, uint16_t posy, uint16_t keycode) {
+	char buf1[3]; // macro number is 0-31, max 2 digits + null terminator
+	snprintf(buf1, sizeof(buf1), "%d", (keycode - QK_MACRO_0) & 0x1F); // & 0x1F proves the 0-31 bound to the compiler (QK_MACRO_0..31 is 5 bits)
+	const char *lines[2] = { "MACRO", buf1 };
+	widget_matrix_render_kc_lines(posx, posy, lines, 2);
+}
+
+/***  3-letter label for a Mod-Tap's "hold" modifier; chorded combos fall back to "MOD" ***/
+static const char *widget_matrix_mod_tap_label(uint8_t mods) {
+	switch (mods & 0x0F) { // low nibble only - bit 4 (L/R flag) doesn't change the label
+		case MOD_LCTL: return "CTL";
+		case MOD_LSFT: return "SFT";
+		case MOD_LALT: return "ALT";
+		case MOD_LGUI: return "GUI";
+		default:       return "MOD"; // multiple mods held together, or none
+	}
+}
+
+/***  Render hold-tap keycodes (Mod-Tap / Layer-Tap) as 2 lines:
+	"hold" function on top (mod label, or L<n> for a layer), "tap" function (a basic
+	keycode, reusing keycode_to_string()) on the bottom
+***/
+void widget_matrix_render_kc_holdtap(uint16_t posx, uint16_t posy, uint16_t keycode) {
+	char        buf1[4]; // "L" + layer number (0-15) + null terminator
+	const char *hold_label;
+	uint8_t     tap_kc;
+	if (IS_QK_LAYER_TAP(keycode)) {
+		snprintf(buf1, sizeof(buf1), "L%d", QK_LAYER_TAP_GET_LAYER(keycode));
+		hold_label = buf1;
+		tap_kc     = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
+	} else { // Mod-Tap
+		hold_label = widget_matrix_mod_tap_label(QK_MOD_TAP_GET_MODS(keycode));
+		tap_kc     = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
+	}
+	const char *lines[2] = { hold_label, keycode_to_string(tap_kc) };
+	widget_matrix_render_kc_lines(posx, posy, lines, 2);
 }
 
 /***  Render one single key to the screen, at [x,y] position, with HSV color
@@ -95,17 +150,19 @@ void widget_matrix_render_singlebutton(uint8_t x, uint8_t y, uint8_t hue, uint8_
 		uint16_t y_offset = WIDGET_MATRIX_POSY + x* (WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT/2;
 		uint16_t keycode = dynamic_keymap_get_keycode(layer, x, y);
 		switch (keycode) {
-			// case QK_MOMENTARY ... QK_PERSISTENT_DEF_LAYER_MAX: // All layer-related keycodes (0x5220 to 0x52FF)
-			// 	widget_matrix_render_kc_layer(x_offset, y_offset, keycode);
-			// 	break;
 			case BASIC_KEYCODE_RANGE:
 			case MODIFIER_KEYCODE_RANGE:
 			case USER_KEYCODE_RANGE:
 				widget_matrix_render_kc_basic(x_offset, y_offset, keycode);
 				break;
+			case MACRO_KEYCODE_RANGE:
+				widget_matrix_render_kc_macro(x_offset, y_offset, keycode);
+				break;
+			case QK_MOD_TAP ... QK_LAYER_TAP_MAX: // Mod-Tap (0x2000-0x3FFF) and Layer-Tap (0x4000-0x4FFF) are contiguous
+				widget_matrix_render_kc_holdtap(x_offset, y_offset, keycode);
+				break;
 			default:
 				widget_matrix_render_kc_basic(x_offset, y_offset, keycode);
-				// ;
 		}
 	}
 }

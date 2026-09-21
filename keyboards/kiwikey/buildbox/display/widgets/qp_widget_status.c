@@ -10,41 +10,71 @@
 #include "features/eeprom_custom.h"
 
 void widget_status_init(void) {
+	qp_drawtext_recolor(my_display,
+						WIDGET_STATUS_POSX,
+						WIDGET_STATUS_POSY,
+						WIDGET_STATUS_FONT,
+						WIDGET_STATUS_LABEL1,
+						WIDGET_STATUS_LABEL_COLOR,
+						GLOBAL_BG_COLOR);
+	qp_drawtext_recolor(my_display,
+						WIDGET_STATUS_POSX,
+						WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *1,
+						WIDGET_STATUS_FONT,
+						WIDGET_STATUS_LABEL2,
+						WIDGET_STATUS_LABEL_COLOR,
+						GLOBAL_BG_COLOR);
+	qp_drawtext_recolor(my_display,
+						WIDGET_STATUS_POSX,
+						WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *2,
+						WIDGET_STATUS_FONT,
+						WIDGET_STATUS_LABEL3,
+						HSV_WHITE,
+						GLOBAL_BG_COLOR);
 	widget_status_update();
 }
 
 void widget_status_update(void) {
+	// Clear old data
+	qp_rect(my_display,
+			WIDGET_STATUS_VALUE_POSX, WIDGET_STATUS_POSY,
+			DISPLAY_WIDTH-1, WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2)*2 + WIDGET_STATUS_FONT->line_height,
+			GLOBAL_BG_COLOR, true);
+	// Draw new data
 	char buf1[24] = {0};
 	char buf2[24] = {0};
 	if (rgb_matrix_is_enabled()) {
-		sprintf(buf1, "RGB MODE #%.2u", rgb_matrix_get_mode());
-		sprintf(buf2, "BRIGHTNESS: %3u%%", rgb_matrix_get_val()*100/RGB_MATRIX_MAXIMUM_BRIGHTNESS);
+		sprintf(buf1, "#%.2u", rgb_matrix_get_mode());
+		sprintf(buf2, "%u%%", rgb_matrix_get_val()*100/RGB_MATRIX_MAXIMUM_BRIGHTNESS);
 	} else {
-		sprintf(buf1, "RGB OFF");
-		sprintf(buf2, "BRIGHTNESS: 0%%");
+		sprintf(buf1, "OFF");
+		sprintf(buf2, "0%%");
 	}
 	qp_drawtext_recolor(my_display,
-						WIDGET_STATUS_POSX, WIDGET_STATUS_POSY,
+						WIDGET_STATUS_VALUE_POSX,
+						WIDGET_STATUS_POSY,
 						WIDGET_STATUS_FONT,
 						buf1,
-						HSV_WHITE,
+						WIDGET_STATUS_VALUE_COLOR,
 						GLOBAL_BG_COLOR);
 	qp_drawtext_recolor(my_display,
-						WIDGET_STATUS_POSX, WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *1,
+						WIDGET_STATUS_VALUE_POSX,
+						WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *1,
 						WIDGET_STATUS_FONT,
 						buf2,
-						HSV_WHITE,
+						WIDGET_STATUS_VALUE_COLOR,
 						GLOBAL_BG_COLOR);
 	if (eepdata.display_timeout >= DISPLAY_TIMEOUT_NEVER) {
-		sprintf(buf1, "SLEEP: NEVER");
+		sprintf(buf1, "NEVER");
 	} else {
-		sprintf(buf1, "SLEEP: %us", eepdata.display_timeout);
+		sprintf(buf1, "%3us", eepdata.display_timeout);
 	}
 	qp_drawtext_recolor(my_display,
-						WIDGET_STATUS_POSX, WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *2,
+						WIDGET_STATUS_VALUE_POSX,
+						WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *2,
 						WIDGET_STATUS_FONT,
 						buf1,
-						HSV_WHITE,
+						HSV_CYAN,
 						GLOBAL_BG_COLOR);
 }
 

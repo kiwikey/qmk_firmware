@@ -32,6 +32,14 @@ uint8_t flag_widget_layer_changed = 0;
 // 1 = layer 0 changed
 // 2 = layer 1 changed
 
+// RGB Matrix state, polled in housekeeping_task_display() so the status widget
+// catches every way it can change - a keycode, VIA's Lighting panel (which
+// applies the change directly via raw HID, bypassing process_record entirely),
+// or anything else - rather than trying to intercept each trigger individually.
+static bool    rgb_status_last_enabled = false;
+static uint8_t rgb_status_last_mode    = 0;
+static uint8_t rgb_status_last_val     = 0;
+
 void display_init(void) {
 #if defined(QUANTUM_PAINTER_ILI9341_SPI_ENABLE)
 	my_display = qp_ili9341_make_spi_device(
@@ -126,6 +134,16 @@ void housekeeping_task_display(void) { // Check all flags
 				widget_layer_render_layername(flag_widget_layer_changed - 1);
 			}
 			flag_widget_layer_changed = 0;
+		}
+
+		bool    rgb_enabled = rgb_matrix_is_enabled();
+		uint8_t rgb_mode    = rgb_matrix_get_mode();
+		uint8_t rgb_val     = rgb_matrix_get_val();
+		if (rgb_enabled != rgb_status_last_enabled || rgb_mode != rgb_status_last_mode || rgb_val != rgb_status_last_val) {
+			rgb_status_last_enabled = rgb_enabled;
+			rgb_status_last_mode    = rgb_mode;
+			rgb_status_last_val     = rgb_val;
+			widget_status_update();
 		}
 	}
 
