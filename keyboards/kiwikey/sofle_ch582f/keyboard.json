@@ -1,0 +1,73 @@
+{
+    "manufacturer": "KiwiKey",
+    "keyboard_name": "Sofle CH582F (left)",
+    "maintainer": "KiwiKey",
+    "development_board": "promicro_rp2040",
+    "processor": "RP2040",
+    "bootloader": "rp2040",
+    "diode_direction": "COL2ROW",
+    "features": {
+        "bootmagic": true,
+        "extrakey": true,
+        "bluetooth": true,
+        "encoder": true,
+        "mousekey": false,
+        "nkro": false
+    },
+    "bluetooth": {
+        "driver": "custom"
+    },
+    "matrix_pins": {
+        "cols": ["GP27", "GP26", "GP22", "GP20", "GP23", "GP21"],
+        "rows": ["GP5", "GP6", "GP7", "GP8", "GP9"]
+    },
+    "encoder": {
+        "rotary": [
+            {"pin_a": "GP13", "pin_b": "GP14"}
+        ]
+    },
+    "usb": {
+        "vid": "0xFC32",
+        "pid": "0x0287",
+        "device_version": "0.0.1"
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                {"label": "`", "matrix": [0, 0], "x": 0, "y": 0.5},
+                {"label": "1", "matrix": [0, 1], "x": 1, "y": 0.375},
+                {"label": "2", "matrix": [0, 2], "x": 2, "y": 0.125},
+                {"label": "3", "matrix": [0, 3], "x": 3, "y": 0},
+                {"label": "4", "matrix": [0, 4], "x": 4, "y": 0.125},
+                {"label": "5", "matrix": [0, 5], "x": 5, "y": 0.25},
+
+                {"label": "Esc", "matrix": [1, 0], "x": 0, "y": 1.5},
+                {"label": "Q", "matrix": [1, 1], "x": 1, "y": 1.375},
+                {"label": "W", "matrix": [1, 2], "x": 2, "y": 1.125},
+                {"label": "E", "matrix": [1, 3], "x": 3, "y": 1},
+                {"label": "R", "matrix": [1, 4], "x": 4, "y": 1.125},
+                {"label": "T", "matrix": [1, 5], "x": 5, "y": 1.25},
+
+                {"label": "Tab", "matrix": [2, 0], "x": 0, "y": 2.5},
+                {"label": "A", "matrix": [2, 1], "x": 1, "y": 2.375},
+                {"label": "S", "matrix": [2, 2], "x": 2, "y": 2.125},
+                {"label": "D", "matrix": [2, 3], "x": 3, "y": 2},
+                {"label": "F", "matrix": [2, 4], "x": 4, "y": 2.125},
+                {"label": "G", "matrix": [2, 5], "x": 5, "y": 2.25},
+
+                {"label": "LShift", "matrix": [3, 0], "x": 0, "y": 3.5},
+                {"label": "Z", "matrix": [3, 1], "x": 1, "y": 3.375},
+                {"label": "X", "matrix": [3, 2], "x": 2, "y": 3.125},
+                {"label": "C", "matrix": [3, 3], "x": 3, "y": 3},
+                {"label": "V", "matrix": [3, 4], "x": 4, "y": 3.125},
+                {"label": "B", "matrix": [3, 5], "x": 5, "y": 3.25},
+
+                {"label": "LCtrl", "matrix": [4, 0], "x": 1.5, "y": 4.375},
+                {"label": "LGUI", "matrix": [4, 1], "x": 2.5, "y": 4.125},
+                {"label": "BT", "matrix": [4, 2], "x": 3.5, "y": 4.15},
+                {"label": "LAlt", "matrix": [4, 3], "x": 4.5, "y": 4.25},
+                {"label": "Enter", "matrix": [4, 4], "x": 6, "y": 4.25, "h": 1.5}
+            ]
+        }
+    }
+}
