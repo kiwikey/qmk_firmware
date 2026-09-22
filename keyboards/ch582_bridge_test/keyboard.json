@@ -1,0 +1,40 @@
+{
+    "manufacturer": "DIY",
+    "keyboard_name": "ch582_bridge_test",
+    "maintainer": "qmk_firmware_ch582 project",
+    "board": "GENERIC_RP_RP2040",
+    "processor": "RP2040",
+    "bootloader": "rp2040",
+    "diode_direction": "COL2ROW",
+    "features": {
+        "bootmagic": true,
+        "extrakey": true,
+        "bluetooth": true,
+        "console": true,
+        "mousekey": false,
+        "nkro": false
+    },
+    "bluetooth": {
+        "driver": "custom"
+    },
+    "matrix_pins": {
+        "cols": ["GP9", "GP8", "GP7", "GP29", "GP28"],
+        "rows": ["GP2"]
+    },
+    "usb": {
+        "vid": "0xFEED",
+        "pid": "0xCE01",
+        "device_version": "0.0.1"
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                {"matrix": [0, 0], "x": 0, "y": 0},
+                {"matrix": [0, 1], "x": 1, "y": 0},
+                {"matrix": [0, 2], "x": 2, "y": 0},
+                {"matrix": [0, 3], "x": 3, "y": 0},
+                {"matrix": [0, 4], "x": 4, "y": 0}
+            ]
+        }
+    }
+}
