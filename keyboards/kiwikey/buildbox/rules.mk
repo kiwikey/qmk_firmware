@@ -38,6 +38,10 @@ SRC += \
 	display/widgets/qp_widget_knob.c    \
 	display/widgets/qp_widget_status.c  \
 	display/widgets/qp_widget_breakout.c\
+	display/widgets/qp_widget_screensaver.c\
+	display/widgets/screensaver_matrix_rain.c\
+	display/widgets/screensaver_sleeping_zzz.c\
+	display/widgets/screensaver_starry_night.c\
 	display/widgets/tutorial.c
 
 # FONTS

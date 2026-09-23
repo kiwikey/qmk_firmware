@@ -33,7 +33,7 @@
 #define MENU_PAGINATION_DOWN_POSY     195
 
 #define MENU_1STLINE_POS    1
-#define MENU_MAXITEMS       14 // including divider line
+#define MENU_MAXITEMS       15 // including divider line
 #define MENU_LINESPERPAGE   7
 
 /* GLOBAL VARIATIONS - common use */
@@ -65,6 +65,7 @@ enum menu_label_list_references {
 	__DUMP = 0,
 	MENU_DISPLAY_BRIGHTNESS,
 	MENU_DISPLAYTIMEOUT,
+	MENU_SCREENSAVER,
 	MENU_RGB_BRIGHTNESS,
 	MENU_RGB_MODE,
 	MENU_KNOB_RGB,
@@ -84,6 +85,7 @@ enum menu_label_list_references {
 static const char * const menu_label_list[MENU_MAXITEMS] = {
 	"LCD BRIGHTNESS",
 	"LCD TIMEOUT",
+	"SCREEN SAVER",
 	"RGB BRIGHTNESS",
 	"RGB MODE",
 	"DIAL RGB",
@@ -105,6 +107,7 @@ static const bool menu_label_list_ischangeable[MENU_MAXITEMS+1] = {
 	/* the list below */
 	true,
 	true,
+	true, // SCREEN SAVER
 	true,
 	true,
 	true,

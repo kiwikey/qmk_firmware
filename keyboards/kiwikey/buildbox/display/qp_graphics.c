@@ -10,6 +10,7 @@
 #include "display/widgets/qp_widget_status.h"
 #include "display/widgets/qp_menu.h"
 #include "display/widgets/qp_widget_breakout.h"
+#include "display/widgets/qp_widget_screensaver.h"
 #include "display/widgets/tutorial.h"
 
 painter_device_t my_display;
@@ -114,7 +115,7 @@ void ui_refresh(void) {
 }
 
 void housekeeping_task_display(void) { // Check all flags
-	if (!tutorial_is_active()) {
+	if (!tutorial_is_active() && !screensaver_is_active()) {
 		if (flag_display_keycode_changed & 0x1000) {
 			uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
 			if (layer == get_highest_layer(layer_state)) { // only process if that changed layer is being activated
@@ -163,22 +164,25 @@ void housekeeping_task_display(void) { // Check all flags
 	}
 }
 
-// Tracks the one key whose press woke the display from idle, so its matching
-// release can be swallowed too (see the wake-up check in process_record_display()).
+// Tracks the one key whose press dismissed a passive idle state (backlight
+// asleep, or the screensaver), so its matching release can be swallowed too
+// (see the wake-up check in process_record_display()).
 static bool    waking_press_pending = false;
 static uint8_t waking_press_row, waking_press_col;
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 	if (booting) return false;
 
-	/*** If the display is asleep (idle timeout - see housekeeping_task_display()):
-		the first keypress only wakes the backlight, it's not meant to act as
-		input - the user is just reaching for the board, not intentionally
-		using it yet. Swallow that one press and its matching release; every
-		following key press behaves normally.
+	/*** If the display is asleep (idle timeout - see housekeeping_task_display())
+		or the screensaver is showing: the first keypress just dismisses that
+		passive state (wakes the backlight / closes the screensaver), it's not
+		meant to act as input - the user is just reaching for the board, not
+		intentionally using it yet. Swallow that one press and its matching
+		release; every following key press behaves normally.
 	***/
 	if (record->event.pressed) {
-		if (display_is_asleep()) {
+		if (display_is_asleep() || screensaver_is_active()) {
+			if (screensaver_is_active()) screensaver_exit();
 			waking_press_pending = true;
 			waking_press_row     = record->event.key.row;
 			waking_press_col     = record->event.key.col;

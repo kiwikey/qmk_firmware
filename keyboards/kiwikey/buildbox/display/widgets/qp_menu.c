@@ -10,6 +10,7 @@
 #include "display/defines.h"
 #include "sensor/sensors_handler.h"
 #include "display/widgets/qp_widget_breakout.h"
+#include "display/widgets/qp_widget_screensaver.h"
 #include "display/widgets/tutorial.h"
 // #include "display/widgets/qp_widget_matrix.h"
 // #include "display/widgets/qp_widget_layer.h"
@@ -243,6 +244,12 @@ static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 			else
 				snprintf(buf, buflen, "%ds", eepdata.display_timeout);
 			break;
+		case MENU_SCREENSAVER: {
+			// Shows a generic "Effect N" instead of the effect's real code name (e.g. "matrix_rain_1")
+			uint8_t idx = eepdata.screensaver_effect < screensaver_effect_count() ? eepdata.screensaver_effect : 0;
+			snprintf(buf, buflen, "Effect %u", idx + 1);
+			break;
+		}
 		case MENU_KNOB_FUNC:
 			snprintf(buf, buflen, "%s", knob_func_menu_text[eepdata.knob_func < KNOB_FUNC_COUNT ? eepdata.knob_func : KNOB_FUNC_CUSTOM]);
 			break;

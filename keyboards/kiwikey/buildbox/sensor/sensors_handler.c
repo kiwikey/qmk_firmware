@@ -12,6 +12,7 @@
 #include "display/widgets/qp_widget_knob.h"
 #include "display/widgets/qp_menu.h"
 #include "display/widgets/qp_widget_breakout.h"
+#include "display/widgets/qp_widget_screensaver.h"
 #include "display/widgets/tutorial.h"
 
 int16_t accumulator = 0;
@@ -33,7 +34,7 @@ void housekeeping_task_sensors_handler(void) {
 		// tutorial already redraw it correctly (via ui_refresh -> widget_knob_init,
 		// or don't show it at all) when they exit, so skip poking the display
 		// while they're active.
-		if (menu_state == NOT_IN_MENU && !breakout_is_active() && !tutorial_is_active()) {
+		if (menu_state == NOT_IN_MENU && !breakout_is_active() && !tutorial_is_active() && !screensaver_is_active()) {
 			magnet_was_present ? widget_knob_show_dot() : widget_knob_show_missing();
 		}
 	}
@@ -52,6 +53,11 @@ extern void last_encoder_activity_trigger(void);
 void magnetic_encoder_update_kb(bool direction) {
 	last_encoder_activity_trigger();
 	last_knob_movement_time = timer_read32();
+
+	if (screensaver_is_active()) { // any rotation just dismisses it, same as a keypress
+		screensaver_exit();
+		return;
+	}
 
 	uint16_t distance = get_distance(&magnetic_encoder);
 
@@ -199,6 +205,14 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 						eepdata.display_timeout -= DISPLAY_TIMEOUT_STEP;
 						if (eepdata.display_timeout <= 0)
 							eepdata.display_timeout = DISPLAY_TIMEOUT_NEVER;
+					}
+					value_changed = true;
+					break;
+				case MENU_SCREENSAVER:
+					if (clockwise) { // next
+						eepdata.screensaver_effect = (eepdata.screensaver_effect + 1 >= screensaver_effect_count()) ? 0 : eepdata.screensaver_effect + 1;
+					} else {         // previous
+						eepdata.screensaver_effect = (eepdata.screensaver_effect == 0) ? screensaver_effect_count() - 1 : eepdata.screensaver_effect - 1;
 					}
 					value_changed = true;
 					break;

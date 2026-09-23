@@ -20,6 +20,7 @@ typedef struct {
 	uint8_t theme_hue;
 	uint8_t knob_sensitivity; // LOW/MEDIUM/HIGH index, see KNOB_SENSITIVITY_* and knob_sensitivity_step[] (sensors_handler.h)
 	uint8_t unbox_tutorial;   // 1 = show the first-boot tutorial (display/widgets/tutorial.c), 0 = already shown/dismissed
+	uint8_t screensaver_effect; // selected screensaver effect index (0-based); see screensaver_effect_count() (display/widgets/qp_widget_screensaver.h)
 	uint8_t checksum;
 } EEPROM_CUSTOM_DATA;
 

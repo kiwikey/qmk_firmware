@@ -18,6 +18,7 @@
 	#include "display/widgets/qp_widget_knob.h"
 	#include "display/widgets/qp_menu.h"
 	#include "display/widgets/qp_widget_breakout.h"
+	#include "display/widgets/qp_widget_screensaver.h"
 	#include "display/widgets/tutorial.h"
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
@@ -35,6 +36,7 @@ EEPROM_CUSTOM_DATA eepdata_default = {
 	213,                      // Theme HUE default
 	KNOB_SENSITIVITY_MEDIUM,  // Knob-function activation sensitivity default
 	1,                        // Unbox tutorial: undone (show it on next boot)
+	0,                        // Screensaver effect: Effect 1 (matrix_rain_1)
 	7                         // Checksum is always 7
 };
 
@@ -71,6 +73,7 @@ void housekeeping_task_kb(void) {
 		housekeeping_task_display();
 		housekeeping_task_sensors_handler();
 		housekeeping_task_breakout();
+		housekeeping_task_screensaver();
 		housekeeping_task_webhid_stream();
 	}
 }
