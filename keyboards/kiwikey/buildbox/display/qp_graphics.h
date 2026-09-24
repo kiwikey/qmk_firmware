@@ -4,10 +4,29 @@
 
 #define BOOT_DURATION          4000 // ms
 
-#define DISPLAY_TIMEOUT_MIN    30	// seconds
-#define DISPLAY_TIMEOUT_STEP   30
-#define DISPLAY_TIMEOUT_MAX    180
-#define DISPLAY_TIMEOUT_NEVER  DISPLAY_TIMEOUT_MAX + DISPLAY_TIMEOUT_STEP
+// eepdata.display_timeout is an INDEX into these two, not a raw seconds value -
+// cycled in process_encoder_rotate() (sensors_handler.c) via MENU_DISPLAYTIMEOUT,
+// same pattern as eepdata.knob_func/knob_effect/screensaver_effect.
+#define DISPLAY_TIMEOUT_COUNT       6
+#define DISPLAY_TIMEOUT_NEVER_INDEX  (DISPLAY_TIMEOUT_COUNT - 1) // last entry = "NEVER"
+#define DISPLAY_TIMEOUT_1HOUR_INDEX  (DISPLAY_TIMEOUT_COUNT - 2) // second-to-last entry = "1 Hour" - also arms the screensaver, see qp_widget_screensaver.c
+
+static const uint32_t display_timeout_seconds[DISPLAY_TIMEOUT_COUNT] = {
+	120,  // 2 min
+	300,  // 5 min
+	900,  // 15 min
+	1800, // 30 min
+	3600, // 1 Hour
+	0,    // NEVER - unused; guarded by DISPLAY_TIMEOUT_NEVER_INDEX instead, see housekeeping_task_display()
+};
+static const char * const display_timeout_text[DISPLAY_TIMEOUT_COUNT] = {
+	"2 min",
+	"5 min",
+	"15 min",
+	"30 min",
+	"1 hour",
+	"NEVER"
+};
 
 extern painter_device_t my_display;
 extern bool booting;

@@ -26,7 +26,7 @@ EEPROM_CUSTOM_DATA eepdata;
 EEPROM_CUSTOM_DATA eepdata_default = {
 	0,                        // Layer 0
 	1,                        // Boot animation enabled
-	DISPLAY_TIMEOUT_MIN,      // LCD Timeout 30s
+	0,                        // LCD Timeout: 2min (shortest option, index 0 of display_timeout_seconds[])
 	BACKLIGHT_DEFAULT_LEVEL,  // LCD Brightness default (10 = max)
 	0,                        // Lighting Layers OFF
 	{ 126, 210,  42,  84 },   // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
@@ -36,7 +36,7 @@ EEPROM_CUSTOM_DATA eepdata_default = {
 	213,                      // Theme HUE default
 	KNOB_SENSITIVITY_MEDIUM,  // Knob-function activation sensitivity default
 	1,                        // Unbox tutorial: undone (show it on next boot)
-	0,                        // Screensaver effect: Effect 1 (matrix_rain_1)
+	1,                        // Screensaver effect: "Rain 1" (matrix_rain_1) - index 0 is now "OFF"
 	7                         // Checksum is always 7
 };
 
@@ -91,7 +91,7 @@ layer_state_t layer_state_set_kb(layer_state_t state) {
 	// (e.g. TUTORIAL_SCREEN_MATRIX rendering, or a layer key elsewhere on the
 	// keymap) must not redraw the idle screen's layer/matrix widgets over it.
 	if (!booting && !ui_refresh_pending && !tutorial_is_active()) {
-		widget_layer_render_layername(get_highest_layer(state));
+		widget_layer_render_layername(get_highest_layer(state), WIDGET_LAYER_POSX, WIDGET_LAYER_POSY);
 		widget_layer_render_navigation(get_highest_layer(state));
 		widget_matrix_keymap_render(get_highest_layer(state));
 	}

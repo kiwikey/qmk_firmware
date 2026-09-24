@@ -92,7 +92,7 @@
                 {
                     "label": "Timeout",
                     "type": "dropdown",
-                    "options": [ "30s", "60s", "90s", "120s", "150s", "180s", "Always ON" ],
+                    "options": [ "2min", "5min", "15min", "30min", "1 Hour", "Always ON" ],
 					"content": ["id_oled_timeout", 0, 5]
                 },
                 {

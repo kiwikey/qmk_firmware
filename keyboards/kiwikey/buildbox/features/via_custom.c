@@ -180,7 +180,10 @@ void via_config_set_value( uint8_t *data ) {
             break;
         }
 		case id_display_timeout: {
-			eepdata.display_timeout = (*value_data + 1) * DISPLAY_TIMEOUT_STEP;
+			// eepdata.display_timeout is an index into display_timeout_seconds[]/
+			// display_timeout_text[] (qp_graphics.h) - VIA's dropdown sends that
+			// index directly, same as id_knob_func/id_knob_sensitivity above.
+			eepdata.display_timeout = *value_data;
 			break;
 		}
 		case id_theme_color: {
@@ -255,7 +258,7 @@ void via_config_get_value( uint8_t *data ) {
             break;
         }
 		case id_display_timeout: {
-            value_data[0] = (eepdata.display_timeout / DISPLAY_TIMEOUT_STEP) - 1;
+            value_data[0] = eepdata.display_timeout;
 			break;
 		}
 		case id_theme_color: {

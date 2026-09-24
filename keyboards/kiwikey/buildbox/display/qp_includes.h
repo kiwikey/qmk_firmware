@@ -24,6 +24,17 @@
 	extern painter_image_handle_t ico12_arrow_right;
 	extern painter_image_handle_t ico22_gear;
 	extern painter_image_handle_t ico18_heart;
+	extern painter_image_handle_t ico24_application;
+	extern painter_image_handle_t ico24_boss;
+	extern painter_image_handle_t ico24_calculator;
+	extern painter_image_handle_t ico24_component;
+	extern painter_image_handle_t ico24_earth;
+	extern painter_image_handle_t ico24_favourites;
+	extern painter_image_handle_t ico24_film;
+	extern painter_image_handle_t ico24_globe;
+	extern painter_image_handle_t ico24_heart;
+	extern painter_image_handle_t ico24_music;
+	extern painter_image_handle_t ico24_tune;
 
 /* IMAGES & ANIMATIONS */
 	extern painter_image_handle_t gif_bootup01;

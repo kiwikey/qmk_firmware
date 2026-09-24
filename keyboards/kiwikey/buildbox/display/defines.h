@@ -21,6 +21,8 @@ typedef struct {
 	const char *name;
 } theme_color_preset_t;
 
+#define DIAL_SETTINGS_HOLD_MS 3000
+
 #define THEME_COLOR_PRESET_COUNT 10
 
 static const theme_color_preset_t theme_color_presets[THEME_COLOR_PRESET_COUNT] = {

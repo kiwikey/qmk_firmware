@@ -4,6 +4,7 @@
 #include "features/eeprom_custom.h"
 #include "sensor/sensors_handler.h"
 #include "display/qp_includes.h"
+#include "display/qp_custom_api.h"
 #include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
 #include "display/widgets/qp_widget_knob.h"
@@ -40,6 +41,15 @@ uint8_t flag_widget_layer_changed = 0;
 static bool    rgb_status_last_enabled = false;
 static uint8_t rgb_status_last_mode    = 0;
 static uint8_t rgb_status_last_val     = 0;
+
+// "DIAL SETTINGS" shortcut: on the idle screen, Button 1 held this long jumps
+// straight to dial_menu_open() (qp_menu.c) instead of its normal previous-layer
+// tap action. Checked in housekeeping_task_display(), so it fires the moment
+// the threshold is reached instead of waiting for release; tracked (and the
+// tap action suppressed once it fires) in process_record_display().
+#define DIAL_SETTINGS_HOLD_MS 3000
+static bool     button1_held       = false;
+static uint32_t button1_press_time = 0;
 
 void display_init(void) {
 #if defined(QUANTUM_PAINTER_ILI9341_SPI_ENABLE)
@@ -94,6 +104,7 @@ uint32_t finish_boot_animation(uint32_t trigger_time, void *cb_arg) {
 
 void keyboard_post_init_display(void) {
 	display_init();
+
 	if (eepdata.display_bootanim == 1) {
 		booting = true;
 		my_anim = qp_animate(my_display, 0, 90, gif_bootup01);
@@ -132,7 +143,7 @@ void housekeeping_task_display(void) { // Check all flags
 
 		if (flag_widget_layer_changed) { // 0 means nothing changed
 			if ((flag_widget_layer_changed - 1) == get_highest_layer(layer_state)) {
-				widget_layer_render_layername(flag_widget_layer_changed - 1);
+				widget_layer_render_layername(flag_widget_layer_changed - 1, WIDGET_LAYER_POSX, WIDGET_LAYER_POSY);
 			}
 			flag_widget_layer_changed = 0;
 		}
@@ -146,6 +157,12 @@ void housekeeping_task_display(void) { // Check all flags
 			rgb_status_last_val     = rgb_val;
 			widget_status_update();
 		}
+
+		// "DIAL SETTINGS" shortcut: Button 1 held this long jumps straight to the sub-page
+		if (button1_held && timer_elapsed32(button1_press_time) >= DIAL_SETTINGS_HOLD_MS) {
+			button1_held = false;
+			dial_menu_open(true); // via the shortcut, not the main list
+		}
 	}
 
 	// LCD Timeout: cut the backlight after N seconds of no matrix/encoder activity.
@@ -153,8 +170,9 @@ void housekeeping_task_display(void) { // Check all flags
 	// refreshing but doesn't blank the glass to black on this panel - it settles
 	// to white instead. Zeroing the backlight makes it look off regardless.)
 	if (!booting) {
-		uint32_t timeout_ms = (uint32_t)eepdata.display_timeout * 1000;
-		if (!display_asleep && eepdata.display_timeout < DISPLAY_TIMEOUT_NEVER && last_input_activity_elapsed() >= timeout_ms) {
+		uint8_t  timeout_idx = eepdata.display_timeout < DISPLAY_TIMEOUT_COUNT ? eepdata.display_timeout : DISPLAY_TIMEOUT_NEVER_INDEX;
+		uint32_t timeout_ms  = display_timeout_seconds[timeout_idx] * 1000UL;
+		if (!display_asleep && timeout_idx != DISPLAY_TIMEOUT_NEVER_INDEX && last_input_activity_elapsed() >= timeout_ms) {
 			backlight_level_noeeprom(0);
 			display_asleep = true;
 		} else if (display_asleep && last_input_activity_elapsed() < timeout_ms) {
@@ -246,6 +264,15 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 	SUB MENU :
 		+ Pressing Button 1 -> quit Sub Menu without saving
 		+ Pressing Button 2 -> quit Sub Menu and save the setting
+	DIAL SETTINGS sub-page (mirrors MAIN MENU) :
+		+ Pressing Button 1 -> back to Main Menu
+		+ Pressing Button 2 -> dial_menu_action(): enter DIAL_SUB_MENU for cursor_pos
+	Editing a DIAL SETTINGS item (mirrors SUB MENU) :
+		+ Pressing Button 1 -> quit without saving
+		+ Pressing Button 2 -> quit and save the setting
+	LAYERS CONFIG sub-page (placeholders only for now - no per-item editing yet) :
+		+ Pressing Button 1 -> back to Main Menu
+		+ Pressing Button 2 -> nothing yet
 	***/
 	if (menu_state == MAIN_MENU) {
 		if (record->event.pressed) {
@@ -273,19 +300,55 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 					return false; // During Menu, no keycode is processed
 			}
 		} else return false;
+	} else if (menu_state == DIAL_MENU) {
+		if (record->event.pressed) {
+			switch (keycode) {
+				case KC_BUTTON_1:
+					dial_menu_exit();
+					return false;
+				case KC_BUTTON_2:
+					dial_menu_action();
+					return false;
+				default:
+					return false; // During Menu, no keycode is processed
+			}
+		} else return false;
+	} else if (menu_state == DIAL_SUB_MENU) {
+		if (record->event.pressed) {
+			switch (keycode) {
+				case KC_BUTTON_1:
+					dial_menu_submenu_exit();
+					return false;
+				case KC_BUTTON_2:
+					dial_menu_submenu_exit();
+					return false;
+				default:
+					return false; // During Menu, no keycode is processed
+			}
+		} else return false;
+	} else if (menu_state == LAYERS_MENU) {
+		if (record->event.pressed) {
+			switch (keycode) {
+				case KC_BUTTON_1:
+					layers_menu_exit();
+					return false;
+				default:
+					return false; // Placeholder items - Button 2 does nothing yet
+			}
+		} else return false;
 	}
 
 	/*** If not in MENU
-		+ Pressing Button 1 -> previous layer
-		+ Pressing Button 2 -> next layer
+		+ Button 1 -> previous layer on release (its normal tap action), unless
+		  it was already held long enough to auto-trigger the "DIAL SETTINGS"
+		  sub-page - see housekeeping_task_display()
+		+ Pressing Button 2 -> next layer (acts on press, like always)
 	***/
 	if (record->event.pressed) {
 		switch (keycode) {
 			case KC_BUTTON_1:
-				if (get_highest_layer(layer_state) <= 0)
-					layer_move(DYNAMIC_KEYMAP_LAYER_COUNT-1);
-				else
-					layer_move(get_highest_layer(layer_state)-1);
+				button1_held       = true;
+				button1_press_time = timer_read32();
 				return false;
 			case KC_BUTTON_2:
 				if (get_highest_layer(layer_state) >= DYNAMIC_KEYMAP_LAYER_COUNT-1)
@@ -296,6 +359,15 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 			default:
 				break; // Process all other keycodes normally
 		}
+	} else if (keycode == KC_BUTTON_1) {
+		if (button1_held) { // false if the hold already fired dial_menu_open() and changed menu_state
+			button1_held = false;
+			if (get_highest_layer(layer_state) <= 0)
+				layer_move(DYNAMIC_KEYMAP_LAYER_COUNT-1);
+			else
+				layer_move(get_highest_layer(layer_state)-1);
+		}
+		return false;
 	}
 
 	widget_matrix_update(record->event.key.col, record->event.key.row);

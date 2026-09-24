@@ -3,9 +3,12 @@
 #include "quantum.h"
 #include "display/defines.h"
 
-/***  Full-screen idle-time effects, picked at random each time the screensaver
-	activates. Only arms while the LCD Timeout (eepdata.display_timeout) is set
-	to NEVER - otherwise the ordinary backlight-off idle timeout in
+/***  Full-screen idle-time effects; which one runs is picked in the "BURN-IN
+	PROTECTION" menu item (qp_menu.c), or turned off entirely via its "OFF"
+	option (eepdata.screensaver_effect == SCREENSAVER_OFF_INDEX). Otherwise only
+	arms while the LCD Timeout (eepdata.display_timeout) is set to "1 Hour" or
+	NEVER (DISPLAY_TIMEOUT_1HOUR_INDEX, qp_graphics.h) - for the shorter
+	timeouts, the ordinary backlight-off idle timeout in
 	housekeeping_task_display() already handles the idle screen, so the two
 	never run at the same time.
 
@@ -13,7 +16,7 @@
 	registers itself in the `effects[]` table in qp_widget_screensaver.c.
 ***/
 
-#define SCREENSAVER_IDLE_MS   30000 // ms of no input before it kicks in
+#define SCREENSAVER_IDLE_MS   120000 // ms of no input before it kicks in (10 min)
 #define SCREENSAVER_FRAME_MS  40    // ms between animation ticks
 
 // Shared glyph grid most effects draw on (font_oled is fixed-width)

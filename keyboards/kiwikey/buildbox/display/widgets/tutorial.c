@@ -56,7 +56,7 @@ static void draw_screen_welcome(void) {
 // at TUTORIAL_BUTTON2_CENTERX (250) sits clear of it on the right.
 static void draw_screen_matrix(void) {
 	widget_matrix_init();
-	widget_layer_render_layername(0);
+	widget_layer_render_layername(0, WIDGET_LAYER_POSX, WIDGET_LAYER_POSY);
 	widget_matrix_keymap_render(0);
 
 	qp_drawtext_recolor(my_display, 250,  3, TUTORIAL_BODY_FONT, "Layer", HSV_WHITE, GLOBAL_BG_COLOR);

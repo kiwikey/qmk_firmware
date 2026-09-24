@@ -64,10 +64,9 @@ void widget_status_update(void) {
 						buf2,
 						WIDGET_STATUS_VALUE_COLOR,
 						GLOBAL_BG_COLOR);
-	if (eepdata.display_timeout >= DISPLAY_TIMEOUT_NEVER) {
-		sprintf(buf1, "NEVER");
-	} else {
-		sprintf(buf1, "%3us", eepdata.display_timeout);
+	{
+		uint8_t idx = eepdata.display_timeout < DISPLAY_TIMEOUT_COUNT ? eepdata.display_timeout : DISPLAY_TIMEOUT_NEVER_INDEX;
+		sprintf(buf1, "%s", display_timeout_text[idx]);
 	}
 	qp_drawtext_recolor(my_display,
 						WIDGET_STATUS_VALUE_POSX,

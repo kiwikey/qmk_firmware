@@ -13,16 +13,17 @@
 #include "display/widgets/qp_widget_screensaver.h"
 #include "display/widgets/tutorial.h"
 // #include "display/widgets/qp_widget_matrix.h"
-// #include "display/widgets/qp_widget_layer.h"
+#include "display/widgets/qp_widget_layer.h"
 // #include "display/widgets/qp_widget_knob.h"
 
 extern painter_device_t my_display;
-// extern uint8_t display_rotate_flag;
 // extern bool    lcdoff_flag;
 // extern bool    rgboff_flag;
 
-uint8_t menu_state  = NOT_IN_MENU;
-uint8_t menu_cursor = MENU_1STLINE_POS;
+uint8_t menu_state         = NOT_IN_MENU;
+uint8_t menu_cursor        = MENU_1STLINE_POS;
+uint8_t dial_menu_cursor   = MENU_1STLINE_POS;
+uint8_t layers_menu_cursor = MENU_1STLINE_POS;
 
 // MENU_DEBUG doesn't set menu_state to SUB_MENU (it's ischangeable=false), so
 // without this, menu_state sits at MAIN_MENU the whole time action_debug()'s
@@ -37,12 +38,21 @@ static bool debug_screen_active = false;
 // first press shows it and the second one actually resets.
 static bool dfu_confirm_active = false;
 
+// Tracks how the "DIAL SETTINGS" sub-page was entered, so dial_menu_exit()'s
+// Button 1 knows where "back" means: from the main list (MENU_DIAL_SETTINGS,
+// via dial_menu_action()), it should return to the main list; from the 3s-hold
+// shortcut on the idle screen (see housekeeping_task_display(), qp_graphics.c),
+// there's no main list underneath it, so it should close the settings menu
+// entirely instead, same as Button 1 on the main list itself.
+static bool dial_menu_from_shortcut = false;
+
 static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen);
 static void menu_truncate_to_width(char *str, painter_font_handle_t font, uint16_t max_width);
+static void dial_menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen);
 
-void menu_init(void) {
-	menu_state = MAIN_MENU;
-	accumulator = 0; // clear this to avoid "weird cursor jump"
+// Shared chrome: title bar (with the gear icon) + bottom Exit/OK hint row.
+// Used by both the main "SETTINGS" screen and the "DIAL SETTINGS" sub-page.
+static void menu_draw_chrome(const char *title) {
 	qp_rect(my_display, 0, 0, ST7789_WIDTH, ST7789_HEIGHT, MENU_BACKGROUND, true); // Clear screen
 	qp_roundrect(my_display,
 	             MENU_POSX,
@@ -55,11 +65,11 @@ void menu_init(void) {
 							   ST7789_WIDTH/2,
 							   MENU_TITLE_POSY,
 							   MENU_FONT,
-							   "SETTINGS",
+							   title,
 							   MENU_TITLE_COLOR,
 							   MENU_TITLE_BG); // Menu title
 	qp_drawimage(my_display,
-				ST7789_WIDTH/2 - qp_textwidth(thintel32, "SETTINGS")/2 - ico22_gear->width - 10,
+				ST7789_WIDTH/2 - qp_textwidth(MENU_FONT, title)/2 - ico22_gear->width - 10,
 				MENU_TITLE_POSY - ico22_gear->height/2 -1,
 				ico22_gear); // decorative icon after the title
     qp_line(my_display, 10, 208, 310, 208, HSV_WHITE);
@@ -78,9 +88,21 @@ void menu_init(void) {
 	uint16_t ok_width = qp_textwidth(font_oled, "OK");
 	qp_drawtext_recolor(my_display, 310 - dot_radius*2 - 4 - ok_width, 232 - MENU_FONT_HEIGHT/2, font_oled, "OK", HSV_WHITE, HSV_BLACK);
 	qp_circle(my_display, 310 - dot_radius, 225, dot_radius, GLOBAL_THEME_COLOR, true);
+}
 
-	menu_printlist();               // Print the menu list and sidebar (value)
-	menu_set_cursor(menu_cursor);   // Set the cursor
+// Draws the whole main "SETTINGS" screen (chrome + list + cursor) - used both
+// on first entry (menu_init()) and when returning from the "DIAL SETTINGS"
+// sub-page (dial_menu_exit()).
+static void main_menu_render(void) {
+	menu_draw_chrome("SETTINGS");
+	menu_printlist();             // Print the menu list and sidebar (value)
+	menu_set_cursor(menu_cursor); // Set the cursor
+}
+
+void menu_init(void) {
+	menu_state  = MAIN_MENU;
+	accumulator = 0; // clear this to avoid "weird cursor jump"
+	main_menu_render();
 	qp_flush(my_display);
 }
 
@@ -207,6 +229,212 @@ void menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is the ABSOLUTE item po
 	last_cursor_pos = cursor_pos;
 }
 
+// Print the "DIAL SETTINGS" sub-page's 3 lines and their sidebar values. Always
+// fits on one screen (DIAL_MENU_MAXITEMS < MENU_LINESPERPAGE), so unlike
+// menu_printlist() there's no pagination to handle.
+static void dial_menu_printlist(void) {
+	qp_rect(my_display,
+	        MENU_POSX, MENU_POSY,
+	        MENU_WIDTH, MENU_POSY + DIAL_MENU_MAXITEMS * MENU_LINE_HEIGHT,
+			MENU_BACKGROUND,
+			true);
+	for (uint8_t i = 0; i < DIAL_MENU_MAXITEMS; i++) {
+		qp_drawtext(my_display,
+					MENU_POSX + MENU_CURSOR_ICON_WIDTH + 5,
+					MENU_POSY + i*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2,
+					MENU_FONT,
+					dial_menu_label_list[i]);
+		dial_menu_render_sidebar(i + 1);
+	}
+}
+
+void dial_menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is ABSOLUTE (1..DIAL_MENU_MAXITEMS), single page only
+	static uint8_t last_cursor_pos = 0; // 0 = none drawn yet
+
+	uint8_t row = cursor_pos - 1;
+
+	if (last_cursor_pos != 0 && last_cursor_pos != cursor_pos) {
+		uint8_t last_row = last_cursor_pos - 1;
+		qp_rect(my_display,
+		        MENU_POSX,
+		        MENU_POSY + last_row*MENU_LINE_HEIGHT,
+		        MENU_POSX + MENU_CURSOR_ICON_WIDTH - 1,
+		        MENU_POSY + (last_row+1)*MENU_LINE_HEIGHT,
+		        MENU_BACKGROUND,
+		        true
+			);
+	}
+	qp_drawimage_recolor(my_display,
+						MENU_POSX,
+						MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_CURSOR_ICON_HEIGHT)/2,
+						ico16_arrow_right,
+						MENU_CURSOR_COLOR,
+						MENU_BACKGROUND
+					);
+
+	last_cursor_pos = cursor_pos;
+}
+
+void dial_menu_open(bool from_shortcut) { // Button 2 on MENU_DIAL_SETTINGS, or the idle-screen 3s-hold shortcut
+	dial_menu_from_shortcut = from_shortcut;
+	menu_state              = DIAL_MENU;
+	dial_menu_cursor        = MENU_1STLINE_POS;
+	accumulator             = 0;
+
+	menu_draw_chrome("DIAL SETTINGS");
+	dial_menu_printlist();
+	dial_menu_set_cursor(dial_menu_cursor);
+	qp_flush(my_display);
+}
+
+void dial_menu_exit(void) { // Button 1 on the list
+	if (dial_menu_from_shortcut) {
+		// No main list underneath this one - Button 1 closes the whole settings
+		// menu instead, same as Button 1 on the main list (menu_exit())
+		menu_exit();
+		return;
+	}
+	menu_state  = MAIN_MENU;
+	accumulator = 0;
+	main_menu_render();
+	qp_flush(my_display);
+}
+
+void dial_menu_action(void) { // Button 2 on a DIAL SETTINGS item - same role as menu_action()
+	if (dial_menu_label_list_ischangeable[dial_menu_cursor]) {
+		menu_state = DIAL_SUB_MENU;
+		dial_menu_render_sidebar(dial_menu_cursor); // redraw the value in the active (DIAL_SUB_MENU) color
+	}
+	// Every item on this page is a changeable value (no "trigger immediately" items here)
+}
+
+void dial_menu_submenu_exit(void) { // Return from editing an item back to the DIAL SETTINGS list
+	menu_state  = DIAL_MENU;
+	accumulator = 0;
+	dial_menu_render_sidebar(dial_menu_cursor); // redraw the value back in its normal (non-active) color
+	qp_flush(my_display);
+}
+
+// Fills 'buf' with the current value of "DIAL SETTINGS" item 'item_pos' (1-based), or leaves it empty if that item has none
+static void dial_menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
+	buf[0] = '\0';
+	switch (item_pos) {
+		case DIAL_MENU_FUNCTION:
+			snprintf(buf, buflen, "%s", knob_func_long_text[eepdata.knob_func < KNOB_FUNC_COUNT ? eepdata.knob_func : KNOB_FUNC_CUSTOM]);
+			break;
+		case DIAL_MENU_RGB_MODE:
+			snprintf(buf, buflen, "%s", knob_effect_short_text[eepdata.knob_effect < KNOB_EFFECT_COUNT ? eepdata.knob_effect : KNOB_EFFECT_DEFAULT]);
+			break;
+		case DIAL_MENU_SENSITIVITY:
+			snprintf(buf, buflen, "%s", knob_sensitivity_short_text[eepdata.knob_sensitivity < KNOB_SENSITIVITY_COUNT ? eepdata.knob_sensitivity : KNOB_SENSITIVITY_MEDIUM]);
+			break;
+		default:
+			break; // no value to show for this item
+	}
+}
+
+// Render the value of "DIAL SETTINGS" item 'item_pos' (1-based) in its sidebar - same role as menu_render_sidebar(),
+// simplified since this page never paginates (row is always item_pos - 1)
+void dial_menu_render_sidebar(uint8_t item_pos) {
+	uint8_t row = item_pos - 1;
+
+	qp_rect(my_display,
+	        MENU_SIDEBAR_TEXT_POSX, MENU_POSY + row*MENU_LINE_HEIGHT,
+	        319, MENU_POSY + (row+1)*MENU_LINE_HEIGHT,
+	        MENU_BACKGROUND, true);
+
+	char value_str[16];
+	dial_menu_get_value_string(item_pos, value_str, sizeof(value_str));
+	menu_truncate_to_width(value_str, MENU_FONT, MENU_SIDEBAR_MAX_TEXTWIDTH);
+
+	if (value_str[0] != '\0') {
+		bool is_active = (menu_state == DIAL_SUB_MENU && item_pos == dial_menu_cursor);
+		if (is_active) {
+			qp_drawtext_recolor(my_display,
+			                    MENU_SIDEBAR_TEXT_POSX,
+			                    MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2,
+			                    MENU_FONT, value_str,
+			                    GLOBAL_THEME_COLOR, MENU_BACKGROUND);
+		} else {
+			qp_drawtext_recolor(my_display,
+			                    MENU_SIDEBAR_TEXT_POSX,
+			                    MENU_POSY + row*MENU_LINE_HEIGHT + (MENU_LINE_HEIGHT - MENU_FONT_HEIGHT)/2,
+			                    MENU_FONT, value_str,
+			                    HSV_WHITE, MENU_BACKGROUND);
+		}
+	}
+}
+
+// Unlike every other menu page (plain text lines), the "LAYERS CONFIG"
+// sub-page shows each layer as the same big rounded name box used elsewhere
+// for the current layer (widget_layer_render_layername(), qp_widget_layer.c) -
+// stacked LAYERS_MENU_ROW_HEIGHT apart so the boxes never collide, and
+// indented past the cursor column like the other pages' text.
+#define LAYERS_MENU_ROW_HEIGHT (WIDGET_LAYER_HEIGHT + 8)
+#define LAYERS_MENU_BOX_POSX   (MENU_POSX + MENU_CURSOR_ICON_WIDTH + 5)
+
+// Print the "LAYERS CONFIG" sub-page's lines, one box per layer_names[] entry
+// (display/defines.h). Always fits on one screen (LAYERS_MENU_MAXITEMS <
+// MENU_LINESPERPAGE), so unlike menu_printlist() there's no pagination to
+// handle. No sidebar values yet - nothing here is wired to a real setting.
+// widget_layer_render_layername() also draws each layer's fixed icon inside
+// the box, next to the name text (qp_widget_layer.c).
+static void layers_menu_printlist(void) {
+	qp_rect(my_display,
+	        MENU_POSX, MENU_POSY,
+	        MENU_WIDTH, MENU_POSY + LAYERS_MENU_MAXITEMS * LAYERS_MENU_ROW_HEIGHT,
+			MENU_BACKGROUND,
+			true);
+	for (uint8_t i = 0; i < LAYERS_MENU_MAXITEMS; i++) {
+		widget_layer_render_layername(i, LAYERS_MENU_BOX_POSX, MENU_POSY + i*LAYERS_MENU_ROW_HEIGHT);
+	}
+}
+
+void layers_menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is ABSOLUTE (1..LAYERS_MENU_MAXITEMS), single page only
+	static uint8_t last_cursor_pos = 0; // 0 = none drawn yet
+
+	uint8_t row = cursor_pos - 1;
+
+	if (last_cursor_pos != 0 && last_cursor_pos != cursor_pos) {
+		uint8_t last_row = last_cursor_pos - 1;
+		qp_rect(my_display,
+		        MENU_POSX,
+		        MENU_POSY + last_row*LAYERS_MENU_ROW_HEIGHT,
+		        MENU_POSX + MENU_CURSOR_ICON_WIDTH - 1,
+		        MENU_POSY + (last_row+1)*LAYERS_MENU_ROW_HEIGHT,
+		        MENU_BACKGROUND,
+		        true
+			);
+	}
+	qp_drawimage_recolor(my_display,
+						MENU_POSX,
+						MENU_POSY + row*LAYERS_MENU_ROW_HEIGHT + (WIDGET_LAYER_HEIGHT - MENU_CURSOR_ICON_HEIGHT)/2,
+						ico16_arrow_right,
+						MENU_CURSOR_COLOR,
+						MENU_BACKGROUND
+					);
+
+	last_cursor_pos = cursor_pos;
+}
+
+void layers_menu_open(void) { // Button 2 on MENU_LAYERS_CONFIG
+	menu_state         = LAYERS_MENU;
+	layers_menu_cursor = MENU_1STLINE_POS;
+	accumulator        = 0;
+
+	menu_draw_chrome("LAYERS CONFIG");
+	layers_menu_printlist();
+	layers_menu_set_cursor(layers_menu_cursor);
+	qp_flush(my_display);
+}
+
+void layers_menu_exit(void) { // Button 1: back to the main "SETTINGS" list
+	menu_state  = MAIN_MENU;
+	accumulator = 0;
+	main_menu_render();
+	qp_flush(my_display);
+}
+
 // Fills 'buf' with the current value of menu item 'item_pos' (1-based), or leaves it empty if that item has none
 static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 	buf[0] = '\0';
@@ -228,36 +456,23 @@ static void menu_get_value_string(uint8_t item_pos, char *buf, size_t buflen) {
 				snprintf(buf, buflen, "MODE #%d", rgb_matrix_get_mode());
 			}
 			break;
-		case MENU_KNOB_RGB:
-			switch (eepdata.knob_effect) {
-				case KNOB_EFFECT_DEFAULT: snprintf(buf, buflen, "DEFAULT"); break;
-				case KNOB_EFFECT_LAYER:   snprintf(buf, buflen, "LAYER");   break;
-				default:                  snprintf(buf, buflen, "OFF");    break;
-			}
-			break;
 		case MENU_INTROANIM:
 			snprintf(buf, buflen, "%s", eepdata.display_bootanim ? "ON" : "OFF");
 			break;
-		case MENU_DISPLAYTIMEOUT:
-			if (eepdata.display_timeout >= DISPLAY_TIMEOUT_NEVER)
-				snprintf(buf, buflen, "NEVER");
-			else
-				snprintf(buf, buflen, "%ds", eepdata.display_timeout);
-			break;
-		case MENU_SCREENSAVER: {
-			// Shows a generic "Effect N" instead of the effect's real code name (e.g. "matrix_rain_1")
-			uint8_t idx = eepdata.screensaver_effect < screensaver_effect_count() ? eepdata.screensaver_effect : 0;
-			snprintf(buf, buflen, "Effect %u", idx + 1);
+		case MENU_DISPLAYTIMEOUT: {
+			uint8_t idx = eepdata.display_timeout < DISPLAY_TIMEOUT_COUNT ? eepdata.display_timeout : DISPLAY_TIMEOUT_NEVER_INDEX;
+			snprintf(buf, buflen, "%s", display_timeout_text[idx]);
 			break;
 		}
-		case MENU_KNOB_FUNC:
-			snprintf(buf, buflen, "%s", knob_func_menu_text[eepdata.knob_func < KNOB_FUNC_COUNT ? eepdata.knob_func : KNOB_FUNC_CUSTOM]);
+		case MENU_SCREENSAVER: {
+			uint8_t idx = eepdata.screensaver_effect < SCREEN_SAVER_MAXITEMS ? eepdata.screensaver_effect : 0;
+			snprintf(buf, buflen, "%s", screen_saver_effect_list[idx]);
 			break;
+		}
 		// MENU_THEME_COLOR is not handled here - menu_render_sidebar() draws its
 		// preset name directly instead of going through this text path at all.
-		case MENU_KNOB_SENSITIVITY:
-			snprintf(buf, buflen, "%s", knob_sensitivity_menu_text[eepdata.knob_sensitivity < KNOB_SENSITIVITY_COUNT ? eepdata.knob_sensitivity : KNOB_SENSITIVITY_MEDIUM]);
-			break;
+		// MENU_DIAL_SETTINGS/MENU_LAYERS_CONFIG aren't handled here either - they
+		// open their own sub-page instead of showing an in-place value.
 		default:
 			break; // no value to show for this item
 	}
@@ -333,12 +548,15 @@ void menu_action(void) {
 		case MENU_DISPLAY_BRIGHTNESS:
 		case MENU_RGB_BRIGHTNESS:
 		case MENU_RGB_MODE:
-		case MENU_KNOB_RGB:
 		case MENU_INTROANIM:
 		case MENU_DISPLAYTIMEOUT:
-		case MENU_KNOB_FUNC:
 		case MENU_THEME_COLOR:
-		case MENU_KNOB_SENSITIVITY:
+			break;
+		case MENU_DIAL_SETTINGS:
+			dial_menu_open(false); // via the main list
+			break;
+		case MENU_LAYERS_CONFIG:
+			layers_menu_open();
 			break;
 		case MENU_BOOTTODFU:
 			action_resettodfu();

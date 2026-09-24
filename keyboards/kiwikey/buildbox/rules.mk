@@ -63,7 +63,8 @@ SRC += \
 	display/resources/icons/ico12_arrow_left.qgf.c  \
 	display/resources/icons/ico12_arrow_right.qgf.c \
 	display/resources/icons/ico22_gear.qgf.c        \
-	display/resources/graphics/ico18_heart.qgf.c
+	display/resources/graphics/ico18_heart.qgf.c    \
+	display/resources/icons/icons_24x24.qgf.c
 
 # IMAGES & ANIMATIONS
 SRC += \

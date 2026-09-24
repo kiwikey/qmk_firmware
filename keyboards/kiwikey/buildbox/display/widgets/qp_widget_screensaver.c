@@ -15,9 +15,10 @@
 #include "display/widgets/screensaver_sleeping_zzz.h"
 #include "display/widgets/screensaver_starry_night.h"
 
-// eepdata.screensaver_effect picks one of these by index (see screensaver_start()
-// below and the "SCREEN SAVER" menu item, qp_menu.c) - shown to the user only as
-// generic "Effect N" labels, never these internal names.
+// eepdata.screensaver_effect (1-based; see SCREENSAVER_OFF_INDEX below) picks
+// one of these by index (see screensaver_start() below and the "BURN-IN
+// PROTECTION" menu item, qp_menu.c) - shown to the user via
+// screen_saver_effect_list[] (qp_menu.h), never these internal names.
 static const screensaver_effect_t effects[] = {
 	{"matrix_rain_1", screensaver_matrix_rain_1_init, screensaver_matrix_rain_step},
 	{"matrix_rain_2", screensaver_matrix_rain_2_init, screensaver_matrix_rain_step},
@@ -25,6 +26,10 @@ static const screensaver_effect_t effects[] = {
 	{"starry_night",  screensaver_starry_night_init,  screensaver_starry_night_step},
 };
 #define SCREENSAVER_EFFECT_COUNT (sizeof(effects) / sizeof(effects[0]))
+
+// eepdata.screensaver_effect is 1-based here: 0 means "OFF" (screen_saver_effect_list[0],
+// qp_menu.h), and 1..SCREENSAVER_EFFECT_COUNT map to effects[0..SCREENSAVER_EFFECT_COUNT-1].
+#define SCREENSAVER_OFF_INDEX 0
 
 static bool                        active = false;
 static const screensaver_effect_t *current_effect;
@@ -45,7 +50,10 @@ static void screensaver_start(void) {
 		seeded = true;
 	}
 
-	uint8_t idx    = eepdata.screensaver_effect < SCREENSAVER_EFFECT_COUNT ? eepdata.screensaver_effect : 0;
+	// eepdata.screensaver_effect is 1-based (0 = OFF, already filtered out by
+	// housekeeping_task_screensaver() before this ever runs) - shift to the 0-based effects[] index
+	uint8_t idx    = (eepdata.screensaver_effect >= 1 && eepdata.screensaver_effect <= SCREENSAVER_EFFECT_COUNT)
+	                 ? eepdata.screensaver_effect - 1 : 0;
 	active         = true;
 	current_effect = &effects[idx];
 	current_effect->init(true);
@@ -59,7 +67,8 @@ void screensaver_exit(void) {
 
 void housekeeping_task_screensaver(void) {
 	if (!active) {
-		if (eepdata.display_timeout < DISPLAY_TIMEOUT_NEVER) return; // only a screensaver when the backlight never sleeps on its own
+		if (eepdata.screensaver_effect == SCREENSAVER_OFF_INDEX) return; // user turned it off
+		if (eepdata.display_timeout < DISPLAY_TIMEOUT_1HOUR_INDEX) return; // only a screensaver on "1 Hour"/NEVER, where the backlight otherwise never (or rarely) sleeps on its own
 		if (menu_state != NOT_IN_MENU || breakout_is_active() || tutorial_is_active()) return; // never hijack another full-screen mode
 		if (last_input_activity_elapsed() < SCREENSAVER_IDLE_MS) return;
 		screensaver_start();

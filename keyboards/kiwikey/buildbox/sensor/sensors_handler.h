@@ -16,8 +16,8 @@ static const uint16_t knob_sensitivity_step[KNOB_SENSITIVITY_COUNT] = {
 	64,  // HIGH
 };
 
-// Menu display text, indexed by eepdata.knob_sensitivity.
-static const char * const knob_sensitivity_menu_text[KNOB_SENSITIVITY_COUNT] = {
+// Sidebar text for "DIAL SENSITIVITY" (qp_menu.c's DIAL SETTINGS sub-page), indexed by eepdata.knob_sensitivity.
+static const char * const knob_sensitivity_short_text[KNOB_SENSITIVITY_COUNT] = {
 	"LOW",
 	"MEDIUM",
 	"HIGH",

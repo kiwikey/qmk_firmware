@@ -107,7 +107,7 @@ void magnetic_encoder_update_kb(bool direction) {
         // since MENU_DEBUG/MENU_BOOTTODFU never enter SUB_MENU) - ignore
         // rotation instead of letting it fall through to menu list navigation
         // below and redraw the list right over them.
-    } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU) { // While in Menu
+    } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU || menu_state == DIAL_MENU || menu_state == DIAL_SUB_MENU || menu_state == LAYERS_MENU) { // While in Menu
         while (accumulator >= MENU_STEP_SIZE) {
             process_encoder_rotate(CW);
             accumulator -= MENU_STEP_SIZE;
@@ -149,6 +149,15 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 				menu_printlist();            // refresh the list
 			}
 			menu_set_cursor(menu_cursor);
+		/* In the "DIAL SETTINGS" sub-page, knob rotation controls cursor Up/Down
+		   too - only 3 items, always on one page, so no pagination to handle */
+		} else if (menu_state == DIAL_MENU) {
+			if (clockwise) {
+				dial_menu_cursor = (dial_menu_cursor >= DIAL_MENU_MAXITEMS) ? 1 : dial_menu_cursor + 1;
+			} else {
+				dial_menu_cursor = (dial_menu_cursor <= 1) ? DIAL_MENU_MAXITEMS : dial_menu_cursor - 1;
+			}
+			dial_menu_set_cursor(dial_menu_cursor);
 		/* In Sub-menu, knob rotation moves between options */
 		/* also note: menu lines that "ischangeable = FALSE" will not run into Sub-menu */
 		} else if (menu_state == SUB_MENU) {
@@ -184,49 +193,32 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 					}
 					value_changed = true;
 					break;
-				case MENU_KNOB_RGB:
-					if (clockwise) { // next
-						eepdata.knob_effect = (eepdata.knob_effect == KNOB_EFFECT_LAYER) ? KNOB_EFFECT_OFF : eepdata.knob_effect + 1;
-					} else {         // previous
-						eepdata.knob_effect = (eepdata.knob_effect == KNOB_EFFECT_OFF) ? KNOB_EFFECT_LAYER : eepdata.knob_effect - 1;
-					}
-					value_changed = true;
-					break;
 				case MENU_INTROANIM: // DONE
 					eepdata.display_bootanim ^= 1;
 					value_changed = true;
 					break;
 				case MENU_DISPLAYTIMEOUT:
+					// Cycles the fixed list (display_timeout_seconds[]/display_timeout_text[],
+					// qp_graphics.h), same pattern as MENU_SCREENSAVER above
 					if (clockwise) { // next
-						eepdata.display_timeout += DISPLAY_TIMEOUT_STEP;
-						if (eepdata.display_timeout > DISPLAY_TIMEOUT_NEVER)
-							eepdata.display_timeout = DISPLAY_TIMEOUT_MIN;
+						eepdata.display_timeout = (eepdata.display_timeout + 1 >= DISPLAY_TIMEOUT_COUNT) ? 0 : eepdata.display_timeout + 1;
 					} else {         // previous
-						eepdata.display_timeout -= DISPLAY_TIMEOUT_STEP;
-						if (eepdata.display_timeout <= 0)
-							eepdata.display_timeout = DISPLAY_TIMEOUT_NEVER;
+						eepdata.display_timeout = (eepdata.display_timeout == 0) ? DISPLAY_TIMEOUT_COUNT - 1 : eepdata.display_timeout - 1;
 					}
 					value_changed = true;
 					break;
 				case MENU_SCREENSAVER:
+					// SCREEN_SAVER_MAXITEMS (qp_menu.h) includes "OFF" at index 0, unlike
+					// screensaver_effect_count() which only counts the real engine effects
 					if (clockwise) { // next
-						eepdata.screensaver_effect = (eepdata.screensaver_effect + 1 >= screensaver_effect_count()) ? 0 : eepdata.screensaver_effect + 1;
+						eepdata.screensaver_effect = (eepdata.screensaver_effect + 1 >= SCREEN_SAVER_MAXITEMS) ? 0 : eepdata.screensaver_effect + 1;
 					} else {         // previous
-						eepdata.screensaver_effect = (eepdata.screensaver_effect == 0) ? screensaver_effect_count() - 1 : eepdata.screensaver_effect - 1;
-					}
-					value_changed = true;
-					break;
-				case MENU_KNOB_FUNC:
-					if (clockwise) { // next
-						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_CUSTOM) ? KNOB_FUNC_HSCROLL : eepdata.knob_func + 1;
-					} else {         // previous
-						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_HSCROLL) ? KNOB_FUNC_CUSTOM : eepdata.knob_func - 1;
+						eepdata.screensaver_effect = (eepdata.screensaver_effect == 0) ? SCREEN_SAVER_MAXITEMS - 1 : eepdata.screensaver_effect - 1;
 					}
 					value_changed = true;
 					break;
 				case MENU_THEME_COLOR: {
-					// Cycle through the named presets (theme_color_presets[], display/defines.h),
-					// same way as MENU_KNOB_FUNC/MENU_KNOB_SENSITIVITY.
+					// Cycle through the named presets (theme_color_presets[], display/defines.h)
 					uint8_t index = theme_color_preset_index(eepdata.theme_hue);
 					if (clockwise) {
 						index = (index == THEME_COLOR_PRESET_COUNT - 1) ? 0 : index + 1;
@@ -237,8 +229,36 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 					value_changed = true;
 					break;
 				}
-				case MENU_KNOB_SENSITIVITY:
-					// 3 fixed levels (LOW/MEDIUM/HIGH), cycled the same way as MENU_KNOB_FUNC
+				default:
+					; //
+			}
+			// TODO: Animation, LCD Timeout, LCD Brightness, Knob Rotation Fn
+			if (value_changed) {
+				menu_render_sidebar(menu_cursor, (menu_cursor - 1) % MENU_LINESPERPAGE);
+				qp_flush(my_display);
+			}
+		/* Editing one DIAL SETTINGS item - knob rotation changes its value, same role as SUB_MENU above */
+		} else if (menu_state == DIAL_SUB_MENU) {
+			bool value_changed = false;
+			switch (dial_menu_cursor) {
+				case DIAL_MENU_FUNCTION:
+					if (clockwise) { // next
+						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_CUSTOM) ? KNOB_FUNC_HSCROLL : eepdata.knob_func + 1;
+					} else {         // previous
+						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_HSCROLL) ? KNOB_FUNC_CUSTOM : eepdata.knob_func - 1;
+					}
+					value_changed = true;
+					break;
+				case DIAL_MENU_RGB_MODE:
+					if (clockwise) { // next
+						eepdata.knob_effect = (eepdata.knob_effect == KNOB_EFFECT_LAYER) ? KNOB_EFFECT_OFF : eepdata.knob_effect + 1;
+					} else {         // previous
+						eepdata.knob_effect = (eepdata.knob_effect == KNOB_EFFECT_OFF) ? KNOB_EFFECT_LAYER : eepdata.knob_effect - 1;
+					}
+					value_changed = true;
+					break;
+				case DIAL_MENU_SENSITIVITY:
+					// 3 fixed levels (LOW/MEDIUM/HIGH), cycled the same way as DIAL_MENU_FUNCTION
 					if (clockwise) { // next (less sensitive -> more sensitive)
 						eepdata.knob_sensitivity = (eepdata.knob_sensitivity == KNOB_SENSITIVITY_HIGH) ? KNOB_SENSITIVITY_LOW : eepdata.knob_sensitivity + 1;
 					} else {         // previous
@@ -249,11 +269,19 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 				default:
 					; //
 			}
-			// TODO: Animation, LCD Timeout, LCD Brightness, Knob Rotation Fn
 			if (value_changed) {
-				menu_render_sidebar(menu_cursor, (menu_cursor - 1) % MENU_LINESPERPAGE);
+				dial_menu_render_sidebar(dial_menu_cursor);
 				qp_flush(my_display);
 			}
+		/* In the "LAYERS CONFIG" sub-page, knob rotation controls cursor Up/Down
+		   too - only LAYERS_MENU_MAXITEMS items, always on one page, so no pagination to handle */
+		} else if (menu_state == LAYERS_MENU) {
+			if (clockwise) {
+				layers_menu_cursor = (layers_menu_cursor >= LAYERS_MENU_MAXITEMS) ? 1 : layers_menu_cursor + 1;
+			} else {
+				layers_menu_cursor = (layers_menu_cursor <= 1) ? LAYERS_MENU_MAXITEMS : layers_menu_cursor - 1;
+			}
+			layers_menu_set_cursor(layers_menu_cursor);
 		}
 		return false;
 	}

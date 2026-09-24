@@ -34,6 +34,7 @@
 	#include "resources/icons/ico22_gear.qgf.h"
 	#include "resources/icons/ico16_layer.qgf.h"
 	#include "resources/icons/ico32_menu.qgf.h"
+	#include "resources/icons/icons_24x24.qgf.h"
 	#include "resources/graphics/ico18_heart.qgf.h"
 	// painter_image_handle_t lock_caps_on;
 	// painter_image_handle_t lock_caps_off;
@@ -50,6 +51,17 @@
 	painter_image_handle_t ico12_arrow_right;
 	painter_image_handle_t ico22_gear;
 	painter_image_handle_t ico18_heart;
+	painter_image_handle_t ico24_application;
+	painter_image_handle_t ico24_boss;
+	painter_image_handle_t ico24_calculator;
+	painter_image_handle_t ico24_component;
+	painter_image_handle_t ico24_earth;
+	painter_image_handle_t ico24_favourites;
+	painter_image_handle_t ico24_film;
+	painter_image_handle_t ico24_globe;
+	painter_image_handle_t ico24_heart;
+	painter_image_handle_t ico24_music;
+	painter_image_handle_t ico24_tune;
 
 /* IMAGES & ANIMATIONS */
 	#include "resources/graphics/gif_bootup01.qgf.h"
@@ -93,6 +105,17 @@ void qp_init_load_files(void) {
 		ico12_arrow_right = qp_load_image_mem(gfx_ico12_arrow_right);
 		ico22_gear        = qp_load_image_mem(gfx_ico22_gear);
 		ico18_heart       = qp_load_image_mem(gfx_ico18_heart);
+		ico24_application = qp_load_image_mem(gfx_Application);
+		ico24_boss        = qp_load_image_mem(gfx_Boss);
+		ico24_calculator  = qp_load_image_mem(gfx_Calculator);
+		ico24_component   = qp_load_image_mem(gfx_Component);
+		ico24_earth       = qp_load_image_mem(gfx_Earth);
+		ico24_favourites  = qp_load_image_mem(gfx_Favourites);
+		ico24_film        = qp_load_image_mem(gfx_Film);
+		ico24_globe       = qp_load_image_mem(gfx_Globe);
+		ico24_heart       = qp_load_image_mem(gfx_Heart);
+		ico24_music       = qp_load_image_mem(gfx_Music);
+		ico24_tune        = qp_load_image_mem(gfx_Tune);
 
 	/* IMAGES & ANIMATIONS */
 		gif_bootup01      = qp_load_image_mem(gfx_gif_bootup01);

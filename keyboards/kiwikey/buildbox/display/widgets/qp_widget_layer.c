@@ -12,7 +12,7 @@
 // bool qp_widget_layer_flag = false;
 
 void widget_layer_init(void) {
-	widget_layer_render_layername(get_highest_layer(layer_state));
+	widget_layer_render_layername(get_highest_layer(layer_state), WIDGET_LAYER_POSX, WIDGET_LAYER_POSY);
 
 	qp_drawimage_recolor(my_display,
 						WIDGET_LAYER_NAV_POSX1,
@@ -25,25 +25,36 @@ void widget_layer_init(void) {
 	widget_layer_render_navigation(get_highest_layer(layer_state));
 }
 
-void widget_layer_render_layername(uint8_t layer) { // BIG LAYER NAME
+void widget_layer_render_layername(uint8_t layer, uint16_t posx, uint16_t posy) { // BIG LAYER NAME
 	// Layer's name background
 	qp_roundrect(my_display,
-				WIDGET_LAYER_POSX,
-				WIDGET_LAYER_POSY,
-				WIDGET_LAYER_POSX + WIDGET_MATRIX_WIDTH,
-				WIDGET_LAYER_POSY + WIDGET_LAYER_HEIGHT,
+				posx,
+				posy,
+				posx + WIDGET_MATRIX_WIDTH,
+				posy + WIDGET_LAYER_HEIGHT,
 				WIDGET_LAYER_BG, true,
 				WIDGET_LAYER_CORNER, true, true
 				);
 	char layer_name_upper[16];
 	toUppercase(layer_names[layer], layer_name_upper, sizeof(layer_name_upper));
 	qp_drawtext_recolor_center(my_display,
-							   WIDGET_LAYER_POSX + WIDGET_LAYER_WIDTH/2,
-							   WIDGET_LAYER_POSY + WIDGET_LAYER_HEIGHT/2 +2, // +2 for micro refining
+							   posx + WIDGET_LAYER_WIDTH/2,
+							   posy + WIDGET_LAYER_HEIGHT/2 +2, // +2 for micro refining
 							   WIDGET_LAYER_FONT,
 							   layer_name_upper,
 							   WIDGET_LAYER_TEXT,
 							   WIDGET_LAYER_BG);
+
+	// Fixed icon per layer index, next to the name text but still inside the box
+	painter_image_handle_t icon_pool[] = {
+		ico24_application, ico24_boss,      ico24_calculator, ico24_component, ico24_earth, ico24_favourites,
+		ico24_film,        ico24_globe,     ico24_heart,      ico24_music,     ico24_tune,
+	};
+	painter_image_handle_t icon = icon_pool[layer % (sizeof(icon_pool)/sizeof(icon_pool[0]))];
+	qp_drawimage(my_display,
+	             posx + WIDGET_LAYER_WIDTH - WIDGET_LAYER_ICON_PADDING - icon->width,
+	             posy + (WIDGET_LAYER_HEIGHT - icon->height)/2,
+	             icon);
 }
 
 void widget_layer_render_navigation(uint8_t layer) {
