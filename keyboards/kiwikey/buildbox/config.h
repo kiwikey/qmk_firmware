@@ -17,7 +17,7 @@
 
 #if defined(VIA_ENABLE)
 	#define DYNAMIC_KEYMAP_LAYER_COUNT 4
-	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 20 // must match sizeof(EEPROM_CUSTOM_DATA) - bump this whenever a field is added/removed
+	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 24 // must match sizeof(EEPROM_CUSTOM_DATA) - bump this whenever a field is added/removed
 #endif // defined(VIA_ENABLE)
 
 #if defined(QUANTUM_PAINTER_ENABLE)
@@ -58,9 +58,9 @@
 
 	/*** QUANTUM PAINTER CONFIGURATION ***/
 	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT        0   // LCD Timeout handles by custom code
-	#define QUANTUM_PAINTER_SUPPORTS_256_PALETTE   TRUE
+	// #define QUANTUM_PAINTER_SUPPORTS_256_PALETTE   TRUE
 	#define QUANTUM_PAINTER_SUPPORTS_NATIVE_COLORS TRUE
-	#define QUANTUM_PAINTER_NUM_IMAGES             16   // The maximum number of images/animations that can be loaded at any one time.
+	#define QUANTUM_PAINTER_NUM_IMAGES             41   // The maximum number of images/animations that can be loaded at any one time - qp_init_load_files() (qp_includes.c) currently loads 38 and keeps them all resident, so this must stay >= that count.
 	#define QUANTUM_PAINTER_NUM_FONTS	           13 	// The maximum number of fonts that can be loaded at any one time.
 	#define QUANTUM_PAINTER_CONCURRENT_ANIMATIONS  2 // The maximum number of animations that can be executed at the same time.
 	// #define QUANTUM_PAINTER_DEBUG	               unset  // Prints out significant amounts of debugging information to CONSOLE output. Significant performance degradation, use only for debugging.

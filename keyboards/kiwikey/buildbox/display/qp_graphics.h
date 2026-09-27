@@ -7,7 +7,7 @@
 // eepdata.display_timeout is an INDEX into these two, not a raw seconds value -
 // cycled in process_encoder_rotate() (sensors_handler.c) via MENU_DISPLAYTIMEOUT,
 // same pattern as eepdata.knob_func/knob_effect/screensaver_effect.
-#define DISPLAY_TIMEOUT_COUNT       6
+#define DISPLAY_TIMEOUT_COUNT        6
 #define DISPLAY_TIMEOUT_NEVER_INDEX  (DISPLAY_TIMEOUT_COUNT - 1) // last entry = "NEVER"
 #define DISPLAY_TIMEOUT_1HOUR_INDEX  (DISPLAY_TIMEOUT_COUNT - 2) // second-to-last entry = "1 Hour" - also arms the screensaver, see qp_widget_screensaver.c
 
@@ -41,4 +41,3 @@ void housekeeping_task_display(void);
 bool process_record_display(uint16_t keycode, keyrecord_t *record);
 bool display_is_asleep(void); // true while the backlight is zeroed for the idle timeout - see housekeeping_task_display()
 
-void test_fonts(void);

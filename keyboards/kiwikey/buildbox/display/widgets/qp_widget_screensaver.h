@@ -16,7 +16,6 @@
 	registers itself in the `effects[]` table in qp_widget_screensaver.c.
 ***/
 
-#define SCREENSAVER_IDLE_MS   120000 // ms of no input before it kicks in (10 min)
 #define SCREENSAVER_FRAME_MS  40    // ms between animation ticks
 
 // Shared glyph grid most effects draw on (font_oled is fixed-width)

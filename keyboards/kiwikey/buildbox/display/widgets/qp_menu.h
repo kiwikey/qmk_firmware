@@ -44,16 +44,18 @@
 		3: in the "DIAL SETTINGS" sub-page
 		4: editing one item on the "DIAL SETTINGS" sub-page
 		5: in the "LAYERS CONFIG" sub-page
+		6: picking an icon for one layer on the "LAYERS CONFIG" sub-page
 	*****************/
 	extern uint8_t menu_state, menu_cursor;
 	extern uint8_t dial_menu_cursor;
 	extern uint8_t layers_menu_cursor;
-	#define NOT_IN_MENU   0
-	#define MAIN_MENU     1
-	#define SUB_MENU      2
-	#define DIAL_MENU     3
-	#define DIAL_SUB_MENU 4
-	#define LAYERS_MENU   5
+	#define NOT_IN_MENU     0
+	#define MAIN_MENU       1
+	#define SUB_MENU        2
+	#define DIAL_MENU       3
+	#define DIAL_SUB_MENU   4
+	#define LAYERS_MENU     5
+	#define LAYERS_SUB_MENU 6
 /**********************************/
 
 /* GLOBAL PROCEDURES - common use */
@@ -80,11 +82,21 @@
 	void dial_menu_submenu_exit(void);             // Button 1 or 2 while editing: back to the DIAL SETTINGS list
 	void dial_menu_render_sidebar(uint8_t item_pos); // item_pos is 1-based; no pagination on this page
 
-	// "LAYERS CONFIG" sub-page (MENU_LAYERS_CONFIG below) - placeholders for now,
-	// same nested-list shell as "DIAL SETTINGS" (no editing yet, so no LAYERS_SUB_MENU).
+	// "LAYERS CONFIG" sub-page (MENU_LAYERS_CONFIG below) - same nested-list shell
+	// as "DIAL SETTINGS": layers_menu_action() ~ dial_menu_action(), LAYERS_SUB_MENU
+	// ~ DIAL_SUB_MENU. Instead of editing a value though, LAYERS_SUB_MENU is an
+	// icon picker - the scrolling strip beneath the list (qp_menu.c), stepped one
+	// icon-width per encoder detent via layers_menu_scroll_step(). Unlike the
+	// numeric SUB_MENU pages (which apply changes live as you rotate, so Button 1/2
+	// both just exit), the picker only touches eepdata.layer_icon[] on Button 2 -
+	// Button 1 discards whatever was scrolled to and leaves it unchanged.
 	void layers_menu_open(void);                    // Button 2 on MENU_LAYERS_CONFIG
 	void layers_menu_exit(void);                    // Button 1: back to the main list
 	void layers_menu_set_cursor(uint8_t cursor_pos); // cursor_pos is 1..LAYERS_MENU_MAXITEMS
+	void layers_menu_action(void);                  // Button 2 on a list item: enter LAYERS_SUB_MENU to pick its icon
+	void layers_menu_submenu_save(void);            // Button 2 (OK) while picking: commit the icon under the selector, back to the list
+	void layers_menu_submenu_exit(void);            // Button 1 (Exit) while picking: discard, back to the list unchanged
+	void layers_menu_scroll_step(bool clockwise);   // encoder rotation while picking - shifts the strip by exactly one icon's width
 /**********************************/
 
 enum menu_label_list_references {
@@ -109,8 +121,8 @@ enum menu_label_list_references {
 
 static const char * const menu_label_list[MENU_MAXITEMS] = {
 	"LCD BRIGHTNESS",
+	"SLEEP",
 	"SCREEN SAVER",
-	"BURN-IN PROTECT",
 	"DIAL SETTINGS",
 	"THEME COLOR",
 
@@ -154,9 +166,9 @@ enum dial_menu_label_list_references { // 1-based, matches dial_menu_label_list[
 	DIAL_MENU_SENSITIVITY
 };
 static const char * const dial_menu_label_list[DIAL_MENU_MAXITEMS] = {
-	"DIAL FUNCTION",
-	"DIAL RGB MODE",
-	"DIAL SENSITIVITY"
+	"FUNCTION",
+	"RGB MODE",
+	"SPEED"
 };
 
 static const bool dial_menu_label_list_ischangeable[DIAL_MENU_MAXITEMS+1] = {

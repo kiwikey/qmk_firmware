@@ -27,7 +27,7 @@ void widget_knob_init(void);
 void widget_knob_update(uint16_t last_pos, uint16_t new_pos);
 void widget_knob_show_dot(void);
 void widget_knob_show_missing(void);
-void widget_knob_show_func(void);
+void widget_knob_show_func(uint16_t centerx, uint16_t centery);
 
 // Just the static ring (no dot/missing indicator, no live encoder state) at an
 // arbitrary position - for use outside the idle screen's fixed WIDGET_KNOB_CENTERX/Y

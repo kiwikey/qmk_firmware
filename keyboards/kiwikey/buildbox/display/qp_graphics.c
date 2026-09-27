@@ -18,6 +18,7 @@ painter_device_t my_display;
 bool     booting = false; // will be TRUE during boot animation
 bool     ui_refresh_pending = false;
 static bool display_asleep = false;
+static bool rgb_was_enabled_before_sleep = false; // see housekeeping_task_display()'s LCD Timeout block
 
 bool display_is_asleep(void) {
 	return display_asleep;
@@ -155,7 +156,15 @@ void housekeeping_task_display(void) { // Check all flags
 			rgb_status_last_enabled = rgb_enabled;
 			rgb_status_last_mode    = rgb_mode;
 			rgb_status_last_val     = rgb_val;
-			widget_status_update();
+			// widget_status_update() draws at the idle screen's fixed position - only
+			// safe to call there. RGB can still change while the menu/breakout is up
+			// (e.g. VIA's Lighting panel applies over raw HID, bypassing menu_state
+			// entirely - see rgb_status_last_* above), so keep tracking it either way;
+			// ui_refresh() (menu_exit()/breakout_exit()) redraws it from live values
+			// anyway once we're back, so skipping the draw here loses nothing.
+			if (menu_state == NOT_IN_MENU && !breakout_is_active()) {
+				widget_status_update();
+			}
 		}
 
 		// "DIAL SETTINGS" shortcut: Button 1 held this long jumps straight to the sub-page
@@ -169,14 +178,21 @@ void housekeeping_task_display(void) { // Check all flags
 	// (Using the backlight rather than qp_power(): DISPOFF stops the panel from
 	// refreshing but doesn't blank the glass to black on this panel - it settles
 	// to white instead. Zeroing the backlight makes it look off regardless.)
+	// RGB matrix is disabled/re-enabled alongside it (noeeprom - doesn't touch the
+	// user's saved on/off setting). rgb_was_enabled_before_sleep remembers whether
+	// it was actually on going in, so waking up doesn't force it on if the user
+	// had already turned it off themselves before the timeout hit.
 	if (!booting) {
 		uint8_t  timeout_idx = eepdata.display_timeout < DISPLAY_TIMEOUT_COUNT ? eepdata.display_timeout : DISPLAY_TIMEOUT_NEVER_INDEX;
 		uint32_t timeout_ms  = display_timeout_seconds[timeout_idx] * 1000UL;
 		if (!display_asleep && timeout_idx != DISPLAY_TIMEOUT_NEVER_INDEX && last_input_activity_elapsed() >= timeout_ms) {
 			backlight_level_noeeprom(0);
+			rgb_was_enabled_before_sleep = rgb_matrix_is_enabled();
+			rgb_matrix_disable_noeeprom();
 			display_asleep = true;
 		} else if (display_asleep && last_input_activity_elapsed() < timeout_ms) {
 			backlight_level_noeeprom(eepdata.display_brightness);
+			if (rgb_was_enabled_before_sleep) rgb_matrix_enable_noeeprom();
 			display_asleep = false;
 		}
 	}
@@ -270,9 +286,14 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 	Editing a DIAL SETTINGS item (mirrors SUB MENU) :
 		+ Pressing Button 1 -> quit without saving
 		+ Pressing Button 2 -> quit and save the setting
-	LAYERS CONFIG sub-page (placeholders only for now - no per-item editing yet) :
+	LAYERS CONFIG sub-page (mirrors MAIN MENU) :
 		+ Pressing Button 1 -> back to Main Menu
-		+ Pressing Button 2 -> nothing yet
+		+ Pressing Button 2 -> layers_menu_action(): enter LAYERS_SUB_MENU to pick that layer's icon
+	Picking an icon on the LAYERS CONFIG sub-page (unlike every other sub-page,
+	Button 1 and Button 2 do different things here - see layers_menu_scroll_step()/
+	layer_icon_set_choice(), qp_menu.c) :
+		+ Pressing Button 1 -> cancel: discard, back to the list unchanged
+		+ Pressing Button 2 -> save the icon under the selector, back to the list
 	***/
 	if (menu_state == MAIN_MENU) {
 		if (record->event.pressed) {
@@ -332,8 +353,24 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 				case KC_BUTTON_1:
 					layers_menu_exit();
 					return false;
+				case KC_BUTTON_2:
+					layers_menu_action();
+					return false;
 				default:
-					return false; // Placeholder items - Button 2 does nothing yet
+					return false; // During Menu, no keycode is processed
+			}
+		} else return false;
+	} else if (menu_state == LAYERS_SUB_MENU) {
+		if (record->event.pressed) {
+			switch (keycode) {
+				case KC_BUTTON_1:
+					layers_menu_submenu_exit(); // cancel - no change
+					return false;
+				case KC_BUTTON_2:
+					layers_menu_submenu_save(); // commit the icon under the selector
+					return false;
+				default:
+					return false; // During Menu, no keycode is processed
 			}
 		} else return false;
 	}
@@ -372,26 +409,4 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 
 	widget_matrix_update(record->event.key.col, record->event.key.row);
 	return true;
-}
-
-void test_fonts(void) {
-	qp_clear(my_display);
-	qp_rect(my_display, 0, 0, 319, 239, GLOBAL_BG_COLOR, true); // Fill screen by black color
-
-	char     buf[32];
-	uint16_t y = 0;
-
-	sprintf(buf, "thintel16: abcd1234");
-	qp_drawtext(my_display, 0, y, thintel16, buf);
-	y += thintel16->line_height + 2;
-
-	sprintf(buf, "thintel32: abcd1234");
-	qp_drawtext(my_display, 0, y, thintel32, buf);
-	y += thintel32->line_height + 2;
-
-	sprintf(buf, "font_oled: abcd1234");
-	qp_drawtext(my_display, 0, y, font_oled, buf);
-	y += font_oled->line_height + 2;
-
-	qp_flush(my_display);
 }

@@ -63,12 +63,39 @@ SRC += \
 	display/resources/icons/ico12_arrow_left.qgf.c  \
 	display/resources/icons/ico12_arrow_right.qgf.c \
 	display/resources/icons/ico22_gear.qgf.c        \
-	display/resources/graphics/ico18_heart.qgf.c    \
-	display/resources/icons/icons_24x24.qgf.c
+	display/resources/graphics/ico18_heart.qgf.c
+
+# ICONS - 22x22 batch (display/resources/icons/22x22/)
+SRC += \
+	display/resources/icons/22x22/25.qgf.c               \
+	display/resources/icons/22x22/47.qgf.c               \
+	display/resources/icons/22x22/68.qgf.c               \
+	display/resources/icons/22x22/72.qgf.c               \
+	display/resources/icons/22x22/74.qgf.c               \
+	display/resources/icons/22x22/86.qgf.c               \
+	display/resources/icons/22x22/88.qgf.c               \
+	display/resources/icons/22x22/Application.qgf.c      \
+	display/resources/icons/22x22/Boss.qgf.c             \
+	display/resources/icons/22x22/Calculator.qgf.c       \
+	display/resources/icons/22x22/color_wheel.qgf.c      \
+	display/resources/icons/22x22/Component.qgf.c        \
+	display/resources/icons/22x22/Desktop.qgf.c          \
+	display/resources/icons/22x22/Earth.qgf.c            \
+	display/resources/icons/22x22/Favourites.qgf.c       \
+	display/resources/icons/22x22/Film.qgf.c             \
+	display/resources/icons/22x22/game_controller.qgf.c  \
+	display/resources/icons/22x22/Gear.qgf.c             \
+	display/resources/icons/22x22/Globe.qgf.c            \
+	display/resources/icons/22x22/Heart.qgf.c            \
+	display/resources/icons/22x22/Heart1.qgf.c           \
+	display/resources/icons/22x22/Mail.qgf.c             \
+	display/resources/icons/22x22/Mouse.qgf.c            \
+	display/resources/icons/22x22/Online.qgf.c
 
 # IMAGES & ANIMATIONS
 SRC += \
 	display/resources/graphics/gif_bootup01.qgf.c   \
 	display/resources/graphics/gif_cat01.qgf.c      \
 	display/resources/graphics/anya01.qgf.c         \
-	display/resources/graphics/gif_nyan120px.qgf.c
+	display/resources/graphics/gif_nyan120px.qgf.c  \
+	display/resources/graphics/knob.qgf.c

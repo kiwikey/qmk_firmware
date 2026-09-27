@@ -39,22 +39,46 @@ void widget_layer_render_layername(uint8_t layer, uint16_t posx, uint16_t posy) 
 	toUppercase(layer_names[layer], layer_name_upper, sizeof(layer_name_upper));
 	qp_drawtext_recolor_center(my_display,
 							   posx + WIDGET_LAYER_WIDTH/2,
-							   posy + WIDGET_LAYER_HEIGHT/2 +2, // +2 for micro refining
+							   posy + WIDGET_LAYER_HEIGHT/2 +2,
 							   WIDGET_LAYER_FONT,
 							   layer_name_upper,
 							   WIDGET_LAYER_TEXT,
 							   WIDGET_LAYER_BG);
 
-	// Fixed icon per layer index, next to the name text but still inside the box
-	painter_image_handle_t icon_pool[] = {
-		ico24_application, ico24_boss,      ico24_calculator, ico24_component, ico24_earth, ico24_favourites,
-		ico24_film,        ico24_globe,     ico24_heart,      ico24_music,     ico24_tune,
-	};
-	painter_image_handle_t icon = icon_pool[layer % (sizeof(icon_pool)/sizeof(icon_pool[0]))];
+	// Chosen icon for this layer, next to the name text but still inside the box -
+	// picked in the "LAYERS CONFIG" menu's icon picker (qp_menu.c) and persisted
+	// in eepdata.layer_icon[]. layer_icon_pool_icon()/layer_icon_get_choice() are
+	// the single source of truth, shared with that picker.
+	painter_image_handle_t icon = layer_icon_pool_icon(layer_icon_get_choice(layer));
 	qp_drawimage(my_display,
-	             posx + WIDGET_LAYER_WIDTH - WIDGET_LAYER_ICON_PADDING - icon->width,
-	             posy + (WIDGET_LAYER_HEIGHT - icon->height)/2,
+	             posx + WIDGET_LAYER_ICON_PADDING,
+	             posy + (WIDGET_LAYER_HEIGHT - icon->height)/2 +1,
 	             icon);
+}
+
+// 22x22 batch (display/resources/icons/22x22/, see qp_includes.h/.c) - the
+// picker in qp_menu.c scrolls through this same pool, index for index.
+painter_image_handle_t layer_icon_pool_icon(uint8_t pool_index) {
+	painter_image_handle_t pool[LAYER_ICON_POOL_COUNT] = {
+		ico22_25,          ico22_47,              ico22_68,          ico22_72,    ico22_74,
+		ico22_86,          ico22_88,              ico22_application, ico22_boss,  ico22_calculator,
+		ico22_color_wheel, ico22_component,       ico22_desktop,     ico22_earth, ico22_favourites,
+		ico22_film,        ico22_game_controller, ico22_gear2,       ico22_globe, ico22_heart,
+		ico22_heart1,      ico22_mail,            ico22_mouse,       ico22_online,
+	};
+	return pool[pool_index % LAYER_ICON_POOL_COUNT];
+}
+
+// Per-layer chosen pool index - backed by eepdata.layer_icon[] (features/
+// eeprom_custom.h) so a choice survives a reboot the same way every other
+// setting does: it's just written back to EEPROM whenever eeprom_update_custom()
+// runs (menu_exit(), qp_menu.c), no extra save logic needed here.
+uint8_t layer_icon_get_choice(uint8_t layer) {
+	return eepdata.layer_icon[layer % DYNAMIC_KEYMAP_LAYER_COUNT];
+}
+
+void layer_icon_set_choice(uint8_t layer, uint8_t pool_index) {
+	eepdata.layer_icon[layer % DYNAMIC_KEYMAP_LAYER_COUNT] = pool_index % LAYER_ICON_POOL_COUNT;
 }
 
 void widget_layer_render_navigation(uint8_t layer) {

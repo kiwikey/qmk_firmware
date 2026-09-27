@@ -37,6 +37,7 @@ EEPROM_CUSTOM_DATA eepdata_default = {
 	KNOB_SENSITIVITY_MEDIUM,  // Knob-function activation sensitivity default
 	1,                        // Unbox tutorial: undone (show it on next boot)
 	1,                        // Screensaver effect: "Rain 1" (matrix_rain_1) - index 0 is now "OFF"
+	{  13,   1,   22,   10 },  // Layer icons: Earth - Application - Boss - Calculator (layer_icon_pool_icon() indices, qp_widget_layer.c)
 	7                         // Checksum is always 7
 };
 

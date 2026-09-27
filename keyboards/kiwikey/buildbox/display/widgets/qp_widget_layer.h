@@ -25,3 +25,12 @@
 void widget_layer_init(void);
 void widget_layer_render_layername(uint8_t layer, uint16_t posx, uint16_t posy); // posx/posy let callers (e.g. the "LAYERS CONFIG" menu) stack several of these without colliding
 void widget_layer_render_navigation(uint8_t layer);
+
+// Per-layer icon (drawn inside the box by widget_layer_render_layername() above)
+// - single source of truth shared with the "LAYERS CONFIG" icon picker
+// (qp_menu.c), so a choice made there is reflected everywhere the box is drawn.
+#define LAYER_ICON_POOL_COUNT 24 // display/resources/icons/22x22/ - see layer_icon_pool_icon()'s definition (qp_widget_layer.c)
+
+painter_image_handle_t layer_icon_pool_icon(uint8_t pool_index);            // pool_index wraps % LAYER_ICON_POOL_COUNT
+uint8_t                layer_icon_get_choice(uint8_t layer);                // currently chosen pool index for that layer
+void                    layer_icon_set_choice(uint8_t layer, uint8_t pool_index); // called when the picker saves a new choice

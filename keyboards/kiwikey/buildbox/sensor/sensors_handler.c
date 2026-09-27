@@ -107,7 +107,7 @@ void magnetic_encoder_update_kb(bool direction) {
         // since MENU_DEBUG/MENU_BOOTTODFU never enter SUB_MENU) - ignore
         // rotation instead of letting it fall through to menu list navigation
         // below and redraw the list right over them.
-    } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU || menu_state == DIAL_MENU || menu_state == DIAL_SUB_MENU || menu_state == LAYERS_MENU) { // While in Menu
+    } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU || menu_state == DIAL_MENU || menu_state == DIAL_SUB_MENU || menu_state == LAYERS_MENU || menu_state == LAYERS_SUB_MENU) { // While in Menu
         while (accumulator >= MENU_STEP_SIZE) {
             process_encoder_rotate(CW);
             accumulator -= MENU_STEP_SIZE;
@@ -282,6 +282,10 @@ bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
 				layers_menu_cursor = (layers_menu_cursor <= 1) ? LAYERS_MENU_MAXITEMS : layers_menu_cursor - 1;
 			}
 			layers_menu_set_cursor(layers_menu_cursor);
+		/* Picking an icon on the "LAYERS CONFIG" sub-page - knob rotation shifts
+		   the icon strip by exactly one icon's width per step instead of moving a cursor */
+		} else if (menu_state == LAYERS_SUB_MENU) {
+			layers_menu_scroll_step(clockwise);
 		}
 		return false;
 	}

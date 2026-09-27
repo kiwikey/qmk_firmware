@@ -14,11 +14,9 @@
 #include "display/widgets/tutorial.h"
 // #include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
-// #include "display/widgets/qp_widget_knob.h"
+#include "display/widgets/qp_widget_knob.h"
 
 extern painter_device_t my_display;
-// extern bool    lcdoff_flag;
-// extern bool    rgboff_flag;
 
 uint8_t menu_state         = NOT_IN_MENU;
 uint8_t menu_cursor        = MENU_1STLINE_POS;
@@ -388,6 +386,119 @@ static void layers_menu_printlist(void) {
 	for (uint8_t i = 0; i < LAYERS_MENU_MAXITEMS; i++) {
 		widget_layer_render_layername(i, LAYERS_MENU_BOX_POSX, MENU_POSY + i*LAYERS_MENU_ROW_HEIGHT);
 	}
+	// The icon-picker strip (below) stays hidden here - it only appears while
+	// actually picking (LAYERS_SUB_MENU, see layers_menu_action()).
+}
+
+// Icon picker, shown beneath the last layer box only while menu_state ==
+// LAYERS_SUB_MENU (entered via layers_menu_action()): every icon in the
+// shared layer-icon pool (LAYER_ICON_POOL_COUNT, qp_widget_layer.c) laid out
+// left-to-right on a grid. layers_menu_scroll_step() shifts it by exactly one
+// icon-width per encoder detent (no auto-scrolling). The icon sitting in the
+// highlighted middle cell is what layers_menu_submenu_save() commits via
+// layer_icon_set_choice() - which is also what widget_layer_render_layername()
+// draws inside the box, so the choice feeds straight back into the list (and
+// everywhere else that layer's box is shown).
+#define LAYERS_MENU_SCROLL_TOP        (MENU_POSY + LAYERS_MENU_MAXITEMS * LAYERS_MENU_ROW_HEIGHT)
+#define LAYERS_MENU_SCROLL_HEIGHT     30 // fits between the last box (ends at LAYERS_MENU_SCROLL_TOP) and the chrome's divider line (y=208)
+#define LAYERS_MENU_SCROLL_ICON_SIZE  22
+#define LAYERS_MENU_SCROLL_ICON_GAP   9
+#define LAYERS_MENU_SCROLL_CELL_W     (LAYERS_MENU_SCROLL_ICON_SIZE + LAYERS_MENU_SCROLL_ICON_GAP)
+#define LAYERS_MENU_SCROLL_TOTAL_W    (LAYER_ICON_POOL_COUNT * LAYERS_MENU_SCROLL_CELL_W)
+#define LAYERS_MENU_SCROLL_VISIBLE    12 // generous upper bound on cells that can be on-screen at once - extras are just skipped
+#define LAYERS_MENU_SELECTOR_CELL     4  // the 5th (middle) visible cell - see layers_menu_draw_icon_scroll()
+#define LAYERS_MENU_SELECTOR_COLOR    MENU_CURSOR_COLOR
+
+static uint16_t layers_menu_scroll_x = 0; // always an exact multiple of LAYERS_MENU_SCROLL_CELL_W - keeps the grid pixel-aligned so the selector box lines up with an icon exactly
+
+static void layers_menu_draw_icon_scroll(void) {
+	uint16_t icon_y      = LAYERS_MENU_SCROLL_TOP + (LAYERS_MENU_SCROLL_HEIGHT - LAYERS_MENU_SCROLL_ICON_SIZE)/2;
+	uint16_t first_index = layers_menu_scroll_x / LAYERS_MENU_SCROLL_CELL_W;
+
+	for (uint8_t v = 0; v < LAYERS_MENU_SCROLL_VISIBLE; v++) {
+		int32_t x = (int32_t)MENU_POSX + v*LAYERS_MENU_SCROLL_CELL_W +14;
+		// Only draw icons that fit fully on-screen: qp_drawimage() takes uint16_t
+		// coordinates (no negative x) and doesn't crop images, so a partially
+		// visible one at either edge (including the arrows below) is skipped instead.
+		if (x + LAYERS_MENU_SCROLL_ICON_SIZE > MENU_WIDTH - 10) continue;
+
+		uint8_t idx = (first_index + v) % LAYER_ICON_POOL_COUNT;
+		qp_drawimage(my_display, (uint16_t)x, icon_y, layer_icon_pool_icon(idx));
+	}
+
+	// Outline the middle cell - that's the one that gets saved when
+	// layers_menu_submenu_save() runs.
+	uint16_t selector_x = MENU_POSX + LAYERS_MENU_SELECTOR_CELL*LAYERS_MENU_SCROLL_CELL_W +14;
+	qp_rect(my_display,
+	        selector_x - 3, icon_y - 3,
+	        selector_x + LAYERS_MENU_SCROLL_ICON_SIZE + 3, icon_y + LAYERS_MENU_SCROLL_ICON_SIZE + 3,
+			LAYERS_MENU_SELECTOR_COLOR, false);
+	qp_rect(my_display,
+	        selector_x - 2, icon_y - 2,
+	        selector_x + LAYERS_MENU_SCROLL_ICON_SIZE + 2, icon_y + LAYERS_MENU_SCROLL_ICON_SIZE + 2,
+			LAYERS_MENU_SELECTOR_COLOR, false);
+}
+
+// Icon index currently sitting in the highlighted selector cell.
+static uint8_t layers_menu_selected_icon(void) {
+	return (layers_menu_scroll_x/LAYERS_MENU_SCROLL_CELL_W + LAYERS_MENU_SELECTOR_CELL) % LAYER_ICON_POOL_COUNT;
+}
+
+void layers_menu_action(void) { // Button 2 on a LAYERS CONFIG row: enter LAYERS_SUB_MENU to pick its icon
+	menu_state = LAYERS_SUB_MENU;
+
+	// Seed the strip so the layer's current icon starts out under the selector
+	uint8_t current = layer_icon_get_choice(layers_menu_cursor - 1);
+	uint8_t first_index = (current + LAYER_ICON_POOL_COUNT - LAYERS_MENU_SELECTOR_CELL) % LAYER_ICON_POOL_COUNT;
+	layers_menu_scroll_x = first_index * LAYERS_MENU_SCROLL_CELL_W;
+
+	qp_rect(my_display,
+	        MENU_POSX, LAYERS_MENU_SCROLL_TOP,
+	        MENU_WIDTH, LAYERS_MENU_SCROLL_TOP + LAYERS_MENU_SCROLL_HEIGHT,
+			HSV_WHITE,
+			true);
+	uint16_t arrow_y = LAYERS_MENU_SCROLL_TOP + (LAYERS_MENU_SCROLL_HEIGHT - MENU_CURSOR_ICON_HEIGHT)/2;
+	qp_drawimage_recolor(my_display, MENU_POSX, arrow_y, ico16_arrow_left, GLOBAL_THEME_COLOR, HSV_WHITE);
+	qp_drawimage_recolor(my_display, MENU_WIDTH - MENU_CURSOR_ICON_WIDTH, arrow_y, ico16_arrow_right, GLOBAL_THEME_COLOR, HSV_WHITE);
+
+	layers_menu_draw_icon_scroll();
+	qp_flush(my_display);
+}
+
+// Shared by both ways out of the picker: hide the strip, redraw this layer's
+// box (reflecting whatever eepdata.layer_icon[] currently holds - a fresh
+// choice if just saved, or the original if just cancelled), back to the list.
+static void layers_menu_submenu_close(void) {
+	uint8_t layer = layers_menu_cursor - 1;
+	menu_state = LAYERS_MENU;
+
+	qp_rect(my_display,
+	        MENU_POSX, LAYERS_MENU_SCROLL_TOP,
+	        MENU_WIDTH, LAYERS_MENU_SCROLL_TOP + LAYERS_MENU_SCROLL_HEIGHT,
+			MENU_BACKGROUND,
+			true);
+
+	widget_layer_render_layername(layer, LAYERS_MENU_BOX_POSX, MENU_POSY + layer*LAYERS_MENU_ROW_HEIGHT);
+	qp_flush(my_display);
+}
+
+void layers_menu_submenu_save(void) { // Button 2 (OK) while picking: commit the icon under the selector
+	layer_icon_set_choice(layers_menu_cursor - 1, layers_menu_selected_icon());
+	layers_menu_submenu_close();
+}
+
+void layers_menu_submenu_exit(void) { // Button 1 (Exit) while picking: discard, eepdata.layer_icon[] untouched
+	layers_menu_submenu_close();
+}
+
+void layers_menu_scroll_step(bool clockwise) { // encoder rotation while picking - one full icon-width per detent
+	if (clockwise) {
+		layers_menu_scroll_x = (layers_menu_scroll_x + LAYERS_MENU_SCROLL_CELL_W) % LAYERS_MENU_SCROLL_TOTAL_W;
+	} else {
+		layers_menu_scroll_x = (layers_menu_scroll_x == 0) ? (LAYERS_MENU_SCROLL_TOTAL_W - LAYERS_MENU_SCROLL_CELL_W) : layers_menu_scroll_x - LAYERS_MENU_SCROLL_CELL_W;
+	}
+	layers_menu_draw_icon_scroll();
+	qp_flush(my_display);
 }
 
 void layers_menu_set_cursor(uint8_t cursor_pos) { // cursor_pos is ABSOLUTE (1..LAYERS_MENU_MAXITEMS), single page only
@@ -676,15 +787,15 @@ void action_debug(void) {
 	qp_flush(my_display);
 }
 
+void eeprom_update_custom(void) {
+	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
+}
+
 // void action_factoryreset(void) {
 // 	clear_keyboard();   // release all pressed keys if available
 // 	eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
 // 	eeconfig_disable();
 // 	soft_reset_keyboard();
 // }
-
-void eeprom_update_custom(void) {
-	eeprom_update_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
-}
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)

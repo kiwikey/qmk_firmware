@@ -22,6 +22,7 @@ typedef struct {
 } theme_color_preset_t;
 
 #define DIAL_SETTINGS_HOLD_MS 3000
+#define SCREENSAVER_IDLE_MS   600000 // ms of no input before the screensaver kicks in (10 min) - see qp_widget_screensaver.c
 
 #define THEME_COLOR_PRESET_COUNT 10
 
@@ -46,22 +47,6 @@ static inline uint8_t theme_color_preset_index(uint8_t hue) {
 	}
 	return 0;
 }
-
-/*** Definitions of (almost) all positions, colors, texts,... ***/
-
-// #define UI_COLOR_BACKGROUND     HSV_BLACK
-// #define UI_COLOR_SHADOW         0, 0, 100
-// #define UI_COLOR_TEXT_H1        HSV_BLACK
-// #define UI_COLOR_TEXT_H2        HSV_BLACK
-// #define UI_WIDGET_SHADOW        3 // shadow of widgets, in pixel
-
-// #define WIDGET_RGB_COLOR1     HSV_WHITE // Color of the 1st line
-// #define WIDGET_RGB_COLOR2     HSV_GREEN // Color of the 2st line
-
-// #define WIDGET_ENCODER_COLOR1     HSV_PINK  // Color of the 1st line
-// #define WIDGET_ENCODER_COLOR2     HSV_GOLD // Color of the 2st line
-// #define WIDGET_ENCODER_KNOBCOLORIN      HSV_YELLOW
-// #define WIDGET_ENCODER_KNOBCOLOROUT     HSV_GOLDENROD
 
 static const char * const layer_names[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 	"Default",

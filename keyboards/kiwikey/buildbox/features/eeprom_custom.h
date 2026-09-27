@@ -21,6 +21,7 @@ typedef struct {
 	uint8_t knob_sensitivity; // LOW/MEDIUM/HIGH index, see KNOB_SENSITIVITY_* and knob_sensitivity_step[] (sensors_handler.h)
 	uint8_t unbox_tutorial;   // 1 = show the first-boot tutorial (display/widgets/tutorial.c), 0 = already shown/dismissed
 	uint8_t screensaver_effect; // 0 = OFF, 1.. = selected effect; see SCREEN_SAVER_MAXITEMS/screen_saver_effect_list[] (display/widgets/qp_menu.h)
+	uint8_t layer_icon[DYNAMIC_KEYMAP_LAYER_COUNT]; // pool index into layer_icon_pool_icon() (display/widgets/qp_widget_layer.c) - picked in the "LAYERS CONFIG" menu
 	uint8_t checksum;
 } EEPROM_CUSTOM_DATA;
 

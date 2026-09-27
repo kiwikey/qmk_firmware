@@ -52,6 +52,13 @@ void widget_knob_draw_ring(uint16_t centerx, uint16_t centery, uint16_t radius) 
 			  centerx, centery,
 			  radius - WIDGET_KNOB_OUTTER_THICKNESS,
 			  WIDGET_KNOB_BG_COLOR, true);
+
+	// Decorative knob graphic (display/resources/graphics/knob.qgf.c/.h), centered
+	// on top of the ring - centerx/centery is its center, not its top-left corner.
+	qp_drawimage(my_display,
+				 centerx - img_knob->width/2,
+				 centery - img_knob->height/2,
+				 img_knob);
 }
 
 void widget_knob_init(void) {
@@ -59,18 +66,18 @@ void widget_knob_init(void) {
 
 	if (magnetic_encoder.is_present) {
 		widget_knob_draw_dot();
-		widget_knob_show_func();
+		widget_knob_show_func(WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY);
 	} else {
 		widget_knob_draw_missing();
 	}
 }
 
-void widget_knob_show_func(void) {
+void widget_knob_show_func(uint16_t centerx, uint16_t centery) {
 	char buf1[5] = {0}; // maximum 4 characters + null terminator = 5 bytes
 	uint8_t func = (eepdata.knob_func < KNOB_FUNC_COUNT) ? eepdata.knob_func : KNOB_FUNC_CUSTOM;
 	sprintf(buf1, "%s", knob_func_short_text[func]);
 	qp_drawtext_recolor_center(my_display,
-								WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
+								centerx, centery,
 								WIDGET_KNOB_FONT,
 								buf1,
 								HSV_WHITE,
@@ -83,7 +90,7 @@ void widget_knob_show_dot(void) {
 			  WIDGET_KNOB_CENTER_CLEAR_RADIUS,
 			  WIDGET_KNOB_BG_COLOR, true);
 	widget_knob_draw_dot();
-	widget_knob_show_func();
+	widget_knob_show_func(WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY);
 }
 
 // Call when the magnet is lost: clears the DOT and shows "!" instead.
