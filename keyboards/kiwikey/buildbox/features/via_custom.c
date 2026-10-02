@@ -1,4 +1,5 @@
 #include "via_custom.h"
+#include "raw_hid.h"
 #include "eeprom_custom.h"
 #include "display/qp_graphics.h"
 #include "webhid_stream.h"
@@ -112,6 +113,26 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
     //   -> turn on flag_display_keycode_changed so the LCD refresh the 'Widget Matrix'
     if (*command_id == id_dynamic_keymap_set_keycode) {
         flag_display_keycode_changed = ( 0x1000 | (command_data[0]<<8) | (command_data[1]<<4) | command_data[2]);
+    }
+
+    // The knob's KLE legend has an 'ei' (encoder index) so VIA draws it as a round
+    // knob cap instead of a square key - but the knob bypasses QMK's ENCODER_MAP
+    // feature entirely (custom AS5600 sensor, see sensor/sensors_handler.c), so
+    // ENCODER_MAP_ENABLE is never defined and via.c's own get/set_encoder cases are
+    // compiled out, replying id_unhandled. That breaks "Save Current Layout" in VIA:
+    // save-load.tsx awaits getEncoderValue() for this key before writing the file,
+    // and the rejected promise aborts the save with an already-created but empty
+    // file. Answer both commands here so VIA gets a normal response; the knob's
+    // actual behavior is controlled by id_knob_func, not per-layer keycodes.
+    if (*command_id == id_dynamic_keymap_get_encoder) {
+        command_data[3] = 0; // KC_NO
+        command_data[4] = 0;
+        raw_hid_send(data, length); // via_command_kb() must send the reply itself when it returns true
+        return true;
+    }
+    if (*command_id == id_dynamic_keymap_set_encoder) {
+        raw_hid_send(data, length); // no-op, nothing to persist - just ack it
+        return true;
     }
 
 #if defined(BACKLIGHT_ENABLE)

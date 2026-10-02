@@ -3,6 +3,16 @@
     "vendorId": "0x4B57",
     "productId": "0xBB00",
     "keycodes": ["qmk_rgb_matrix_keycodes"],
+	"customKeycodes": [
+		{"name": "Cut (Win)","title": "Windows CUT (CTRL+X)","shortName": "Cut"},
+		{"name": "Copy (Win)","title": "Windows COPY (CTRL+C)","shortName": "Copy"},
+		{"name": "Paste (Win)","title": "Windows PASTE (CTRL+V)","shortName": "Paste"},
+		{"name": "Show Dsktop (Win)","title": "Minimize all windows & show Desktop (Win+D)","shortName": "DESK"},
+		{"name": "Snip Tool (Win)","title": "Snipping Tool (Win+Shft+S)","shortName": "Snip"},
+		{"name": "Cut (Mac)","title": "Mac CUT (Command+X)","shortName": "Cut"},
+		{"name": "Copy (Mac)","title": "Mac COPY (Command+C)","shortName": "Copy"},
+		{"name": "Paste (Mac)","title": "Mac PASTE (Command+V)","shortName": "Paste"}
+	],
     "menus": [
 		{
             "label": "BUILDBOX CONFIGS",

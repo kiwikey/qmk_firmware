@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "FW V260924"
+#define FW_VERSION "FW V260927"
 
 #define MATRIX_COLS 4
 #define MATRIX_ROWS 5

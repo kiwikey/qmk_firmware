@@ -56,6 +56,6 @@ static const char * const layer_names[DYNAMIC_KEYMAP_LAYER_COUNT] = {
 };
 
 enum custom_keycodes {
-	KC_BUTTON_1 = SAFE_RANGE, // keycode 0x7E40
+	KC_BUTTON_1 = SAFE_RANGE, // QK_USER_0, keycode 0x7E40
 	KC_BUTTON_2
 };
