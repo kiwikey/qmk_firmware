@@ -62,9 +62,9 @@
  * 0x03-0x0F, 0x14-0x1F, 0x21-0xFE are reserved for growth (pixel-run/RLE
  * fallback, GIF-frame blit, cursor, etc).
  *
- * NOT mirrored in v1: qp_roundrect() (menu boxes) draws via internal QP
+ * NOT mirrored in v1: bb_roundrect() (menu boxes) draws via internal QP
  * fill-helpers, bypassing qp_rect entirely, and it's a function this
- * codebase defines itself (features/qp_custom_api.c) rather than calls -
+ * codebase defines itself (display/qp_custom_api.c) rather than calls -
  * shadowing its name would rewrite its own definition. Left as a known gap;
  * see features/webhid_shadow.h.
  *
@@ -113,15 +113,15 @@
 #define WEBHID_SYNC_BYTE 0xA5
 
 typedef enum {
-    OP_PAD    = 0x00,
-    OP_HELLO  = 0x01,
-    OP_CLEAR  = 0x02,
-    OP_RECT   = 0x10,
-    OP_TEXT   = 0x11,
-    OP_ICON   = 0x12,
-    OP_CIRCLE = 0x13,
-    OP_FLUSH  = 0x20,
-    OP_RESET  = 0xFF,
+	OP_PAD    = 0x00,
+	OP_HELLO  = 0x01,
+	OP_CLEAR  = 0x02,
+	OP_RECT   = 0x10,
+	OP_TEXT   = 0x11,
+	OP_ICON   = 0x12,
+	OP_CIRCLE = 0x13,
+	OP_FLUSH  = 0x20,
+	OP_RESET  = 0xFF,
 } webhid_opcode_t;
 
 #define WEBHID_PROTOCOL_VERSION 1

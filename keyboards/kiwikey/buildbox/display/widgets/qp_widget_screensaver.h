@@ -3,8 +3,8 @@
 #include "quantum.h"
 #include "display/defines.h"
 
-/***  Full-screen idle-time effects; which one runs is picked in the "BURN-IN
-	PROTECTION" menu item (qp_menu.c), or turned off entirely via its "OFF"
+/***  Full-screen idle-time effects; which one runs is picked in the "SCREEN
+	SAVER" menu item (qp_menu.c), or turned off entirely via its "OFF"
 	option (eepdata.screensaver_effect == SCREENSAVER_OFF_INDEX). Otherwise only
 	arms while the LCD Timeout (eepdata.display_timeout) is set to "1 Hour" or
 	NEVER (DISPLAY_TIMEOUT_1HOUR_INDEX, qp_graphics.h) - for the shorter
@@ -22,8 +22,8 @@
 #define SCREENSAVER_FONT      font_oled
 #define SCREENSAVER_GLYPH_W   6
 #define SCREENSAVER_GLYPH_H   8
-#define SCREENSAVER_COLS      (ST7789_WIDTH  / SCREENSAVER_GLYPH_W)
-#define SCREENSAVER_ROWS      (ST7789_HEIGHT / SCREENSAVER_GLYPH_H)
+#define SCREENSAVER_COLS      (DISPLAY_WIDTH  / SCREENSAVER_GLYPH_W)
+#define SCREENSAVER_ROWS      (DISPLAY_HEIGHT / SCREENSAVER_GLYPH_H)
 
 /***  One screensaver effect:
 	init(initial) - (re)seeds its state and clears the screen. 'initial' spreads

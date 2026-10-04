@@ -12,6 +12,15 @@
 #include "features/eeprom_custom.h"
 #include "features/knob_custom.h"
 
+// Short text shown centered in the knob widget (widget_knob_show_func(), qp_widget_knob.c), indexed by eepdata.knob_func.
+static const char * const knob_func_short_text[] = {
+	"HS",
+	"VS",
+	"VOL",
+	"CUS"
+};
+_Static_assert(sizeof(knob_func_short_text) / sizeof(knob_func_short_text[0]) == (KNOB_FUNC_COUNT), "knob_func_short_text must have exactly KNOB_FUNC_COUNT entries");
+
 static int last_drawn_x = WIDGET_KNOB_CENTERX;
 static int last_drawn_y = WIDGET_KNOB_CENTERY;
 
@@ -20,7 +29,7 @@ static void widget_knob_draw_dot(void) {
 	int angle = 255 - (magnetic_encoder.new_angle >> 4);
 	last_drawn_x = WIDGET_KNOB_CENTERX + (WIDGET_KNOB_DOT_ORBIT_RADIUS * (cos8(angle)-128)) / 128;
 	last_drawn_y = WIDGET_KNOB_CENTERY - (WIDGET_KNOB_DOT_ORBIT_RADIUS * (sin8(angle)-128)) / 128;
-	qp_circle(my_display, last_drawn_x, last_drawn_y,
+	qp_circle(bb_display, last_drawn_x, last_drawn_y,
 			  WIDGET_KNOB_DOT_SIZE,
 			  WIDGET_KNOB_DOT_COLOR,
 			  WIDGET_KNOB_DOT_IS_FILLED);
@@ -30,10 +39,10 @@ static void widget_knob_draw_dot(void) {
 // clear radius stays inside the DOT's orbit (orbit radius - dot size) so it
 // never touches the DOT/ring, meaning it also safely wipes any leftover "!".
 static void widget_knob_draw_missing(void) {
-	qp_circle(my_display, WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
+	qp_circle(bb_display, WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
 			  WIDGET_KNOB_CENTER_CLEAR_RADIUS,
 			  WIDGET_KNOB_BG_COLOR, true);
-	qp_drawtext_recolor_center(my_display,
+	bb_drawtext_recolor_center(bb_display,
 								WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
 								WIDGET_KNOB_FONT, "!",
 								WIDGET_KNOB_DOT_COLOR,
@@ -42,23 +51,25 @@ static void widget_knob_draw_missing(void) {
 
 // Just the static ring - no dot/missing indicator, no live encoder state.
 void widget_knob_draw_ring(uint16_t centerx, uint16_t centery, uint16_t radius) {
-	// Big knob, fill with WIDGET_KNOB_OUTTER_COLOR
-	qp_circle(my_display,
+	// Big knob, fill with WIDGET_KNOB_OUTER_COLOR
+	qp_circle(bb_display,
 			  centerx, centery,
 			  radius,
-			  WIDGET_KNOB_OUTTER_COLOR, true);
-	// Fill inside knob, with a smaller diameter of WIDGET_KNOB_OUTTER_THICKNESS
-	qp_circle(my_display,
+			  WIDGET_KNOB_OUTER_COLOR, true);
+	// Fill inside knob, with a smaller diameter of WIDGET_KNOB_OUTER_THICKNESS
+	qp_circle(bb_display,
 			  centerx, centery,
-			  radius - WIDGET_KNOB_OUTTER_THICKNESS,
+			  radius - WIDGET_KNOB_OUTER_THICKNESS,
 			  WIDGET_KNOB_BG_COLOR, true);
 
 	// Decorative knob graphic (display/resources/graphics/knob.qgf.c/.h), centered
 	// on top of the ring - centerx/centery is its center, not its top-left corner.
-	qp_drawimage(my_display,
-				 centerx - img_knob->width/2,
-				 centery - img_knob->height/2,
-				 img_knob);
+	if (img_knob) { // NULL if it failed to load (qp_includes.c) - its size is read directly below
+		qp_drawimage(bb_display,
+					 centerx - img_knob->width/2,
+					 centery - img_knob->height/2,
+					 img_knob);
+	}
 }
 
 void widget_knob_init(void) {
@@ -73,20 +84,17 @@ void widget_knob_init(void) {
 }
 
 void widget_knob_show_func(uint16_t centerx, uint16_t centery) {
-	char buf1[5] = {0}; // maximum 4 characters + null terminator = 5 bytes
-	uint8_t func = (eepdata.knob_func < KNOB_FUNC_COUNT) ? eepdata.knob_func : KNOB_FUNC_CUSTOM;
-	sprintf(buf1, "%s", knob_func_short_text[func]);
-	qp_drawtext_recolor_center(my_display,
+	bb_drawtext_recolor_center(bb_display,
 								centerx, centery,
 								WIDGET_KNOB_FONT,
-								buf1,
+								knob_func_short_text[eepdata.knob_func], // range-checked by eeprom_custom_validate()
 								HSV_WHITE,
 								WIDGET_KNOB_BG_COLOR);
 }
 
 // Call when the magnet is (re)detected: clears the "!" and shows the DOT again.
 void widget_knob_show_dot(void) {
-	qp_circle(my_display, WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
+	qp_circle(bb_display, WIDGET_KNOB_CENTERX, WIDGET_KNOB_CENTERY,
 			  WIDGET_KNOB_CENTER_CLEAR_RADIUS,
 			  WIDGET_KNOB_BG_COLOR, true);
 	widget_knob_draw_dot();
@@ -95,7 +103,7 @@ void widget_knob_show_dot(void) {
 
 // Call when the magnet is lost: clears the DOT and shows "!" instead.
 void widget_knob_show_missing(void) {
-	qp_circle(my_display, last_drawn_x, last_drawn_y,
+	qp_circle(bb_display, last_drawn_x, last_drawn_y,
 			  WIDGET_KNOB_DOT_SIZE,
 			  WIDGET_KNOB_BG_COLOR,
 			  WIDGET_KNOB_DOT_IS_FILLED);
@@ -121,12 +129,12 @@ void widget_knob_update(uint16_t last_pos, uint16_t new_pos) {
 	}
 
 	// clear the old DOT
-	qp_circle(my_display, last_drawn_x, last_drawn_y,
+	qp_circle(bb_display, last_drawn_x, last_drawn_y,
 			  WIDGET_KNOB_DOT_SIZE,
 			  WIDGET_KNOB_BG_COLOR,
 			  WIDGET_KNOB_DOT_IS_FILLED);
 	// draw the new DOT
-	qp_circle(my_display, new_x, new_y,
+	qp_circle(bb_display, new_x, new_y,
 			  WIDGET_KNOB_DOT_SIZE,
 			  WIDGET_KNOB_DOT_COLOR,
 			  WIDGET_KNOB_DOT_IS_FILLED);

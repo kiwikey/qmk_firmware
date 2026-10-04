@@ -1,11 +1,11 @@
 #pragma once
 
-#include "qp_widget_matrix.h" // getting some defines from WIDGET_MATRIX
+#include "quantum.h"
+#include <qp.h>
+#include "display/defines.h"
+#include "display/qp_includes.h" // ico12_arrow_right, used by WIDGET_LAYER_NAV_POSX2
+#include "widget_layout.h"       // WIDGET_LAYER_POSX/POSY/WIDTH/HEIGHT, shared with the keymap grid
 
-#define WIDGET_LAYER_POSX      5
-#define WIDGET_LAYER_POSY      0
-#define WIDGET_LAYER_WIDTH     (WIDGET_MATRIX_KEY_WIDTH*4 + WIDGET_MATRIX_KEY_SPACING*3)
-#define WIDGET_LAYER_HEIGHT    25
 #define WIDGET_LAYER_CORNER    5
 
 #define WIDGET_LAYER_TEXT         HSV_BLACK
@@ -14,7 +14,7 @@
 #define WIDGET_LAYER_ICON_PADDING 6  // gap between the per-layer icon and the box's right edge
 
 #define WIDGET_LAYER_NAV_PADDING  15
-#define WIDGET_LAYER_NAV_POSX1    (WIDGET_LAYER_POSX + WIDGET_MATRIX_KEY_WIDTH*4 + WIDGET_MATRIX_KEY_SPACING*3 + WIDGET_LAYER_NAV_PADDING)
+#define WIDGET_LAYER_NAV_POSX1    (WIDGET_LAYER_POSX + WIDGET_LAYER_WIDTH + WIDGET_LAYER_NAV_PADDING)
 #define WIDGET_LAYER_NAV_POSY1    200
 #define WIDGET_LAYER_NAV_POSX2    (DISPLAY_WIDTH - ico12_arrow_right->width - WIDGET_LAYER_NAV_PADDING)
 #define WIDGET_LAYER_NAV_POSY2    220

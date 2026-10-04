@@ -4,29 +4,17 @@
 #include "as5600.h"
 
 #define MENU_STEP_SIZE  512
+#define KNOB_ACCUMULATOR_LIMIT  AS5600_MAX_VALUE // |knob_accumulator| cap = one full knob turn - far above any step size, far below INT16_MAX
+
+#define KNOB_MAX_TAPS_PER_EVENT 2 // most knob-function keycodes (volume/scroll) sent per sensor event, see knob_on_rotation()
 
 #define KNOB_SENSITIVITY_LOW    0 // needs the most rotation per activation
 #define KNOB_SENSITIVITY_MEDIUM 1
 #define KNOB_SENSITIVITY_HIGH   2 // needs the least rotation per activation
 #define KNOB_SENSITIVITY_COUNT  3
 
-static const uint16_t knob_sensitivity_step[KNOB_SENSITIVITY_COUNT] = {
-	256, // LOW
-	128, // MEDIUM
-	64,  // HIGH
-};
-
-// Sidebar text for "DIAL SENSITIVITY" (qp_menu.c's DIAL SETTINGS sub-page), indexed by eepdata.knob_sensitivity.
-static const char * const knob_sensitivity_short_text[KNOB_SENSITIVITY_COUNT] = {
-	"LOW",
-	"MEDIUM",
-	"HIGH",
-};
-
-extern int16_t accumulator;
+extern int16_t knob_accumulator;
 extern uint32_t last_knob_movement_time;
 
 void housekeeping_task_sensors_handler(void);
 void keyboard_post_init_sensors_handler(void);
-void magnetic_encoder_update_kb(bool direction);
-bool process_encoder_rotate(bool clockwise);

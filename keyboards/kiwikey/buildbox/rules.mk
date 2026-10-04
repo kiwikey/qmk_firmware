@@ -1,3 +1,7 @@
+# The firmware depends on VIA throughout (dynamic keymap on screen, custom
+# settings block in EEPROM, raw HID config), so it's enabled for every keymap.
+VIA_ENABLE            = yes
+
 I2C_DRIVER_REQUIRED   = yes
 SPI_DRIVER_REQUIRED   = yes
 SEND_STRING_ENABLE    = yes
@@ -30,6 +34,7 @@ SRC += \
 # QP SOURCE FILES
 SRC += \
 	display/qp_graphics.c               \
+	display/ui_mode.c                   \
 	display/qp_custom_api.c             \
 	display/qp_includes.c               \
 	display/widgets/qp_menu.c           \
@@ -46,7 +51,6 @@ SRC += \
 
 # FONTS
 SRC += \
-	display/resources/fonts/thintel16.qff.c         \
 	display/resources/fonts/thintel32.qff.c         \
 	display/resources/fonts/font_oled.qff.c         \
 	display/resources/fonts/nanoplex16.qff.c        \
@@ -62,8 +66,7 @@ SRC += \
 	display/resources/icons/ico16_arrow_right.qgf.c \
 	display/resources/icons/ico12_arrow_left.qgf.c  \
 	display/resources/icons/ico12_arrow_right.qgf.c \
-	display/resources/icons/ico22_gear.qgf.c        \
-	display/resources/graphics/ico18_heart.qgf.c
+	display/resources/icons/ico22_gear.qgf.c
 
 # ICONS - 22x22 batch (display/resources/icons/22x22/)
 SRC += \
@@ -95,7 +98,11 @@ SRC += \
 # IMAGES & ANIMATIONS
 SRC += \
 	display/resources/graphics/gif_bootup01.qgf.c   \
-	display/resources/graphics/gif_cat01.qgf.c      \
-	display/resources/graphics/anya01.qgf.c         \
-	display/resources/graphics/gif_nyan120px.qgf.c  \
 	display/resources/graphics/knob.qgf.c
+
+# STRICTER CHECKS - not on by default. Uncomment for an occasional audit build
+# (catches shadowed names and silent narrowing, e.g. a uint16_t stored into a
+# uint8_t). QMK core headers trip some of these too, so pair it with
+# ALLOW_WARNINGS = yes and read the warnings for this keyboard's own files.
+# EXTRAFLAGS += -Wshadow -Wconversion
+# ALLOW_WARNINGS = yes

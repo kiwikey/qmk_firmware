@@ -4,6 +4,7 @@
 #include "features/eeprom_custom.h"
 #include "sensor/sensors_handler.h"
 #include "display/qp_includes.h"
+#include "display/resources/graphics/gif_bootup01.qgf.h" // gfx_gif_bootup01 - loaded on demand, see keyboard_post_init_display()
 #include "display/qp_custom_api.h"
 #include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
@@ -14,9 +15,28 @@
 #include "display/widgets/qp_widget_screensaver.h"
 #include "display/widgets/tutorial.h"
 
-painter_device_t my_display;
-bool     booting = false; // will be TRUE during boot animation
-bool     ui_refresh_pending = false;
+const uint32_t display_timeout_seconds[] = {
+	120,  // 2 min
+	300,  // 5 min
+	900,  // 15 min
+	1800, // 30 min
+	3600, // 1 Hour
+	0,    // NEVER - unused; guarded by DISPLAY_TIMEOUT_NEVER_INDEX instead, see housekeeping_task_display()
+};
+_Static_assert(sizeof(display_timeout_seconds) / sizeof(display_timeout_seconds[0]) == (DISPLAY_TIMEOUT_COUNT), "display_timeout_seconds must have exactly DISPLAY_TIMEOUT_COUNT entries");
+
+const char * const display_timeout_text[] = {
+	"2 min",
+	"5 min",
+	"15 min",
+	"30 min",
+	"1 hour",
+	"NEVER"
+};
+_Static_assert(sizeof(display_timeout_text) / sizeof(display_timeout_text[0]) == (DISPLAY_TIMEOUT_COUNT), "display_timeout_text must have exactly DISPLAY_TIMEOUT_COUNT entries");
+
+painter_device_t bb_display;
+bool     	display_ready = false;
 static bool display_asleep = false;
 static bool rgb_was_enabled_before_sleep = false; // see housekeeping_task_display()'s LCD Timeout block
 
@@ -29,6 +49,10 @@ uint16_t flag_display_keycode_changed = 0x0000;
 // Mask:     00          00      00       00
 //       is changed?   layer     row      col
 // Example: 0x1231 = changed, layer 2, row 3, col 1
+
+bool flag_display_keymap_reload = false;
+// flag_display_keymap_reload: set when VIA changes many keys at once (layout load,
+// keymap reset) or more than one key between two housekeeping ticks - redraws the whole grid
 
 uint8_t flag_widget_layer_changed = 0;
 // 0 = nothing changed (we need this, so other layers need to +1)
@@ -48,13 +72,13 @@ static uint8_t rgb_status_last_val     = 0;
 // tap action. Checked in housekeeping_task_display(), so it fires the moment
 // the threshold is reached instead of waiting for release; tracked (and the
 // tap action suppressed once it fires) in process_record_display().
-#define DIAL_SETTINGS_HOLD_MS 3000
+// DIAL_SETTINGS_HOLD_MS lives in display/defines.h.
 static bool     button1_held       = false;
 static uint32_t button1_press_time = 0;
 
 void display_init(void) {
 #if defined(QUANTUM_PAINTER_ILI9341_SPI_ENABLE)
-	my_display = qp_ili9341_make_spi_device(
+	bb_display = qp_ili9341_make_spi_device(
 		ILI9341_WIDTH,
 		ILI9341_HEIGHT,
 		DISPLAY_CS_PIN,
@@ -64,7 +88,7 @@ void display_init(void) {
 		DISPLAY_SPI_MODE
 	);
 #elif defined(QUANTUM_PAINTER_ST7789_SPI_ENABLE)
-	my_display = qp_st7789_make_spi_device(
+	bb_display = qp_st7789_make_spi_device(
 		ST7789_WIDTH,
 		ST7789_HEIGHT,
 		DISPLAY_CS_PIN,
@@ -74,13 +98,14 @@ void display_init(void) {
 		DISPLAY_SPI_MODE
 	);
 #endif
-	qp_init(my_display, DISPLAY_ROTATION);   // Initialise my_display
+	qp_init(bb_display, DISPLAY_ROTATION);   // Initialise bb_display
 
-	qp_power(my_display, true);
-	qp_clear(my_display);
-	qp_rect(my_display, 0, 0, 319, 239, GLOBAL_BG_COLOR, true);
-	qp_flush(my_display);
+	qp_power(bb_display, true);
+	qp_clear(bb_display);
+	qp_rect(bb_display, 0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1, GLOBAL_BG_COLOR, true);
+	qp_flush(bb_display);
 	qp_init_load_files();
+	display_ready = true;
 }
 
 // What normally shows once boot is done - the idle screen, unless this is the
@@ -91,24 +116,26 @@ static void show_idle_screen(void) {
 	if (eepdata.unbox_tutorial) {
 		tutorial_start();
 	} else {
-		ui_refresh();
+		ui_set_mode(UI_MODE_IDLE); // draws the idle screen (ui_refresh())
 	}
 }
 
 uint32_t finish_boot_animation(uint32_t trigger_time, void *cb_arg) {
-    booting = false;
-	accumulator = 0; // All knob rotation during boot animation is cleared
-	qp_stop_animation(my_anim);
-	show_idle_screen();
-    return 0;   // Don't schedule again
+	qp_stop_animation(bb_boot_anim);
+	// The boot GIF is only ever shown here - give its image slot back
+	// (QUANTUM_PAINTER_NUM_IMAGES) instead of keeping it resident.
+	qp_close_image(gif_bootup01);
+	gif_bootup01 = NULL;
+	show_idle_screen(); // leaves UI_MODE_BOOT - knob rotation during the animation is discarded by ui_set_mode()
+	return 0;   // Don't schedule again
 }
 
 void keyboard_post_init_display(void) {
-	display_init();
+	display_init(); // ui_get_mode() is still UI_MODE_BOOT - all input ignored until show_idle_screen()
 
 	if (eepdata.display_bootanim == 1) {
-		booting = true;
-		my_anim = qp_animate(my_display, 0, 90, gif_bootup01);
+		gif_bootup01 = qp_load_image_mem(gfx_gif_bootup01); // loaded on demand, closed again in finish_boot_animation()
+		bb_boot_anim = qp_animate(bb_display, 0, 90, gif_bootup01);
 		defer_exec(BOOT_DURATION, finish_boot_animation, NULL);
 	} else {
 		show_idle_screen();
@@ -116,39 +143,55 @@ void keyboard_post_init_display(void) {
 }
 
 void ui_refresh(void) {
-	qp_rect(my_display, 0, 0, 319, 239, GLOBAL_BG_COLOR, true); // Fill screen by black color
-	qp_flush(my_display);
+	qp_rect(bb_display, 0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1, GLOBAL_BG_COLOR, true); // Fill screen by black color
+	qp_flush(bb_display);
 	widget_matrix_init();
 	widget_layer_init();
 	widget_status_init();
 	widget_knob_init();
 	widget_matrix_keymap_render(get_highest_layer(layer_state));
-	qp_flush(my_display);
+	qp_flush(bb_display);
 }
 
 void housekeeping_task_display(void) { // Check all flags
-	if (!tutorial_is_active() && !screensaver_is_active()) {
-		if (flag_display_keycode_changed & 0x1000) {
-			uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
-			if (layer == get_highest_layer(layer_state)) { // only process if that changed layer is being activated
-				uint16_t row = (flag_display_keycode_changed & 0x00F0) >> 4;
-				uint16_t col = flag_display_keycode_changed & 0x00F;
-				widget_matrix_render_singlebutton(row,
-												  col,
-												  WIDGET_MATRIX_BUTTON_OFF,
-												  true,
-												  layer);
-			}
-			flag_display_keycode_changed = 0x0000;
-		}
+	// VIA redraw requests (features/via_custom.c) are always consumed, but only drawn
+	// while the idle screen is showing - whatever covers it (menu, Breakout, tutorial,
+	// screensaver) calls ui_refresh() when it closes, which redraws from live data anyway.
+	bool    idle_visible  = ui_idle_screen_visible();
+	uint8_t current_layer = get_highest_layer(layer_state);
 
-		if (flag_widget_layer_changed) { // 0 means nothing changed
-			if ((flag_widget_layer_changed - 1) == get_highest_layer(layer_state)) {
-				widget_layer_render_layername(flag_widget_layer_changed - 1, WIDGET_LAYER_POSX, WIDGET_LAYER_POSY);
-			}
-			flag_widget_layer_changed = 0;
+	if (flag_display_keymap_reload) { // bulk keymap change (layout load/reset) - redraw the whole grid
+		if (idle_visible && current_layer < DYNAMIC_KEYMAP_LAYER_COUNT) {
+			widget_matrix_keymap_render(current_layer);
 		}
+		flag_display_keymap_reload   = false;
+		flag_display_keycode_changed = 0x0000; // already covered by the full redraw
+	}
 
+	if (flag_display_keycode_changed & 0x1000) {
+		uint16_t layer = (flag_display_keycode_changed & 0x0F00) >> 8;
+		uint16_t row   = (flag_display_keycode_changed & 0x00F0) >> 4;
+		uint16_t col   = flag_display_keycode_changed & 0x00F;
+		// only if that changed layer is the one showing, and only the 4x4 grid -
+		// row 4 (the 2 direct-pin buttons) has no on-screen key box
+		if (idle_visible && layer == current_layer && row < MATRIX_ROWS-1 && col < MATRIX_COLS) {
+			widget_matrix_render_singlebutton(row,
+											  col,
+											  WIDGET_MATRIX_BUTTON_OFF,
+											  true,
+											  layer);
+		}
+		flag_display_keycode_changed = 0x0000;
+	}
+
+	if (flag_widget_layer_changed) { // 0 means nothing changed
+		if (idle_visible && (flag_widget_layer_changed - 1) == current_layer) {
+			widget_layer_render_layername(flag_widget_layer_changed - 1, WIDGET_LAYER_POSX, WIDGET_LAYER_POSY);
+		}
+		flag_widget_layer_changed = 0;
+	}
+
+	{
 		bool    rgb_enabled = rgb_matrix_is_enabled();
 		uint8_t rgb_mode    = rgb_matrix_get_mode();
 		uint8_t rgb_val     = rgb_matrix_get_val();
@@ -157,18 +200,18 @@ void housekeeping_task_display(void) { // Check all flags
 			rgb_status_last_mode    = rgb_mode;
 			rgb_status_last_val     = rgb_val;
 			// widget_status_update() draws at the idle screen's fixed position - only
-			// safe to call there. RGB can still change while the menu/breakout is up
-			// (e.g. VIA's Lighting panel applies over raw HID, bypassing menu_state
-			// entirely - see rgb_status_last_* above), so keep tracking it either way;
-			// ui_refresh() (menu_exit()/breakout_exit()) redraws it from live values
-			// anyway once we're back, so skipping the draw here loses nothing.
-			if (menu_state == NOT_IN_MENU && !breakout_is_active()) {
+			// safe to call there. RGB can still change while something else is up
+			// (e.g. VIA's Lighting panel applies over raw HID, bypassing the
+			// button/knob routing entirely - see rgb_status_last_* above), so keep tracking it either way;
+			// ui_refresh() redraws it from live values anyway once we're back, so
+			// skipping the draw here loses nothing.
+			if (idle_visible) {
 				widget_status_update();
 			}
 		}
 
 		// "DIAL SETTINGS" shortcut: Button 1 held this long jumps straight to the sub-page
-		if (button1_held && timer_elapsed32(button1_press_time) >= DIAL_SETTINGS_HOLD_MS) {
+		if (idle_visible && button1_held && timer_elapsed32(button1_press_time) >= DIAL_SETTINGS_HOLD_MS) {
 			button1_held = false;
 			dial_menu_open(true); // via the shortcut, not the main list
 		}
@@ -182,8 +225,8 @@ void housekeeping_task_display(void) { // Check all flags
 	// user's saved on/off setting). rgb_was_enabled_before_sleep remembers whether
 	// it was actually on going in, so waking up doesn't force it on if the user
 	// had already turned it off themselves before the timeout hit.
-	if (!booting) {
-		uint8_t  timeout_idx = eepdata.display_timeout < DISPLAY_TIMEOUT_COUNT ? eepdata.display_timeout : DISPLAY_TIMEOUT_NEVER_INDEX;
+	if (ui_get_mode() != UI_MODE_BOOT) {
+		uint8_t  timeout_idx = eepdata.display_timeout; // range-checked by eeprom_custom_validate()
 		uint32_t timeout_ms  = display_timeout_seconds[timeout_idx] * 1000UL;
 		if (!display_asleep && timeout_idx != DISPLAY_TIMEOUT_NEVER_INDEX && last_input_activity_elapsed() >= timeout_ms) {
 			backlight_level_noeeprom(0);
@@ -198,6 +241,36 @@ void housekeeping_task_display(void) { // Check all flags
 	}
 }
 
+// What Button 1 / Button 2 do (on press) in every full-screen mode that just maps
+// each button to one action. Modes not listed here either take no button input
+// (UI_MODE_BOOT, UI_MODE_SCREENSAVER - see process_record_display()) or need
+// press AND release (UI_MODE_TUTORIAL, UI_MODE_IDLE), handled separately below.
+// A new full-screen mode only needs a row here (and in knob_step_actions[],
+// sensor/sensors_handler.c, if it uses the knob).
+typedef struct {
+	void (*button1)(void);
+	void (*button2)(void);
+} ui_button_actions_t;
+
+static const ui_button_actions_t ui_button_actions[UI_MODE_COUNT] = {
+	// Settings Menu. On the in-place edit pages both buttons just end the edit
+	// (values apply live while turning the knob); the icon picker is the one page
+	// where Button 1 really cancels.
+	[UI_MODE_MENU_LIST]        = { menu_exit,                menu_action               },
+	[UI_MODE_MENU_EDIT]        = { menu_submenu_exit,        menu_submenu_exit         },
+	[UI_MODE_DIAL_LIST]        = { dial_menu_exit,           dial_menu_action          },
+	[UI_MODE_DIAL_EDIT]        = { dial_menu_submenu_exit,   dial_menu_submenu_exit    },
+	[UI_MODE_LAYERS_LIST]      = { layers_menu_exit,         layers_menu_action        },
+	[UI_MODE_LAYERS_PICK]      = { layers_menu_submenu_exit, layers_menu_submenu_save  },
+	// Static screens opened from the main list: Button 1 leaves the menu,
+	// Button 2 re-runs the item (a 2nd OK on BOOT TO DFU actually resets)
+	[UI_MODE_MENU_ABOUT]       = { menu_exit,                menu_action               },
+	[UI_MODE_MENU_DFU_CONFIRM] = { menu_exit,                menu_action               },
+	[UI_MODE_MENU_DEBUG]       = { menu_exit,                menu_action               },
+	// Breakout: Button 1 quits, Button 2 confirms difficulty / launches / restarts
+	[UI_MODE_BREAKOUT]         = { breakout_exit,            breakout_button_action    },
+};
+
 // Tracks the one key whose press dismissed a passive idle state (backlight
 // asleep, or the screensaver), so its matching release can be swallowed too
 // (see the wake-up check in process_record_display()).
@@ -205,7 +278,8 @@ static bool    waking_press_pending = false;
 static uint8_t waking_press_row, waking_press_col;
 
 bool process_record_display(uint16_t keycode, keyrecord_t *record) {
-	if (booting) return false;
+	ui_mode_t mode = ui_get_mode();
+	if (mode == UI_MODE_BOOT) return false;
 
 	/*** If the display is asleep (idle timeout - see housekeeping_task_display())
 		or the screensaver is showing: the first keypress just dismisses that
@@ -215,8 +289,8 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 		release; every following key press behaves normally.
 	***/
 	if (record->event.pressed) {
-		if (display_is_asleep() || screensaver_is_active()) {
-			if (screensaver_is_active()) screensaver_exit();
+		if (display_is_asleep() || mode == UI_MODE_SCREENSAVER) {
+			if (mode == UI_MODE_SCREENSAVER) screensaver_exit();
 			waking_press_pending = true;
 			waking_press_row     = record->event.key.row;
 			waking_press_col     = record->event.key.col;
@@ -237,7 +311,7 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 		  of what real interactivity looks like. No keycode is ever actually
 		  sent to the host during the tutorial (always returns false).
 	***/
-	if (tutorial_is_active()) {
+	if (mode == UI_MODE_TUTORIAL) {
 		switch (keycode) {
 			case KC_BUTTON_1:
 				tutorial_button_action(false, record->event.pressed);
@@ -254,128 +328,23 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 		return false; // press AND release both forwarded, so tutorial.c can track hold-state
 	}
 
-	/*** If playing Breakout :
-		+ Pressing Button 1 -> exit the game (back to default screen)
-		+ Pressing Button 2 -> launch the ball / restart after game over or win
+	/*** Any other full-screen mode (menu pages, Breakout, ...): the buttons do
+		whatever ui_button_actions[] says on press, and no keycode ever reaches
+		the host while it's up.
 	***/
-	if (breakout_is_active()) {
+	if (mode != UI_MODE_IDLE) {
 		if (record->event.pressed) {
-			switch (keycode) {
-				case KC_BUTTON_1:
-					breakout_exit();
-					return false;
-				case KC_BUTTON_2:
-					breakout_button_action();
-					return false;
-				default:
-					return false; // During the game, no keycode is processed
+			const ui_button_actions_t *actions = &ui_button_actions[mode];
+			if (keycode == KC_BUTTON_1 && actions->button1) {
+				actions->button1();
+			} else if (keycode == KC_BUTTON_2 && actions->button2) {
+				actions->button2();
 			}
-		} else return false;
+		}
+		return false;
 	}
 
-	/*** If being in MENU :
-	MAIN MENU :
-		+ Pressing Button 1 -> quit Main Menu (back to default screen)
-		+ Pressing Button 2 -> menu_action(): run cursor_pos function
-	SUB MENU :
-		+ Pressing Button 1 -> quit Sub Menu without saving
-		+ Pressing Button 2 -> quit Sub Menu and save the setting
-	DIAL SETTINGS sub-page (mirrors MAIN MENU) :
-		+ Pressing Button 1 -> back to Main Menu
-		+ Pressing Button 2 -> dial_menu_action(): enter DIAL_SUB_MENU for cursor_pos
-	Editing a DIAL SETTINGS item (mirrors SUB MENU) :
-		+ Pressing Button 1 -> quit without saving
-		+ Pressing Button 2 -> quit and save the setting
-	LAYERS CONFIG sub-page (mirrors MAIN MENU) :
-		+ Pressing Button 1 -> back to Main Menu
-		+ Pressing Button 2 -> layers_menu_action(): enter LAYERS_SUB_MENU to pick that layer's icon
-	Picking an icon on the LAYERS CONFIG sub-page (unlike every other sub-page,
-	Button 1 and Button 2 do different things here - see layers_menu_scroll_step()/
-	layer_icon_set_choice(), qp_menu.c) :
-		+ Pressing Button 1 -> cancel: discard, back to the list unchanged
-		+ Pressing Button 2 -> save the icon under the selector, back to the list
-	***/
-	if (menu_state == MAIN_MENU) {
-		if (record->event.pressed) {
-			switch (keycode) {
-				case KC_BUTTON_1:
-					menu_exit();
-					return false;
-				case KC_BUTTON_2:
-					menu_action();
-					return false;
-				default:
-					return false; // During Menu, no keycode is processed
-			}
-		} else return false;
-	} else if (menu_state == SUB_MENU) {
-		if (record->event.pressed) {
-			switch (keycode) {
-				case KC_BUTTON_1:
-					menu_submenu_exit();
-					return false;
-				case KC_BUTTON_2:
-					menu_submenu_exit();
-					return false;
-				default:
-					return false; // During Menu, no keycode is processed
-			}
-		} else return false;
-	} else if (menu_state == DIAL_MENU) {
-		if (record->event.pressed) {
-			switch (keycode) {
-				case KC_BUTTON_1:
-					dial_menu_exit();
-					return false;
-				case KC_BUTTON_2:
-					dial_menu_action();
-					return false;
-				default:
-					return false; // During Menu, no keycode is processed
-			}
-		} else return false;
-	} else if (menu_state == DIAL_SUB_MENU) {
-		if (record->event.pressed) {
-			switch (keycode) {
-				case KC_BUTTON_1:
-					dial_menu_submenu_exit();
-					return false;
-				case KC_BUTTON_2:
-					dial_menu_submenu_exit();
-					return false;
-				default:
-					return false; // During Menu, no keycode is processed
-			}
-		} else return false;
-	} else if (menu_state == LAYERS_MENU) {
-		if (record->event.pressed) {
-			switch (keycode) {
-				case KC_BUTTON_1:
-					layers_menu_exit();
-					return false;
-				case KC_BUTTON_2:
-					layers_menu_action();
-					return false;
-				default:
-					return false; // During Menu, no keycode is processed
-			}
-		} else return false;
-	} else if (menu_state == LAYERS_SUB_MENU) {
-		if (record->event.pressed) {
-			switch (keycode) {
-				case KC_BUTTON_1:
-					layers_menu_submenu_exit(); // cancel - no change
-					return false;
-				case KC_BUTTON_2:
-					layers_menu_submenu_save(); // commit the icon under the selector
-					return false;
-				default:
-					return false; // During Menu, no keycode is processed
-			}
-		} else return false;
-	}
-
-	/*** If not in MENU
+	/*** Idle screen
 		+ Button 1 -> previous layer on release (its normal tap action), unless
 		  it was already held long enough to auto-trigger the "DIAL SETTINGS"
 		  sub-page - see housekeeping_task_display()
@@ -397,7 +366,7 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 				break; // Process all other keycodes normally
 		}
 	} else if (keycode == KC_BUTTON_1) {
-		if (button1_held) { // false if the hold already fired dial_menu_open() and changed menu_state
+		if (button1_held) { // false if the hold already fired dial_menu_open() and left the idle screen
 			button1_held = false;
 			if (get_highest_layer(layer_state) <= 0)
 				layer_move(DYNAMIC_KEYMAP_LAYER_COUNT-1);

@@ -7,7 +7,7 @@
 #include "qp_custom_api.h"
 #include "display/qp_graphics.h"
 
-int16_t qp_drawtext_recolor_center(painter_device_t device, uint16_t x, uint16_t y, painter_font_handle_t font, const char *str,
+int16_t bb_drawtext_recolor_center(painter_device_t device, uint16_t x, uint16_t y, painter_font_handle_t font, const char *str,
 								   uint8_t hue_fg, uint8_t sat_fg, uint8_t val_fg, uint8_t hue_bg, uint8_t sat_bg, uint8_t val_bg) {
 	return qp_drawtext_recolor(device,
 							   x - qp_textwidth(font, str)/2,
@@ -16,8 +16,8 @@ int16_t qp_drawtext_recolor_center(painter_device_t device, uint16_t x, uint16_t
 							   hue_fg, sat_fg, val_fg, hue_bg, sat_bg, val_bg);
 }
 
-static bool qp_roundrect_corner(painter_device_t device, uint16_t cx, uint16_t cy, uint16_t radius,
-                                 bool filled, bool mirror_x, bool mirror_y) {
+static bool bb_roundrect_corner(painter_device_t device, uint16_t cx, uint16_t cy, uint16_t radius,
+								 bool filled, bool mirror_x, bool mirror_y) {
 	int16_t x   = 0;
 	int16_t y   = (int16_t)radius;
 	int16_t err = ((5 - (radius >> 2)) >> 2);
@@ -49,10 +49,10 @@ static bool qp_roundrect_corner(painter_device_t device, uint16_t cx, uint16_t c
 	return true;
 }
 
-bool qp_roundrect(painter_device_t device,
-                   uint16_t left, uint16_t top, uint16_t right, uint16_t bottom,
-                   uint8_t hue, uint8_t sat, uint8_t val, bool filled,
-                   uint16_t corner, bool roundtop, bool roundbottom) {
+bool bb_roundrect(painter_device_t device,
+				   uint16_t left, uint16_t top, uint16_t right, uint16_t bottom,
+				   uint8_t hue, uint8_t sat, uint8_t val, bool filled,
+				   uint16_t corner, bool roundtop, bool roundbottom) {
 	painter_driver_t *driver = (painter_driver_t *)device;
 	if (!driver || !driver->validate_ok) {
 		return false;
@@ -89,12 +89,12 @@ bool qp_roundrect(painter_device_t device,
 	}
 
 	if (ret && roundtop) {
-		ret = qp_roundrect_corner(device, left + corner,  top + corner, corner, filled, true,  true) &&
-		      qp_roundrect_corner(device, right - corner, top + corner, corner, filled, false, true);
+		ret = bb_roundrect_corner(device, left + corner,  top + corner, corner, filled, true,  true) &&
+		      bb_roundrect_corner(device, right - corner, top + corner, corner, filled, false, true);
 	}
 	if (ret && roundbottom) {
-		ret = qp_roundrect_corner(device, left + corner,  bottom - corner, corner, filled, true,  false) &&
-		      qp_roundrect_corner(device, right - corner, bottom - corner, corner, filled, false, false);
+		ret = bb_roundrect_corner(device, left + corner,  bottom - corner, corner, filled, true,  false) &&
+		      bb_roundrect_corner(device, right - corner, bottom - corner, corner, filled, false, false);
 	}
 
 	qp_comms_stop(device);
@@ -105,14 +105,14 @@ bool qp_roundrect(painter_device_t device,
 
 void rgb_matrix_set_color_hsv(uint8_t index, hsv_t hsv) {
 	hsv.v = rgb_matrix_get_val(); // sync brightness to system's brightness, if not, max brightness (255) will be set
-    rgb_t rgb = hsv_to_rgb(hsv);
-    rgb_matrix_set_color(index, rgb.r, rgb.g, rgb.b);
+	rgb_t rgb = hsv_to_rgb(hsv);
+	rgb_matrix_set_color(index, rgb.r, rgb.g, rgb.b);
 }
 
-void toUppercase(const char *str, char *out, size_t outsize) {
-    size_t i = 0;
-    for (; str[i] != '\0' && i + 1 < outsize; i++) {
-        out[i] = (str[i] >= 'a' && str[i] <= 'z') ? str[i] - 32 : str[i];
-    }
-    out[i] = '\0';
+void to_uppercase(const char *str, char *out, size_t outsize) {
+	size_t i = 0;
+	for (; str[i] != '\0' && i + 1 < outsize; i++) {
+		out[i] = (str[i] >= 'a' && str[i] <= 'z') ? str[i] - 32 : str[i];
+	}
+	out[i] = '\0';
 }

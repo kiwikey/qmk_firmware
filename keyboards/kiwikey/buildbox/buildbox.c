@@ -22,38 +22,12 @@
 	#include "display/widgets/tutorial.h"
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
-EEPROM_CUSTOM_DATA eepdata;
-EEPROM_CUSTOM_DATA eepdata_default = {
-	0,                        // Layer 0
-	1,                        // Boot animation enabled
-	0,                        // LCD Timeout: 2min (shortest option, index 0 of display_timeout_seconds[])
-	BACKLIGHT_DEFAULT_LEVEL,  // LCD Brightness default (10 = max)
-	0,                        // Lighting Layers OFF
-	{ 126, 210,  42,  84 },   // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
-	{ 255, 255, 255, 255 },   // Lighting Layers' SATs: maximum (255)
-	1,                        // Knob special effect enabled
-	KNOB_FUNC_VOLUME,         // Knob: Volume
-	213,                      // Theme HUE default
-	KNOB_SENSITIVITY_MEDIUM,  // Knob-function activation sensitivity default
-	1,                        // Unbox tutorial: undone (show it on next boot)
-	1,                        // Screensaver effect: "Rain 1" (matrix_rain_1) - index 0 is now "OFF"
-	{  13,   1,   22,   10 },  // Layer icons: Earth - Application - Boss - Calculator (layer_icon_pool_icon() indices, qp_widget_layer.c)
-	7                         // Checksum is always 7
-};
-
 void keyboard_post_init_kb(void) {
 
-	// Reading all EEPROM custom datas, refer to 'eeprom_custom.h' for detail
-    eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
+	eeprom_custom_load(); // BuildBox's own settings (eepdata) - refer to 'eeprom_custom.h' for detail
 
-	/*** Validation check ***/
-	/* This runs everytime the EEPROM is corrupted, or right after 'factory_reset' or 'bootmagic_reset' */
-	if (eepdata.checksum != 7) {
-		eeprom_update_block(&eepdata_default, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
-		// Reading all EEPROM custom datas, again
-		eeprom_read_block(&eepdata, ((void*)(VIA_EEPROM_CUSTOM_CONFIG_ADDR)), sizeof(EEPROM_CUSTOM_DATA));
-	}
-
+	// Runs before the display exists - layer_state_set_kb() skips drawing until
+	// display_ready, and ui_refresh() later draws this layer from the start.
 	layer_move(eepdata.active_layer);
 
 	keyboard_post_init_sensors_handler();
@@ -61,60 +35,89 @@ void keyboard_post_init_kb(void) {
 
 	#if defined(BACKLIGHT_ENABLE)
 		backlight_enable(); // TFT backlight - after display init, so the panel is already showing a clean frame
-		backlight_level(eepdata.display_brightness);
-		// backlight_level(10);
+		// eepdata.display_brightness is the one saved copy of the LCD brightness -
+		// every backlight call in this firmware is _noeeprom, so QMK's own backlight
+		// EEPROM level (only written by VIA's built-in brightness "save") is just
+		// overridden here at boot.
+		backlight_level_noeeprom(eepdata.display_brightness);
 	#endif // defined(BACKLIGHT_ENABLE)
 
-	// keyboard_post_init_webhid_stream();
+	keyboard_post_init_webhid_stream(); // no-op stub unless WEBHID_STREAM_ENABLE (webhid_stream.h)
 	keyboard_post_init_user();
 }
 
 void housekeeping_task_kb(void) {
-	if (!booting) {
+	if (ui_get_mode() != UI_MODE_BOOT) { // all housekeeping waits for the boot animation
 		housekeeping_task_display();
 		housekeeping_task_sensors_handler();
 		housekeeping_task_breakout();
 		housekeeping_task_screensaver();
 		housekeeping_task_webhid_stream();
 	}
+	housekeeping_task_user();
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 	if (!process_record_display(keycode, record)) {
 		return false;
 	}
-	return process_record_user(keycode, record);
+	if (!process_record_user(keycode, record)) {
+		return false;
+	}
+
+	// Shortcut keycodes offered in VIA's "customKeycodes" (buildbox_via.json) - sent on press
+	uint16_t shortcut = KC_NO;
+	switch (keycode) {
+		case KC_WIN_CUT:     shortcut = LCTL(KC_X);       break;
+		case KC_WIN_COPY:    shortcut = LCTL(KC_C);       break;
+		case KC_WIN_PASTE:   shortcut = LCTL(KC_V);       break;
+		case KC_WIN_DESKTOP: shortcut = LGUI(KC_D);       break;
+		case KC_WIN_SNIP:    shortcut = LGUI(LSFT(KC_S)); break;
+		case KC_MAC_CUT:     shortcut = LGUI(KC_X);       break;
+		case KC_MAC_COPY:    shortcut = LGUI(KC_C);       break;
+		case KC_MAC_PASTE:   shortcut = LGUI(KC_V);       break;
+		default:             return true;
+	}
+	if (record->event.pressed) {
+		tap_code16(shortcut);
+	}
+	return false;
 }
 
 layer_state_t layer_state_set_kb(layer_state_t state) {
-	// Same reasoning as the housekeeping_task_display() guard in qp_graphics.c -
-	// the tutorial owns the whole screen while it's showing, so a layer change
-	// (e.g. TUTORIAL_SCREEN_MATRIX rendering, or a layer key elsewhere on the
-	// keymap) must not redraw the idle screen's layer/matrix widgets over it.
-	if (!booting && !ui_refresh_pending && !tutorial_is_active()) {
-		widget_layer_render_layername(get_highest_layer(state), WIDGET_LAYER_POSX, WIDGET_LAYER_POSY);
-		widget_layer_render_navigation(get_highest_layer(state));
-		widget_matrix_keymap_render(get_highest_layer(state));
+	state = layer_state_set_user(state);
+
+	// Only redraw the layer/matrix widgets while the idle screen is actually
+	// showing (see ui_idle_screen_visible(), qp_graphics.c) - e.g. VIA's "Active
+	// Layer" dropdown can change the layer while the menu/Breakout/tutorial/
+	// screensaver is up, and must not draw over it. Also false before the display
+	// exists (keyboard_post_init_kb()'s layer_move() runs before display init).
+	uint8_t layer = get_highest_layer(state);
+	if (ui_idle_screen_visible() && layer < DYNAMIC_KEYMAP_LAYER_COUNT) {
+		widget_layer_render_layername(layer, WIDGET_LAYER_POSX, WIDGET_LAYER_POSY);
+		widget_layer_render_navigation(layer);
+		widget_matrix_keymap_render(layer);
 	}
 	return state;
 }
 
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) { // Lighting Layers
-    if (!rgb_matrix_indicators_advanced_user(led_min, led_max)) {
-        return false;
-    }
+	if (!rgb_matrix_indicators_advanced_user(led_min, led_max)) {
+		return false;
+	}
 
-	if (eepdata.lighting_layers != 0) { // If Lighting Layers is off, there's nothing to do here
+	uint8_t layer = get_highest_layer(layer_state|default_layer_state); // same layer pick as knob_effect() (knob_custom.c)
+	if (eepdata.lighting_layers != 0 && layer < DYNAMIC_KEYMAP_LAYER_COUNT) { // If Lighting Layers is off, there's nothing to do here
 		HSV hsv = {
-			eepdata.layer_hue[get_highest_layer(layer_state)],
-			eepdata.layer_sat[get_highest_layer(layer_state)],
+			eepdata.layer_hue[layer],
+			eepdata.layer_sat[layer],
 			rgb_matrix_get_val() // VAL = current RGBMatrix's brightness
 		};
 		if (hsv.s == 0) hsv.v = 0;
 		RGB rgb = hsv_to_rgb(hsv);
 
 		for (uint8_t i = led_min; i < led_max; i++) {
-			if (g_led_config.flags[i] == LED_FLAG_INDICATOR) {
+			if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_INDICATOR)) {
 				rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
 			}
 		}
@@ -122,13 +125,21 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) { // Li
 
 	knob_effect(); // independent of Lighting Layers; runs last so it wins on the ring LEDs
 
-    return false;
+	return false;
 }
 
 void suspend_power_down_kb(void) {
-    qp_power(my_display, false);
+	qp_power(bb_display, false);
+	suspend_power_down_user();
 }
 
 void suspend_wakeup_init_kb(void) {
-    qp_power(my_display, true);
+	qp_power(bb_display, true);
+	#if defined(BACKLIGHT_ENABLE)
+		// QMK's own resume (suspend_wakeup_init_quantum()) has just restored the
+		// backlight from its saved level - re-apply ours, so the panel stays dark
+		// if the LCD Timeout had already put it to sleep (display_is_asleep()).
+		backlight_level_noeeprom(display_is_asleep() ? 0 : eepdata.display_brightness);
+	#endif // defined(BACKLIGHT_ENABLE)
+	suspend_wakeup_init_user();
 }

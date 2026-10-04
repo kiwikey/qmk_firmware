@@ -8,7 +8,7 @@
 #define MENU_TITLE_BG           HSV_WHITE
 #define MENU_CURSOR_COLOR       GLOBAL_THEME_COLOR
 
-#define MENU_WIDTH              320 - MENU_POSX
+#define MENU_WIDTH              (DISPLAY_WIDTH - MENU_POSX)
 #define MENU_LABEL_WIDTH        210
 #define MENU_SIDEBAR_POSX       MENU_LABEL_WIDTH
 
@@ -21,7 +21,7 @@
 
 #define MENU_SIDEBAR_TEXT_PADDING  10
 #define MENU_SIDEBAR_TEXT_POSX     (MENU_SIDEBAR_POSX + MENU_SIDEBAR_TEXT_PADDING)
-#define MENU_SIDEBAR_MAX_TEXTWIDTH (MENU_SIDEBAR_TEXT_POSX - MENU_SIDEBAR_TEXT_PADDING) // long values get truncated to fit this
+#define MENU_SIDEBAR_MAX_TEXTWIDTH (DISPLAY_WIDTH - MENU_SIDEBAR_TEXT_POSX) // long values get truncated to fit between the sidebar's x and the screen's right edge
 
 #define MENU_CURSOR_ICON_WIDTH     8  // ico16_arrow_right is 8x16
 #define MENU_CURSOR_ICON_HEIGHT    16
@@ -33,29 +33,16 @@
 #define MENU_PAGINATION_DOWN_POSY     195
 
 #define MENU_1STLINE_POS    1
-#define MENU_MAXITEMS       14 // including divider line
 #define MENU_LINESPERPAGE   7
+// The item count isn't defined here: it's the size of menu_items[] / dial_items[]
+// (qp_menu.c) - add, remove or reorder a row there and everything follows.
 
 /* GLOBAL VARIATIONS - common use */
-	/*** menu_state definition:
-		0: not in menu
-		1: in main menu
-		2: in sub menu
-		3: in the "DIAL SETTINGS" sub-page
-		4: editing one item on the "DIAL SETTINGS" sub-page
-		5: in the "LAYERS CONFIG" sub-page
-		6: picking an icon for one layer on the "LAYERS CONFIG" sub-page
-	*****************/
-	extern uint8_t menu_state, menu_cursor;
-	extern uint8_t dial_menu_cursor;
-	extern uint8_t layers_menu_cursor;
-	#define NOT_IN_MENU     0
-	#define MAIN_MENU       1
-	#define SUB_MENU        2
-	#define DIAL_MENU       3
-	#define DIAL_SUB_MENU   4
-	#define LAYERS_MENU     5
-	#define LAYERS_SUB_MENU 6
+	// Which page is showing (list / editing a value / sub-page / ...) is the UI
+	// mode - ui_get_mode(), display/ui_mode.h. These are each page's cursors.
+	extern uint8_t menu_cursor;        // 1-based position in menu_items[]
+	extern uint8_t dial_menu_cursor;   // 1-based position in dial_items[]
+	extern uint8_t layers_menu_cursor; // 1-based layer number + 1
 /**********************************/
 
 /* GLOBAL PROCEDURES - common use */
@@ -66,143 +53,44 @@
 	void menu_set_cursor(uint8_t cursor_pos);
 	void menu_render_sidebar(uint8_t item_pos, uint8_t row); // item_pos is 1-based; row is 0-based on its page
 	void menu_action(void);
-	void eeprom_update_custom(void); // TODO
-	bool debug_screen_is_active(void); // see action_debug() (qp_menu.c) - encoder rotation is ignored while true
-	bool dfu_confirm_screen_is_active(void); // see action_resettodfu() (qp_menu.c) - encoder rotation is ignored while true
+	void menu_process_rotation(bool clockwise); // knob rotation (one MENU_STEP_SIZE detent) on any menu page - see qp_menu.c
 
-	// "DIAL SETTINGS" sub-page (MENU_DIAL_SETTINGS below) - a small nested list,
-	// entered from the main list instead of the usual in-place SUB_MENU editing.
-	// Its own cursor/button/encoder handling otherwise mirrors the main list's
-	// exactly: dial_menu_action() ~ menu_action(), dial_menu_submenu_exit() ~
-	// menu_submenu_exit(), DIAL_SUB_MENU ~ SUB_MENU.
-	void dial_menu_open(bool from_shortcut);      // Button 2 on MENU_DIAL_SETTINGS (pass false), or the idle-screen 3s-hold shortcut (pass true)
+	// "DIAL SETTINGS" sub-page - a small nested list, entered from the main list
+	// instead of the usual in-place editing. Its own cursor/button/encoder handling
+	// otherwise mirrors the main list's exactly: dial_menu_action() ~ menu_action(),
+	// dial_menu_submenu_exit() ~ menu_submenu_exit(), UI_MODE_DIAL_EDIT ~ UI_MODE_MENU_EDIT.
+	void dial_menu_open(bool from_shortcut);      // Button 2 on DIAL SETTINGS (pass false), or the idle-screen 3s-hold shortcut (pass true)
 	void dial_menu_exit(void);                    // Button 1 on the list: back to the main list, or all the way out if from_shortcut was true
-	void dial_menu_set_cursor(uint8_t cursor_pos); // cursor_pos is 1..DIAL_MENU_MAXITEMS
-	void dial_menu_action(void);                   // Button 2 on a list item: enter DIAL_SUB_MENU to edit it
+	void dial_menu_set_cursor(uint8_t cursor_pos); // cursor_pos is 1-based
+	void dial_menu_action(void);                   // Button 2 on a list item: edit it (UI_MODE_DIAL_EDIT)
 	void dial_menu_submenu_exit(void);             // Button 1 or 2 while editing: back to the DIAL SETTINGS list
 	void dial_menu_render_sidebar(uint8_t item_pos); // item_pos is 1-based; no pagination on this page
 
-	// "LAYERS CONFIG" sub-page (MENU_LAYERS_CONFIG below) - same nested-list shell
-	// as "DIAL SETTINGS": layers_menu_action() ~ dial_menu_action(), LAYERS_SUB_MENU
-	// ~ DIAL_SUB_MENU. Instead of editing a value though, LAYERS_SUB_MENU is an
-	// icon picker - the scrolling strip beneath the list (qp_menu.c), stepped one
-	// icon-width per encoder detent via layers_menu_scroll_step(). Unlike the
-	// numeric SUB_MENU pages (which apply changes live as you rotate, so Button 1/2
-	// both just exit), the picker only touches eepdata.layer_icon[] on Button 2 -
-	// Button 1 discards whatever was scrolled to and leaves it unchanged.
-	void layers_menu_open(void);                    // Button 2 on MENU_LAYERS_CONFIG
+	// "LAYERS CONFIG" sub-page - same nested-list shell as "DIAL SETTINGS":
+	// layers_menu_action() ~ dial_menu_action(), UI_MODE_LAYERS_PICK ~ UI_MODE_DIAL_EDIT.
+	// Instead of editing a value though, UI_MODE_LAYERS_PICK is an icon picker - the
+	// scrolling strip beneath the list (qp_menu.c), stepped one icon-width per
+	// encoder detent via layers_menu_scroll_step(). Unlike the in-place edit pages
+	// (which apply changes live as you rotate, so Button 1/2 both just exit), the
+	// picker only touches eepdata.layer_icon[] on Button 2 - Button 1 discards
+	// whatever was scrolled to and leaves it unchanged.
+	void layers_menu_open(void);                    // Button 2 on LAYERS CONFIG
 	void layers_menu_exit(void);                    // Button 1: back to the main list
 	void layers_menu_set_cursor(uint8_t cursor_pos); // cursor_pos is 1..LAYERS_MENU_MAXITEMS
-	void layers_menu_action(void);                  // Button 2 on a list item: enter LAYERS_SUB_MENU to pick its icon
+	void layers_menu_action(void);                  // Button 2 on a list item: pick its icon (UI_MODE_LAYERS_PICK)
 	void layers_menu_submenu_save(void);            // Button 2 (OK) while picking: commit the icon under the selector, back to the list
 	void layers_menu_submenu_exit(void);            // Button 1 (Exit) while picking: discard, back to the list unchanged
 	void layers_menu_scroll_step(bool clockwise);   // encoder rotation while picking - shifts the strip by exactly one icon's width
 /**********************************/
 
-enum menu_label_list_references {
-	__DUMP = 0,
-	MENU_DISPLAY_BRIGHTNESS,
-	MENU_DISPLAYTIMEOUT,
-	MENU_SCREENSAVER,
-	MENU_DIAL_SETTINGS,
-	MENU_THEME_COLOR,
-
-	MENU_RGB_BRIGHTNESS,
-	MENU_RGB_MODE,
-	MENU_LAYERS_CONFIG,
-	MENU_INTROANIM,
-	DIVIDER_MENU, // Divider line
-	MENU_ABOUT,
-	MENU_BREAKOUT,
-	// MENU_DEBUG,
-	MENU_BOOTTODFU,
-	MENU_TUTORIAL
-};
-
-static const char * const menu_label_list[MENU_MAXITEMS] = {
-	"LCD BRIGHTNESS",
-	"SLEEP",
-	"SCREEN SAVER",
-	"DIAL SETTINGS",
-	"THEME COLOR",
-
-	"RGB BRIGHTNESS",
-	"RGB MODE",
-	"LAYERS CONFIG",
-	"BUILDBOX INTRO",
-	"   ------",
-	"ABOUT BUILDBOX",
-	"SECRET GAME",
-	// "DEBUG",
-	"BOOT TO DFU",
-	"QUICK TUTORIAL"
-};
-
-static const bool menu_label_list_ischangeable[MENU_MAXITEMS+1] = {
-	false, // 0 (never checked, just dump value)
-	/* the list below */
-	true,  // LCD BRIGHTNESS
-	true,  // LCD TIMEOUT
-	true,  // BURN-IN PROTECT
-	false, // DIAL SETTINGS (opens dial_menu_open() instead of an in-place SUB_MENU)
-	true,  // THEME COLOR
-
-	true,  // RGB BRIGHTNESS
-	true,  // RGB MODE
-	false, // LAYERS CONFIG (opens layers_menu_open() instead of an in-place SUB_MENU)
-	true,  // BUILDBOX INTRO
-	false, // ------
-	false, // ABOUT BUILDBOX
-	false, // SECRET GAME
-	// false, // DEBUG
-	false, // BOOT TO DFU
-	false  // QUICK TUTORIAL
-};
-
-#define DIAL_MENU_MAXITEMS 3
-enum dial_menu_label_list_references { // 1-based, matches dial_menu_label_list[] positions below
-	DIAL_MENU_FUNCTION = 1,
-	DIAL_MENU_RGB_MODE,
-	DIAL_MENU_SENSITIVITY
-};
-static const char * const dial_menu_label_list[DIAL_MENU_MAXITEMS] = {
-	"FUNCTION",
-	"RGB MODE",
-	"SPEED"
-};
-
-static const bool dial_menu_label_list_ischangeable[DIAL_MENU_MAXITEMS+1] = {
-	false, // 0 (never checked, just dump value)
-	true,  // DIAL FUNCTION
-	true,  // DIAL RGB MODE
-	true,  // DIAL SENSITIVITY
-};
-
 // "LAYERS CONFIG" sub-page: one line per layer, labeled with its real name
-// (layer_names[], display/defines.h) - not wired to any setting yet.
+// (layer_names[], qp_widget_layer.c).
 #define LAYERS_MENU_MAXITEMS DYNAMIC_KEYMAP_LAYER_COUNT
 
 // Index 0 is "OFF" (no screensaver at all, regardless of LCD Timeout); indices
 // 1..4 map to effects[0..3] in qp_widget_screensaver.c (see SCREENSAVER_OFF_INDEX there).
 #define SCREEN_SAVER_MAXITEMS 5
-static const char * const screen_saver_effect_list[SCREEN_SAVER_MAXITEMS] = {
-	"OFF",
-	"Rain 1",
-	"Rain 2",
-	"Zzz...",
-	"Starry"
-};
 
-#define DISPLAY_ANIM_QTY  3
-
-// static const char * const anim_list[DISPLAY_ANIM_QTY+1] = {
-	// "none",
-	// "Cat",
-	// "Dog",
-	// "Nyan Cat"
-// };
-
-void action_displaybrightness(void);
 void action_aboutbuildbox(void);
 void action_resettodfu(void);
 void action_debug(void);

@@ -15,8 +15,17 @@
 #include "display/widgets/qp_widget_screensaver.h"
 #include "display/widgets/tutorial.h"
 
-int16_t accumulator = 0;
+static const uint16_t knob_sensitivity_step[] = {
+	256, // LOW
+	128, // MEDIUM
+	64,  // HIGH
+};
+_Static_assert(sizeof(knob_sensitivity_step) / sizeof(knob_sensitivity_step[0]) == (KNOB_SENSITIVITY_COUNT), "knob_sensitivity_step must have exactly KNOB_SENSITIVITY_COUNT entries");
+
+int16_t knob_accumulator = 0;
 uint32_t last_knob_movement_time = 0;
+
+static void knob_on_rotation(bool direction, uint16_t distance);
 
 void keyboard_post_init_sensors_handler(void) {
 	keyboard_post_init_magnetic_encoder();
@@ -26,31 +35,90 @@ void housekeeping_task_sensors_handler(void) {
 	// -1 = not yet synced with the sensor's actual boot-time state
 	static int8_t magnet_was_present = -1;
 
-	housekeeping_task_magnetic_encoder();
+	int8_t movement = housekeeping_task_magnetic_encoder(); // -1 CCW, 0 none, +1 CW
+	if (movement != 0) {
+		knob_on_rotation(movement > 0, magnetic_encoder.last_distance);
+	}
 
 	if (magnet_was_present != (int8_t)magnetic_encoder.is_present) {
 		magnet_was_present = magnetic_encoder.is_present;
-		// The knob widget is only visible on the idle screen; menu/breakout/
-		// tutorial already redraw it correctly (via ui_refresh -> widget_knob_init,
-		// or don't show it at all) when they exit, so skip poking the display
-		// while they're active.
-		if (menu_state == NOT_IN_MENU && !breakout_is_active() && !tutorial_is_active() && !screensaver_is_active()) {
+		// The knob widget is only visible on the idle screen; whatever covers it
+		// redraws it correctly (via ui_refresh -> widget_knob_init) when it closes,
+		// so skip poking the display while something else is showing.
+		if (ui_idle_screen_visible()) {
 			magnet_was_present ? widget_knob_show_dot() : widget_knob_show_missing();
 		}
 	}
 }
 
+// Knob on the idle screen: move the on-screen dot, and send the knob function's
+// keycode (volume / scroll) once per eepdata.knob_sensitivity worth of rotation.
+static void knob_idle_rotation(void) {
+	widget_knob_update(magnetic_encoder.prev_angle, magnetic_encoder.new_angle);
+
+	uint16_t code_cw = KC_NO, code_ccw = KC_NO;
+	switch (eepdata.knob_func) {
+		case KNOB_FUNC_HSCROLL: code_cw = MS_WHLR; code_ccw = MS_WHLL; break;
+		case KNOB_FUNC_VSCROLL: code_cw = MS_WHLD; code_ccw = MS_WHLU; break;
+		case KNOB_FUNC_VOLUME:  code_cw = KC_VOLU; code_ccw = KC_VOLD; break;
+		default: break; // KNOB_FUNC_CUSTOM - no built-in action yet
+	}
+
+	// Each tap_code16() blocks for TAP_CODE_DELAY, so cap the taps per sensor
+	// event and drop whatever rotation is left beyond that - a fast spin then
+	// can't stall the matrix scan, or leave a backlog that fires later.
+	int16_t sensitivity_threshold = knob_sensitivity_step[eepdata.knob_sensitivity]; // range-checked by eeprom_custom_validate()
+	uint8_t taps = 0;
+	while (knob_accumulator >= sensitivity_threshold && taps < KNOB_MAX_TAPS_PER_EVENT) {
+		if (code_cw != KC_NO) tap_code16(code_cw);
+		knob_accumulator -= sensitivity_threshold;
+		taps++;
+	}
+	while (knob_accumulator <= -sensitivity_threshold && taps < KNOB_MAX_TAPS_PER_EVENT) {
+		if (code_ccw != KC_NO) tap_code16(code_ccw);
+		knob_accumulator += sensitivity_threshold;
+		taps++;
+	}
+	if (knob_accumulator >= sensitivity_threshold)  knob_accumulator = sensitivity_threshold - 1;
+	if (knob_accumulator <= -sensitivity_threshold) knob_accumulator = -(sensitivity_threshold - 1);
+}
+
+// Knob routing for every full-screen mode that moves in fixed-size detents: one
+// on_step() call per step_size of rotation. Modes not listed (zeroed) ignore the
+// knob, except UI_MODE_IDLE and UI_MODE_TUTORIAL, handled in knob_on_rotation().
+// A new full-screen mode only needs a row here (and in ui_button_actions[],
+// display/qp_graphics.c).
+typedef struct {
+	int16_t step_size;              // sensor counts per step (4096 = one full turn)
+	void  (*on_step)(bool clockwise);
+} knob_step_action_t;
+
+static const knob_step_action_t knob_step_actions[UI_MODE_COUNT] = {
+	[UI_MODE_MENU_LIST ... UI_MODE_LAYERS_PICK] = { MENU_STEP_SIZE,     menu_process_rotation },  // every Settings Menu page - menu_process_rotation() dispatches by mode
+	[UI_MODE_BREAKOUT]                          = { BREAKOUT_STEP_SIZE, breakout_encoder_tick },  // finer steps for the paddle
+};
+
 // Not in any public header, but has external linkage in quantum/keyboard.c.
 // Our knob bypasses QMK's ENCODER_ENABLE pipeline entirely (custom AS5600 I2C
-// read), so nothing else marks rotation as "activity" for Quantum Painter's
-// auto-sleep timer (QUANTUM_PAINTER_DISPLAY_TIMEOUT) unless we do it ourselves.
+// read), so nothing else marks rotation as "activity" for last_input_activity_elapsed()
+// (LCD Timeout + screensaver, qp_graphics.c/qp_widget_screensaver.c) unless we do it ourselves.
 extern void last_encoder_activity_trigger(void);
 
-// Called from process_magnetic_encoder() (as5600.c) once a movement past
-// DEG_MARGIN_AS5600 has already been read and validated. `direction` is
-// the sign of that movement: true = CW, false = CCW. This function does
-// NOT touch the sensor itself, avoiding a second, racy I2C read per tick.
-void magnetic_encoder_update_kb(bool direction) {
+// Called from housekeeping_task_sensors_handler() once the AS5600 driver has
+// read and validated a movement past DEG_MARGIN_AS5600. `direction` is its
+// sign (true = CW, false = CCW) and `distance` its size in sensor counts.
+// Doesn't touch the sensor itself, avoiding a second, racy I2C read per tick.
+static void knob_on_rotation(bool direction, uint16_t distance) {
+	// Same rule as the first keypress (process_record_display(), qp_graphics.c):
+	// while the LCD Timeout has the display asleep, rotation only wakes it -
+	// housekeeping_task_display() turns the backlight back on next tick - and
+	// is not treated as input (no volume/scroll change the user can't see).
+	if (display_is_asleep()) {
+		last_encoder_activity_trigger();
+		knob_accumulator = 0;
+		return;
+	}
+
 	last_encoder_activity_trigger();
 	last_knob_movement_time = timer_read32();
 
@@ -59,235 +127,38 @@ void magnetic_encoder_update_kb(bool direction) {
 		return;
 	}
 
-	uint16_t distance = get_distance(&magnetic_encoder);
+	// Clamped: not every state drains it (tutorial knob screen, debug/DFU/About
+	// screens), and an int16_t overflow there would be undefined behavior.
+	int32_t sum = (int32_t)knob_accumulator + (direction ? (int32_t)distance : -(int32_t)distance);
+	if (sum >  KNOB_ACCUMULATOR_LIMIT) sum =  KNOB_ACCUMULATOR_LIMIT;
+	if (sum < -KNOB_ACCUMULATOR_LIMIT) sum = -KNOB_ACCUMULATOR_LIMIT;
+	knob_accumulator = (int16_t)sum;
 
-	accumulator += direction ? (int16_t)distance : -(int16_t)distance;
-
-#ifdef CONSOLE_ENABLE
-	// printf("accumulator = %d \n", accumulator);
-#endif
-
-    if (breakout_is_active()) { // While in game
-        while (accumulator >= BREAKOUT_STEP_SIZE) {
-            breakout_encoder_tick(CW);
-            accumulator -= BREAKOUT_STEP_SIZE;
-        }
-        while (accumulator <= -BREAKOUT_STEP_SIZE) {
-            breakout_encoder_tick(CCW);
-            accumulator += BREAKOUT_STEP_SIZE;
-        }
-    } else if (tutorial_is_active()) {
-        // Screen navigation is buttons-only, so this never falls through to
-        // mouse-wheel/volume/etc below - but the knob screen shows a live dot
-        // that should still track real rotation (tutorial_knob_rotated() is a
-        // no-op on every other screen).
-        tutorial_knob_rotated();
-    } else if (menu_state == NOT_IN_MENU) { // While in main screen
-        widget_knob_update(magnetic_encoder.prev_angle, magnetic_encoder.new_angle);
-
-        uint16_t code_cw = KC_NO, code_ccw = KC_NO;
-        switch (eepdata.knob_func) {
-            case KNOB_FUNC_HSCROLL: code_cw = MS_WHLR; code_ccw = MS_WHLL; break;
-            case KNOB_FUNC_VSCROLL: code_cw = MS_WHLD; code_ccw = MS_WHLU; break;
-            case KNOB_FUNC_VOLUME:  code_cw = KC_VOLU; code_ccw = KC_VOLD; break;
-            default: break; // KNOB_FUNC_CUSTOM - no built-in action yet
-        }
-
-        uint16_t sensitivity_threshold = knob_sensitivity_step[eepdata.knob_sensitivity < KNOB_SENSITIVITY_COUNT ? eepdata.knob_sensitivity : KNOB_SENSITIVITY_MEDIUM];
-        while (accumulator >= sensitivity_threshold) {
-            if (code_cw != KC_NO) tap_code16(code_cw);
-            accumulator -= sensitivity_threshold;
-        }
-        while (accumulator <= -sensitivity_threshold) {
-            if (code_ccw != KC_NO) tap_code16(code_ccw);
-            accumulator += sensitivity_threshold;
-        }
-    } else if (debug_screen_is_active() || dfu_confirm_screen_is_active()) {
-        // Both are static screens (menu_state stays MAIN_MENU while shown,
-        // since MENU_DEBUG/MENU_BOOTTODFU never enter SUB_MENU) - ignore
-        // rotation instead of letting it fall through to menu list navigation
-        // below and redraw the list right over them.
-    } else if (menu_state == MAIN_MENU || menu_state == SUB_MENU || menu_state == DIAL_MENU || menu_state == DIAL_SUB_MENU || menu_state == LAYERS_MENU || menu_state == LAYERS_SUB_MENU) { // While in Menu
-        while (accumulator >= MENU_STEP_SIZE) {
-            process_encoder_rotate(CW);
-            accumulator -= MENU_STEP_SIZE;
-        }
-        while (accumulator <= -MENU_STEP_SIZE) {
-            process_encoder_rotate(CCW);
-            accumulator += MENU_STEP_SIZE;
-        }
-    }
-}
-
-bool process_encoder_rotate(bool clockwise) { // Rotating only, no Pressing
-
-	/*** ENCODER IN MENU ***/
-	if (menu_state != NOT_IN_MENU) {
-		/* In Main-menu, knob rotation controls cursor Up/Down */
-		if (menu_state == MAIN_MENU) {
-			if (clockwise) { // Turn clockwise => DOWN
-				menu_cursor++;
-				if (menu_cursor == DIVIDER_MENU) { // Special case: divider line
-					menu_cursor++;
-				}
-				if (menu_cursor == MENU_LINESPERPAGE+1) // when jumping to next page, re-print the list
-					menu_printlist();
-			} else {         // Turn counter-clockwise => UP
-				menu_cursor--;
-				if (menu_cursor == DIVIDER_MENU) { // Special case: divider line
-					menu_cursor--;
-				}
-				if (menu_cursor == MENU_LINESPERPAGE)
-					menu_printlist();
+	ui_mode_t mode = ui_get_mode();
+	switch (mode) {
+		case UI_MODE_IDLE:
+			knob_idle_rotation();
+			break;
+		case UI_MODE_TUTORIAL:
+			// Screen navigation is buttons-only - but the knob screen shows a live dot
+			// and the menu-practice screens move a cursor, so tutorial.c consumes
+			// knob_accumulator itself (tutorial_knob_rotated() is a no-op elsewhere).
+			tutorial_knob_rotated();
+			break;
+		default: {
+			// Fixed-size detents for every other mode - see knob_step_actions[] above
+			const knob_step_action_t *action = &knob_step_actions[mode];
+			if (!action->on_step) break; // static screens (About, DFU confirm, debug) ignore the knob
+			while (knob_accumulator >= action->step_size && ui_get_mode() == mode) {
+				action->on_step(CW);
+				knob_accumulator -= action->step_size;
 			}
-			if (menu_cursor > MENU_MAXITEMS) {
-				menu_cursor = 1;             // scroll back to #1
-				menu_printlist();            // refresh the list
+			while (knob_accumulator <= -action->step_size && ui_get_mode() == mode) {
+				action->on_step(CCW);
+				knob_accumulator += action->step_size;
 			}
-			if (menu_cursor == 0) {
-				menu_cursor = MENU_MAXITEMS; // scroll to last item
-				menu_printlist();            // refresh the list
-			}
-			menu_set_cursor(menu_cursor);
-		/* In the "DIAL SETTINGS" sub-page, knob rotation controls cursor Up/Down
-		   too - only 3 items, always on one page, so no pagination to handle */
-		} else if (menu_state == DIAL_MENU) {
-			if (clockwise) {
-				dial_menu_cursor = (dial_menu_cursor >= DIAL_MENU_MAXITEMS) ? 1 : dial_menu_cursor + 1;
-			} else {
-				dial_menu_cursor = (dial_menu_cursor <= 1) ? DIAL_MENU_MAXITEMS : dial_menu_cursor - 1;
-			}
-			dial_menu_set_cursor(dial_menu_cursor);
-		/* In Sub-menu, knob rotation moves between options */
-		/* also note: menu lines that "ischangeable = FALSE" will not run into Sub-menu */
-		} else if (menu_state == SUB_MENU) {
-			bool value_changed = false;
-			switch (menu_cursor) {
-				case MENU_DISPLAY_BRIGHTNESS: // DONE
-					if (clockwise) { // next
-						if (eepdata.display_brightness == BACKLIGHT_LEVELS)
-							eepdata.display_brightness = 1;
-						else eepdata.display_brightness++;
-						backlight_level(eepdata.display_brightness);
-					} else {         // previous
-						if (eepdata.display_brightness == 1)
-							eepdata.display_brightness = BACKLIGHT_LEVELS;
-						else eepdata.display_brightness--;
-						backlight_level(eepdata.display_brightness);
-					}
-					value_changed = true;
-					break;
-				case MENU_RGB_BRIGHTNESS: // DONE
-					if (clockwise) { // next
-						rgb_matrix_increase_val();
-					} else {         // previous
-						rgb_matrix_decrease_val();
-					}
-					value_changed = true;
-					break;
-				case MENU_RGB_MODE: // DONE
-					if (clockwise) { // next
-						rgb_matrix_step();
-					} else {         // previous
-						rgb_matrix_step_reverse();
-					}
-					value_changed = true;
-					break;
-				case MENU_INTROANIM: // DONE
-					eepdata.display_bootanim ^= 1;
-					value_changed = true;
-					break;
-				case MENU_DISPLAYTIMEOUT:
-					// Cycles the fixed list (display_timeout_seconds[]/display_timeout_text[],
-					// qp_graphics.h), same pattern as MENU_SCREENSAVER above
-					if (clockwise) { // next
-						eepdata.display_timeout = (eepdata.display_timeout + 1 >= DISPLAY_TIMEOUT_COUNT) ? 0 : eepdata.display_timeout + 1;
-					} else {         // previous
-						eepdata.display_timeout = (eepdata.display_timeout == 0) ? DISPLAY_TIMEOUT_COUNT - 1 : eepdata.display_timeout - 1;
-					}
-					value_changed = true;
-					break;
-				case MENU_SCREENSAVER:
-					// SCREEN_SAVER_MAXITEMS (qp_menu.h) includes "OFF" at index 0, unlike
-					// screensaver_effect_count() which only counts the real engine effects
-					if (clockwise) { // next
-						eepdata.screensaver_effect = (eepdata.screensaver_effect + 1 >= SCREEN_SAVER_MAXITEMS) ? 0 : eepdata.screensaver_effect + 1;
-					} else {         // previous
-						eepdata.screensaver_effect = (eepdata.screensaver_effect == 0) ? SCREEN_SAVER_MAXITEMS - 1 : eepdata.screensaver_effect - 1;
-					}
-					value_changed = true;
-					break;
-				case MENU_THEME_COLOR: {
-					// Cycle through the named presets (theme_color_presets[], display/defines.h)
-					uint8_t index = theme_color_preset_index(eepdata.theme_hue);
-					if (clockwise) {
-						index = (index == THEME_COLOR_PRESET_COUNT - 1) ? 0 : index + 1;
-					} else {
-						index = (index == 0) ? THEME_COLOR_PRESET_COUNT - 1 : index - 1;
-					}
-					eepdata.theme_hue = theme_color_presets[index].hue;
-					value_changed = true;
-					break;
-				}
-				default:
-					; //
-			}
-			// TODO: Animation, LCD Timeout, LCD Brightness, Knob Rotation Fn
-			if (value_changed) {
-				menu_render_sidebar(menu_cursor, (menu_cursor - 1) % MENU_LINESPERPAGE);
-				qp_flush(my_display);
-			}
-		/* Editing one DIAL SETTINGS item - knob rotation changes its value, same role as SUB_MENU above */
-		} else if (menu_state == DIAL_SUB_MENU) {
-			bool value_changed = false;
-			switch (dial_menu_cursor) {
-				case DIAL_MENU_FUNCTION:
-					if (clockwise) { // next
-						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_CUSTOM) ? KNOB_FUNC_HSCROLL : eepdata.knob_func + 1;
-					} else {         // previous
-						eepdata.knob_func = (eepdata.knob_func == KNOB_FUNC_HSCROLL) ? KNOB_FUNC_CUSTOM : eepdata.knob_func - 1;
-					}
-					value_changed = true;
-					break;
-				case DIAL_MENU_RGB_MODE:
-					if (clockwise) { // next
-						eepdata.knob_effect = (eepdata.knob_effect == KNOB_EFFECT_LAYER) ? KNOB_EFFECT_OFF : eepdata.knob_effect + 1;
-					} else {         // previous
-						eepdata.knob_effect = (eepdata.knob_effect == KNOB_EFFECT_OFF) ? KNOB_EFFECT_LAYER : eepdata.knob_effect - 1;
-					}
-					value_changed = true;
-					break;
-				case DIAL_MENU_SENSITIVITY:
-					// 3 fixed levels (LOW/MEDIUM/HIGH), cycled the same way as DIAL_MENU_FUNCTION
-					if (clockwise) { // next (less sensitive -> more sensitive)
-						eepdata.knob_sensitivity = (eepdata.knob_sensitivity == KNOB_SENSITIVITY_HIGH) ? KNOB_SENSITIVITY_LOW : eepdata.knob_sensitivity + 1;
-					} else {         // previous
-						eepdata.knob_sensitivity = (eepdata.knob_sensitivity == KNOB_SENSITIVITY_LOW) ? KNOB_SENSITIVITY_HIGH : eepdata.knob_sensitivity - 1;
-					}
-					value_changed = true;
-					break;
-				default:
-					; //
-			}
-			if (value_changed) {
-				dial_menu_render_sidebar(dial_menu_cursor);
-				qp_flush(my_display);
-			}
-		/* In the "LAYERS CONFIG" sub-page, knob rotation controls cursor Up/Down
-		   too - only LAYERS_MENU_MAXITEMS items, always on one page, so no pagination to handle */
-		} else if (menu_state == LAYERS_MENU) {
-			if (clockwise) {
-				layers_menu_cursor = (layers_menu_cursor >= LAYERS_MENU_MAXITEMS) ? 1 : layers_menu_cursor + 1;
-			} else {
-				layers_menu_cursor = (layers_menu_cursor <= 1) ? LAYERS_MENU_MAXITEMS : layers_menu_cursor - 1;
-			}
-			layers_menu_set_cursor(layers_menu_cursor);
-		/* Picking an icon on the "LAYERS CONFIG" sub-page - knob rotation shifts
-		   the icon strip by exactly one icon's width per step instead of moving a cursor */
-		} else if (menu_state == LAYERS_SUB_MENU) {
-			layers_menu_scroll_step(clockwise);
+			break;
 		}
-		return false;
 	}
-    return true;
 }
+

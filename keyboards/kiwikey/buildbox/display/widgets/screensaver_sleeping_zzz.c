@@ -31,21 +31,29 @@ static void particle_respawn(uint8_t i, bool initial) {
 	p->glyph_h = p->font->line_height;
 	p->speed       = SCREENSAVER_ZZZ_SPEED_MIN + (uint8_t)(rand() % (SCREENSAVER_ZZZ_SPEED_MAX - SCREENSAVER_ZZZ_SPEED_MIN + 1));
 	p->frame_accum = (uint8_t)(rand() % p->speed);
-	p->x           = (int16_t)(rand() % (ST7789_WIDTH - p->glyph_w));
+	p->x           = (int16_t)(rand() % (DISPLAY_WIDTH - p->glyph_w));
 
 	if (initial) {
-		p->y = (int16_t)(rand() % (ST7789_HEIGHT + p->glyph_h)) - p->glyph_h;
+		p->y = (int16_t)(rand() % (DISPLAY_HEIGHT + p->glyph_h)) - p->glyph_h;
 	} else {
-		p->y = ST7789_HEIGHT + (int16_t)(rand() % ST7789_HEIGHT);
+		p->y = DISPLAY_HEIGHT + (int16_t)(rand() % DISPLAY_HEIGHT);
 	}
 }
 
+// QP takes uint16_t coordinates and doesn't clip: a negative y wraps to ~65535
+// and qp_rect() then fills a column ~65000px tall, and a y past the bottom
+// writes outside the panel. So a glyph is only ever drawn/erased while it
+// sits entirely inside the screen.
+static bool particle_fully_onscreen(const zzz_particle_t *p) {
+	return p->y >= 0 && p->y + p->glyph_h <= DISPLAY_HEIGHT;
+}
+
 void screensaver_sleeping_zzz_init(bool initial) {
-	qp_rect(my_display, 0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1, GLOBAL_BG_COLOR, true);
+	qp_rect(bb_display, 0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1, GLOBAL_BG_COLOR, true);
 	for (uint8_t i = 0; i < SCREENSAVER_ZZZ_COUNT; i++) {
 		particle_respawn(i, initial);
 	}
-	qp_flush(my_display);
+	qp_flush(bb_display);
 }
 
 void screensaver_sleeping_zzz_step(void) {
@@ -55,15 +63,17 @@ void screensaver_sleeping_zzz_step(void) {
 		if (p->frame_accum < p->speed) continue;
 		p->frame_accum = 0;
 
-		// Erase the old glyph before moving
-		qp_rect(my_display, p->x, p->y, p->x + p->glyph_w - 1, p->y + p->glyph_h - 1, GLOBAL_BG_COLOR, true);
+		// Erase the old glyph before moving - only if it was actually drawn (see below)
+		if (particle_fully_onscreen(p)) {
+			qp_rect(bb_display, p->x, p->y, p->x + p->glyph_w - 1, p->y + p->glyph_h - 1, GLOBAL_BG_COLOR, true);
+		}
 
 		p->y -= p->glyph_h; // drift upward
 
-		if (p->y + p->glyph_h < 0) { // fully off the top - loop back in from the bottom
+		if (p->y < 0) { // reached the top - loop back in from the bottom
 			particle_respawn(i, false);
-		} else {
-			qp_drawtext_recolor(my_display, p->x, p->y, p->font, "Z", SCREENSAVER_ZZZ_COLOR, GLOBAL_BG_COLOR);
+		} else if (particle_fully_onscreen(p)) {
+			qp_drawtext_recolor(bb_display, p->x, p->y, p->font, "Z", SCREENSAVER_ZZZ_COLOR, GLOBAL_BG_COLOR);
 		}
 	}
 }

@@ -30,8 +30,8 @@ static star_t stars[SCREENSAVER_STARRY_COUNT];
 ***/
 static void star_respawn(uint8_t i, bool initial) {
 	star_t *s = &stars[i];
-	s->x     = (int16_t)(rand() % (ST7789_WIDTH - SCREENSAVER_GLYPH_W));
-	s->y     = (int16_t)(rand() % (ST7789_HEIGHT - SCREENSAVER_GLYPH_H));
+	s->x     = (int16_t)(rand() % (DISPLAY_WIDTH - SCREENSAVER_GLYPH_W));
+	s->y     = (int16_t)(rand() % (DISPLAY_HEIGHT - SCREENSAVER_GLYPH_H));
 	s->glyph = starry_charset[rand() % (sizeof(starry_charset) - 1)];
 	s->speed       = SCREENSAVER_STARRY_SPEED_MIN + (uint8_t)(rand() % (SCREENSAVER_STARRY_SPEED_MAX - SCREENSAVER_STARRY_SPEED_MIN + 1));
 	s->frame_accum = (uint8_t)(rand() % s->speed);
@@ -46,11 +46,11 @@ static void star_respawn(uint8_t i, bool initial) {
 }
 
 void screensaver_starry_night_init(bool initial) {
-	qp_rect(my_display, 0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1, GLOBAL_BG_COLOR, true);
+	qp_rect(bb_display, 0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1, GLOBAL_BG_COLOR, true);
 	for (uint8_t i = 0; i < SCREENSAVER_STARRY_COUNT; i++) {
 		star_respawn(i, initial);
 	}
-	qp_flush(my_display);
+	qp_flush(bb_display);
 }
 
 void screensaver_starry_night_step(void) {
@@ -73,7 +73,7 @@ void screensaver_starry_night_step(void) {
 		s->brightness = (uint8_t)next;
 
 		buf[0] = s->glyph;
-		qp_drawtext_recolor(my_display, s->x, s->y, SCREENSAVER_STARRY_FONT, buf, 0, 0, s->brightness, GLOBAL_BG_COLOR);
+		qp_drawtext_recolor(bb_display, s->x, s->y, SCREENSAVER_STARRY_FONT, buf, 0, 0, s->brightness, GLOBAL_BG_COLOR);
 
 		if (fully_faded) {
 			star_respawn(i, false); // new position, new duration - starts at 0, fading back in

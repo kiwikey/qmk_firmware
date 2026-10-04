@@ -42,18 +42,18 @@ static void column_reset(uint8_t col, bool initial) {
 
 	int16_t above = -(int16_t)(c->trail_len * SCREENSAVER_GLYPH_H);
 	if (initial) {
-		c->y = above + (int16_t)(rand() % (ST7789_HEIGHT - above));
+		c->y = above + (int16_t)(rand() % (DISPLAY_HEIGHT - above));
 	} else {
-		c->y = above - (int16_t)(rand() % ST7789_HEIGHT);
+		c->y = above - (int16_t)(rand() % DISPLAY_HEIGHT);
 	}
 }
 
 static void common_init(bool initial) {
-	qp_rect(my_display, 0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1, GLOBAL_BG_COLOR, true);
+	qp_rect(bb_display, 0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1, GLOBAL_BG_COLOR, true);
 	for (uint8_t col = 0; col < SCREENSAVER_COLS; col++) {
 		column_reset(col, initial);
 	}
-	qp_flush(my_display);
+	qp_flush(bb_display);
 }
 
 void screensaver_matrix_rain_1_init(bool initial) {
@@ -79,27 +79,27 @@ void screensaver_matrix_rain_step(void) {
 		char    buf[2] = {0};
 
 		// The current head becomes a normal (dimmer) trail cell once it's no longer the newest
-		if (c->head_char && c->y >= 0 && c->y < ST7789_HEIGHT) {
+		if (c->head_char && c->y >= 0 && c->y < DISPLAY_HEIGHT) {
 			buf[0] = c->head_char;
-			qp_drawtext_recolor(my_display, x, c->y, SCREENSAVER_FONT, buf, SCREENSAVER_MATRIX_TRAIL_COLOR, GLOBAL_BG_COLOR);
+			qp_drawtext_recolor(bb_display, x, c->y, SCREENSAVER_FONT, buf, SCREENSAVER_MATRIX_TRAIL_COLOR, GLOBAL_BG_COLOR);
 		}
 
 		// Erase the cell scrolling out of the trail's tail
 		int16_t erase_y = c->y - (int16_t)(c->trail_len * SCREENSAVER_GLYPH_H);
-		if (erase_y >= 0 && erase_y < ST7789_HEIGHT) {
-			qp_rect(my_display, x, erase_y, x + SCREENSAVER_GLYPH_W - 1, erase_y + SCREENSAVER_GLYPH_H - 1, GLOBAL_BG_COLOR, true);
+		if (erase_y >= 0 && erase_y < DISPLAY_HEIGHT) {
+			qp_rect(bb_display, x, erase_y, x + SCREENSAVER_GLYPH_W - 1, erase_y + SCREENSAVER_GLYPH_H - 1, GLOBAL_BG_COLOR, true);
 		}
 
 		c->y += SCREENSAVER_GLYPH_H;
 		c->head_char = active_charset[rand() % active_charset_len];
 
-		if (c->y >= 0 && c->y < ST7789_HEIGHT) {
+		if (c->y >= 0 && c->y < DISPLAY_HEIGHT) {
 			buf[0] = c->head_char;
-			qp_drawtext_recolor(my_display, x, c->y, SCREENSAVER_FONT, buf, SCREENSAVER_MATRIX_HEAD_COLOR, GLOBAL_BG_COLOR);
+			qp_drawtext_recolor(bb_display, x, c->y, SCREENSAVER_FONT, buf, SCREENSAVER_MATRIX_HEAD_COLOR, GLOBAL_BG_COLOR);
 		}
 
 		// Respawn once the whole trail (down to its tail) has scrolled past the bottom
-		if (c->y - (int16_t)(c->trail_len * SCREENSAVER_GLYPH_H) >= ST7789_HEIGHT) {
+		if (c->y - (int16_t)(c->trail_len * SCREENSAVER_GLYPH_H) >= DISPLAY_HEIGHT) {
 			column_reset(col, false);
 		}
 	}

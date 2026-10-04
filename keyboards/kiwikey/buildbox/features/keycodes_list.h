@@ -167,5 +167,15 @@
     X (  QK_RGB_MATRIX_HUE_DOWN                       , 0x7846,    "<C"     ) \
     X (  QK_RGB_MATRIX_VALUE_UP                       , 0x7849,    "Br+"     ) \
     X (  QK_RGB_MATRIX_VALUE_DOWN                     , 0x784A,    "Br-"     ) \
+    X (  QK_KB_0                                      , 0x7E00,    "B1"    ) \
+    X (  QK_KB_1                                      , 0x7E01,    "B2"    ) \
+    X (  QK_KB_2                                      , 0x7E02,    "Cut"   ) \
+    X (  QK_KB_3                                      , 0x7E03,    "Copy"  ) \
+    X (  QK_KB_4                                      , 0x7E04,    "Paste" ) \
+    X (  QK_KB_5                                      , 0x7E05,    "DESK"  ) \
+    X (  QK_KB_6                                      , 0x7E06,    "Snip"  ) \
+    X (  QK_KB_7                                      , 0x7E07,    "Cut"   ) \
+    X (  QK_KB_8                                      , 0x7E08,    "Copy"  ) \
+    X (  QK_KB_9                                      , 0x7E09,    "Paste" ) \
     X (  QK_USER_0                                    , 0x7E40,    "#"     ) \
     X (  QK_USER_1                                    , 0x7E41,    "="     )

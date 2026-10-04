@@ -10,21 +10,21 @@
 #include "features/eeprom_custom.h"
 
 void widget_status_init(void) {
-	qp_drawtext_recolor(my_display,
+	qp_drawtext_recolor(bb_display,
 						WIDGET_STATUS_POSX,
 						WIDGET_STATUS_POSY,
 						WIDGET_STATUS_FONT,
 						WIDGET_STATUS_LABEL1,
 						WIDGET_STATUS_LABEL_COLOR,
 						GLOBAL_BG_COLOR);
-	qp_drawtext_recolor(my_display,
+	qp_drawtext_recolor(bb_display,
 						WIDGET_STATUS_POSX,
 						WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *1,
 						WIDGET_STATUS_FONT,
 						WIDGET_STATUS_LABEL2,
 						WIDGET_STATUS_LABEL_COLOR,
 						GLOBAL_BG_COLOR);
-	qp_drawtext_recolor(my_display,
+	qp_drawtext_recolor(bb_display,
 						WIDGET_STATUS_POSX,
 						WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *2,
 						WIDGET_STATUS_FONT,
@@ -36,7 +36,7 @@ void widget_status_init(void) {
 
 void widget_status_update(void) {
 	// Clear old data
-	qp_rect(my_display,
+	qp_rect(bb_display,
 			WIDGET_STATUS_VALUE_POSX, WIDGET_STATUS_POSY,
 			DISPLAY_WIDTH-1, WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2)*2 + WIDGET_STATUS_FONT->line_height,
 			GLOBAL_BG_COLOR, true);
@@ -50,25 +50,22 @@ void widget_status_update(void) {
 		sprintf(buf1, "OFF");
 		sprintf(buf2, "0%%");
 	}
-	qp_drawtext_recolor(my_display,
+	qp_drawtext_recolor(bb_display,
 						WIDGET_STATUS_VALUE_POSX,
 						WIDGET_STATUS_POSY,
 						WIDGET_STATUS_FONT,
 						buf1,
 						WIDGET_STATUS_VALUE_COLOR,
 						GLOBAL_BG_COLOR);
-	qp_drawtext_recolor(my_display,
+	qp_drawtext_recolor(bb_display,
 						WIDGET_STATUS_VALUE_POSX,
 						WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *1,
 						WIDGET_STATUS_FONT,
 						buf2,
 						WIDGET_STATUS_VALUE_COLOR,
 						GLOBAL_BG_COLOR);
-	{
-		uint8_t idx = eepdata.display_timeout < DISPLAY_TIMEOUT_COUNT ? eepdata.display_timeout : DISPLAY_TIMEOUT_NEVER_INDEX;
-		sprintf(buf1, "%s", display_timeout_text[idx]);
-	}
-	qp_drawtext_recolor(my_display,
+	snprintf(buf1, sizeof(buf1), "%s", display_timeout_text[eepdata.display_timeout]); // range-checked by eeprom_custom_validate()
+	qp_drawtext_recolor(bb_display,
 						WIDGET_STATUS_VALUE_POSX,
 						WIDGET_STATUS_POSY + (WIDGET_STATUS_FONT->line_height+2) *2,
 						WIDGET_STATUS_FONT,

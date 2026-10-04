@@ -9,9 +9,9 @@
 #define RP_SPI_USE_SPI1 TRUE
 
 #if defined(QUANTUM_PAINTER_ILI9341_SPI_ENABLE)
-    #undef  RP_PWM_USE_PWM6
-    #define RP_PWM_USE_PWM6 TRUE
+	#undef  RP_PWM_USE_PWM6
+	#define RP_PWM_USE_PWM6 TRUE
 #elif defined(QUANTUM_PAINTER_ST7789_SPI_ENABLE)
-    #undef  RP_PWM_USE_PWM4
-    #define RP_PWM_USE_PWM4 TRUE
+	#undef  RP_PWM_USE_PWM4
+	#define RP_PWM_USE_PWM4 TRUE
 #endif

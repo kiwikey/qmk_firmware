@@ -126,7 +126,6 @@ const FONT_CSS = {
 };
 
 let rxQueue = []; // raw bytes awaited parsing into framed messages
-let msgSeq = 0; // TEMP DEBUG - remove once the knob ring is diagnosed
 
 function handleInputReport(event) {
 	const data = new Uint8Array(event.data.buffer, event.data.byteOffset, event.data.byteLength);
@@ -139,18 +138,12 @@ function handleInputReport(event) {
 function parseQueue() {
 	let consumed = 0;
 	while (true) {
-		// TEMP DEBUG - remove once the knob ring is diagnosed
-		const skipStart = consumed;
-		while (consumed < rxQueue.length && rxQueue[consumed] !== SYNC_BYTE) consumed++;
-		if (consumed > skipStart) {
-			console.log(`PARSE: skipped ${consumed - skipStart} non-sync byte(s): [${rxQueue.slice(skipStart, consumed).join(',')}]`);
-		}
+		while (consumed < rxQueue.length && rxQueue[consumed] !== SYNC_BYTE) consumed++; // resync: skip padding/garbage up to the next message
 		if (rxQueue.length - consumed < 3) break; // need sync+opcode+len at least
 		const opcode = rxQueue[consumed + 1];
 		const len = rxQueue[consumed + 2];
 		if (rxQueue.length - consumed < 3 + len) break; // message not fully arrived yet
 		const payload = rxQueue.slice(consumed + 3, consumed + 3 + len);
-		console.log(`MSG #${++msgSeq}: opcode=0x${opcode.toString(16)} len=${len}`);
 		dispatch(opcode, payload);
 		consumed += 3 + len;
 	}
@@ -252,9 +245,6 @@ function handleCircle(p) {
 	const x = readU16(p, 0), y = readU16(p, 2), radius = readU16(p, 4);
 	const color = rgb565ToCss(readU16(p, 6));
 	const filled = p[8] !== 0;
-
-	// TEMP DEBUG - remove once the knob ring is diagnosed
-	console.log(`CIRCLE: x=${x} y=${y} r=${radius} color=${color} filled=${filled}`);
 
 	ctx.beginPath();
 	ctx.arc(x, y, radius, 0, Math.PI * 2);

@@ -9,7 +9,6 @@
 #include "display/qp_includes.h"
 #include "display/qp_custom_api.h"
 #include "display/defines.h"
-#include "display/widgets/qp_widget_matrix.h"
 #include "display/widgets/qp_widget_layer.h"
 #include "display/widgets/qp_widget_knob.h"
 
@@ -20,8 +19,8 @@
 	+ widget free buttons (2 buttons)
 ***/
 void widget_matrix_init(void) {
-    for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) { // ROW4 is for direct pin buttons, so need to -1
-        for (uint8_t y = 0; y < MATRIX_COLS; y++) {
+	for (uint8_t x = 0; x < MATRIX_ROWS-1; x++) { // ROW4 is for direct pin buttons, so need to -1
+		for (uint8_t y = 0; y < MATRIX_COLS; y++) {
 			widget_matrix_bgclear_singlebutton(x, y);
 			widget_matrix_render_singlebutton(x, y, WIDGET_MATRIX_BUTTON_OFF, false, 0); // as long as text_on = false, layer is ignored
 		}
@@ -64,7 +63,7 @@ static void widget_matrix_render_kc_lines(uint16_t posx, uint16_t posy, const ch
 	uint16_t line_h = WIDGET_MATRIX_KC_BASIC_FONT->line_height;
 	uint16_t top    = posy - (line_count * line_h) / 2;
 	for (uint8_t i = 0; i < line_count; i++) {
-		qp_drawtext_recolor_center(my_display,
+		bb_drawtext_recolor_center(bb_display,
 									posx,
 									top + i*line_h + line_h/2,
 									WIDGET_MATRIX_KC_BASIC_FONT,
@@ -76,10 +75,8 @@ static void widget_matrix_render_kc_lines(uint16_t posx, uint16_t posy, const ch
 
 /***  Render the keycode string for "basic keycodes" ***/
 void widget_matrix_render_kc_basic(uint16_t posx, uint16_t posy, uint16_t keycode) {
-	if (keycode == NULL_VALUE) return; // with matrix positions that are "blank", their keycode will be 0x0000, same as KC_NO, so must not process them
-	char buf1[5] = {0}; // maximum 4 characters + null terminator = 5 bytes
-	sprintf(buf1, "%s", keycode_to_string(keycode));
-	const char *lines[1] = { buf1 };
+	if (keycode == KC_NO) return; // with matrix positions that are "blank", their keycode will be 0x0000, same as KC_NO, so must not process them
+	const char *lines[1] = { keycode_to_string(keycode) }; // drawn straight from the string table - no copy, so no buffer to overflow
 	widget_matrix_render_kc_lines(posx, posy, lines, 1);
 }
 
@@ -131,13 +128,13 @@ void widget_matrix_render_kc_holdtap(uint16_t posx, uint16_t posy, uint16_t keyc
 ***/
 void widget_matrix_render_singlebutton(uint8_t x, uint8_t y, uint8_t hue, uint8_t sat, uint8_t val, bool text_on, uint8_t layer) {
 	// Button outline
-	qp_line(my_display,
+	qp_line(bb_display,
 			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) +3, // left
 			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) +2, // top
 			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH -3, // right
 			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) +2, // top
 			hue, sat, val);
-	qp_line(my_display,
+	qp_line(bb_display,
 			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) +3, // left
 			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_HEIGHT -2, // bottom
 			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH -3, // right
@@ -182,7 +179,7 @@ void widget_matrix_render_singlebutton(uint8_t x, uint8_t y, uint8_t hue, uint8_
 	Nothing from the old keycode is left
 ***/
 void widget_matrix_bgclear_singlebutton(uint8_t x, uint8_t y) { // just inner button, has no effect to button's outline
-	qp_rect(my_display,
+	qp_rect(bb_display,
 			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + 1, // left
 			WIDGET_MATRIX_POSY + x*(WIDGET_MATRIX_KEY_HEIGHT + WIDGET_MATRIX_KEY_SPACING) + 3, // top
 			WIDGET_MATRIX_POSX + y*(WIDGET_MATRIX_KEY_WIDTH  + WIDGET_MATRIX_KEY_SPACING) + WIDGET_MATRIX_KEY_WIDTH - 1, // right
@@ -196,13 +193,13 @@ void widget_matrix_bgclear_singlebutton(uint8_t x, uint8_t y) { // just inner bu
 	If not defined, return "!?"
 ***/
 char *keycode_to_string(enum qk_keycode_defines kc) {
-    switch (kc) {
+	switch (kc) {
 #define X(keycode, hex, str) case keycode: return str;
-        KEYCODE_LIST;
+		KEYCODE_LIST;
 #undef X
-    default:
-        return "!?";
-    }
+	default:
+		return "!?";
+	}
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)

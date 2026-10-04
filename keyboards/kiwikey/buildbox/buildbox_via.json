@@ -4,6 +4,8 @@
     "productId": "0xBB00",
     "keycodes": ["qmk_rgb_matrix_keycodes"],
 	"customKeycodes": [
+		{"name": "Button 1","title": "BuildBox Button 1 - previous layer / hold 3s: Dial Settings / with Button 2: Menu","shortName": "B1"},
+		{"name": "Button 2","title": "BuildBox Button 2 - next layer / with Button 1: Menu","shortName": "B2"},
 		{"name": "Cut (Win)","title": "Windows CUT (CTRL+X)","shortName": "Cut"},
 		{"name": "Copy (Win)","title": "Windows COPY (CTRL+C)","shortName": "Copy"},
 		{"name": "Paste (Win)","title": "Windows PASTE (CTRL+V)","shortName": "Paste"},

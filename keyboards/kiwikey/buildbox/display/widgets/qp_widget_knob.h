@@ -1,11 +1,13 @@
 #pragma once
 
+#include "quantum.h"
+
 // The Knob itself
 #define WIDGET_KNOB_CENTERX           265
 #define WIDGET_KNOB_CENTERY           110
 #define WIDGET_KNOB_RADIUS            50
-#define WIDGET_KNOB_OUTTER_THICKNESS  2
-#define WIDGET_KNOB_OUTTER_COLOR      GLOBAL_THEME_COLOR
+#define WIDGET_KNOB_OUTER_THICKNESS  2
+#define WIDGET_KNOB_OUTER_COLOR      GLOBAL_THEME_COLOR
 
 // Knob's indicator, aka the "DOT"
 #define WIDGET_KNOB_DOT_SIZE          8

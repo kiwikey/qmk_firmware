@@ -10,8 +10,8 @@
  * *and* mirror the same call over webhid_stream — so none of those files
  * need to change themselves.
  *
- * qp_roundrect is deliberately NOT shadowed: it's a custom function defined
- * in features/qp_custom_api.c, which also includes qp_graphics.h. Shadowing
+ * bb_roundrect is deliberately NOT shadowed: it's a custom function defined
+ * in display/qp_custom_api.c, which also includes qp_graphics.h. Shadowing
  * its own name would rewrite its definition, not just its call-sites -
  * rounded rects (menu boxes) stay an unmirrored gap for now, see
  * webhid_stream.h's protocol doc.

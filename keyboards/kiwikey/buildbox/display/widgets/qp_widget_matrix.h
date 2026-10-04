@@ -1,12 +1,10 @@
 #pragma once
 
-#define WIDGET_MATRIX_POSX         WIDGET_LAYER_POSX
-#define WIDGET_MATRIX_POSY         WIDGET_LAYER_POSY + WIDGET_LAYER_HEIGHT + 10
-#define WIDGET_MATRIX_KEY_WIDTH    50
-#define WIDGET_MATRIX_KEY_HEIGHT   50
+#include "quantum.h"
+#include "display/defines.h"
+#include "widget_layout.h" // WIDGET_MATRIX_POSX/POSY/KEY_*/WIDTH, shared with the layer-name box
+
 #define WIDGET_MATRIX_KEY_CORNER   14
-#define WIDGET_MATRIX_KEY_SPACING  1
-#define WIDGET_MATRIX_WIDTH        (WIDGET_MATRIX_KEY_WIDTH*4 + WIDGET_MATRIX_KEY_SPACING*3)
 
 // #define WIDGET_MATRIX_KC_BASIC_FONT   nanoplex32
 #define WIDGET_MATRIX_KC_BASIC_FONT   font16
