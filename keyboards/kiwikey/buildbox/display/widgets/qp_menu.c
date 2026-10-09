@@ -161,7 +161,7 @@ typedef struct {
 
 static const menu_item_t menu_items[] = {
 	{ .label = "LCD BRIGHTNESS", .get_value = value_lcd_brightness, .on_rotate = rotate_lcd_brightness },
-	{ .label = "SLEEP",          .get_value = value_sleep,          .on_rotate = rotate_sleep },
+	{ .label = "SENSITIVITY",    .get_value = value_sleep,          .on_rotate = rotate_sleep },
 	{ .label = "SCREEN SAVER",   .get_value = value_screensaver,    .on_rotate = rotate_screensaver },
 	{ .label = "DIAL SETTINGS",  .on_select = open_dial_settings },
 	{ .label = "THEME COLOR",    .get_value = value_theme_color, .value_hue = hue_theme_color, .on_rotate = rotate_theme_color },
