@@ -9,6 +9,7 @@
 #include "display/qp_includes.h"
 #include "display/qp_custom_api.h"
 #include "display/defines.h"
+#include "features/macro_label.h"
 #include "display/widgets/qp_widget_layer.h"
 #include "display/widgets/qp_widget_knob.h"
 
@@ -80,11 +81,16 @@ void widget_matrix_render_kc_basic(uint16_t posx, uint16_t posy, uint16_t keycod
 	widget_matrix_render_kc_lines(posx, posy, lines, 1);
 }
 
-/***  Render macro keycodes (QK_MACRO_0..31) as 2 lines: "MACRO" + its number ***/
+/***  Render macro keycodes (QK_MACRO_0..31) as 2 lines: "MACRO" + its number
+	A named macro ("[Name]" at the start of the macro, see features/macro_label.c)
+	shows its name in place of the number
+***/
 void widget_matrix_render_kc_macro(uint16_t posx, uint16_t posy, uint16_t keycode) {
+	uint8_t id = (keycode - QK_MACRO_0) & 0x1F; // & 0x1F proves the 0-31 bound to the compiler (QK_MACRO_0..31 is 5 bits)
 	char buf1[3]; // macro number is 0-31, max 2 digits + null terminator
-	snprintf(buf1, sizeof(buf1), "%d", (keycode - QK_MACRO_0) & 0x1F); // & 0x1F proves the 0-31 bound to the compiler (QK_MACRO_0..31 is 5 bits)
-	const char *lines[2] = { "MACRO", buf1 };
+	snprintf(buf1, sizeof(buf1), "%d", id);
+	const char *label = macro_label_get(id);
+	const char *lines[2] = { "MACRO", label ? label : buf1 };
 	widget_matrix_render_kc_lines(posx, posy, lines, 2);
 }
 

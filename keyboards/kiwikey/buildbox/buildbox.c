@@ -6,6 +6,7 @@
 #include "sensor/sensors_handler.h"
 #include "features/eeprom_custom.h"
 #include "features/knob_custom.h"
+#include "features/macro_label.h"
 #include "features/webhid_stream.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
@@ -62,6 +63,15 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 		return false;
 	}
 	if (!process_record_user(keycode, record)) {
+		return false;
+	}
+
+	// VIA macros: play them ourselves so the "[Name]" prefix is not typed (QMK's own playback,
+	// process_record_via(), runs after this - returning false here stops it)
+	if (keycode >= QK_MACRO && keycode <= QK_MACRO_MAX) {
+		if (record->event.pressed) {
+			macro_label_send(keycode - QK_MACRO);
+		}
 		return false;
 	}
 

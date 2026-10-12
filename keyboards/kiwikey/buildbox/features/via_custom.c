@@ -2,6 +2,7 @@
 #include "raw_hid.h"
 #include "eeprom_custom.h"
 #include "display/qp_graphics.h"
+#include "macro_label.h"
 #include "webhid_stream.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
@@ -129,6 +130,11 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
 	} else if (*command_id == id_dynamic_keymap_set_buffer || *command_id == id_dynamic_keymap_reset || *command_id == id_eeprom_reset) {
 		// Many keys at once (VIA "Load saved layout", keymap reset) - redraw the whole grid
 		flag_display_keymap_reload = true;
+	}
+
+	// Macro buffer changed - re-read the "[Name]" labels shown on the LCD (debounced, see features/macro_label.c)
+	if (*command_id == id_dynamic_keymap_macro_set_buffer || *command_id == id_dynamic_keymap_macro_reset || *command_id == id_eeprom_reset) {
+		macro_label_invalidate();
 	}
 
 	// Only commands that *change* something count as activity - VIA's periodic

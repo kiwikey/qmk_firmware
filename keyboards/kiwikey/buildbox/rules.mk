@@ -28,6 +28,7 @@ SRC += \
 	features/knob_custom.c              \
 	features/webhid_stream.c            \
 	features/webhid_shadow.c            \
+	features/macro_label.c              \
 	sensor/sensors_handler.c            \
 	sensor/as5600.c
 

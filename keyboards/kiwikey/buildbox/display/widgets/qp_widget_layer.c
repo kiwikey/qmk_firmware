@@ -4,6 +4,7 @@
 #include "qp_widget_layer.h"
 
 #include "features/eeprom_custom.h"
+#include "features/macro_label.h"
 #include "display/qp_graphics.h"
 #include "display/qp_includes.h"
 #include "display/qp_custom_api.h"
@@ -16,6 +17,13 @@ const char * const layer_names[] = {
 	"RGB LED"
 };
 _Static_assert(sizeof(layer_names) / sizeof(layer_names[0]) == (DYNAMIC_KEYMAP_LAYER_COUNT), "layer_names must have exactly DYNAMIC_KEYMAP_LAYER_COUNT entries");
+
+// The name to show for a layer: the user's own ("[#LAYERS]..." macro slot, see
+// features/macro_label.c) if they set one, otherwise the built-in layer_names[] entry
+const char *layer_name_get(uint8_t layer) {
+	const char *custom = macro_layer_name_get(layer);
+	return custom ? custom : layer_names[layer % DYNAMIC_KEYMAP_LAYER_COUNT];
+}
 
 
 void widget_layer_init(void) {
@@ -49,7 +57,7 @@ void widget_layer_render_layername(uint8_t layer, uint16_t posx, uint16_t posy) 
 				WIDGET_LAYER_CORNER, true, true
 				);
 	char layer_name_upper[16];
-	to_uppercase(layer_names[layer], layer_name_upper, sizeof(layer_name_upper));
+	to_uppercase(layer_name_get(layer), layer_name_upper, sizeof(layer_name_upper));
 	bb_drawtext_recolor_center(bb_display,
 							   posx + WIDGET_LAYER_WIDTH/2,
 							   posy + WIDGET_LAYER_HEIGHT/2 +2,
@@ -113,7 +121,7 @@ void widget_layer_render_navigation(uint8_t layer) {
 	else next_layer = layer + 1;
 
 	uint16_t textnav1_posx = WIDGET_LAYER_NAV_POSX1 + ico12_arrow_left->width + 5;
-	uint16_t textnav2_posx = WIDGET_LAYER_NAV_POSX2 - qp_textwidth(WIDGET_LAYER_NAV_FONT, layer_names[next_layer]) - 5;
+	uint16_t textnav2_posx = WIDGET_LAYER_NAV_POSX2 - qp_textwidth(WIDGET_LAYER_NAV_FONT, layer_name_get(next_layer)) - 5;
 
 	qp_rect(bb_display,
 			textnav1_posx,
@@ -134,14 +142,14 @@ void widget_layer_render_navigation(uint8_t layer) {
 						textnav1_posx,
 						WIDGET_LAYER_NAV_POSY1 -2, // Better alignment
 						WIDGET_LAYER_NAV_FONT,
-						layer_names[prev_layer],
+						layer_name_get(prev_layer),
 						HSV_CYAN,
 						GLOBAL_BG_COLOR);
 	qp_drawtext_recolor(bb_display,
 						textnav2_posx,
 						WIDGET_LAYER_NAV_POSY2 -2, // Better alignment
 						WIDGET_LAYER_NAV_FONT,
-						layer_names[next_layer],
+						layer_name_get(next_layer),
 						HSV_CYAN,
 						GLOBAL_BG_COLOR);
 }
