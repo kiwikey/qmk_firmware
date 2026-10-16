@@ -22,11 +22,11 @@ enum {
 
 #define RGB_MATRIX_EFFECT(x)    \
     case RGB_MATRIX_EFFECT_##x: \
-        return #x;
+        return PSTR(#x);
 const char* rgb_matrix_name(uint8_t effect) {
     switch (effect) {
         case RGB_MATRIX_EFFECT_NONE:
-            return "NONE";
+            return PSTR("NONE");
 #include "rgb_matrix_effects.inc"
 #undef RGB_MATRIX_EFFECT
 #ifdef RGB_MATRIX_CUSTOM_KB
@@ -36,7 +36,7 @@ const char* rgb_matrix_name(uint8_t effect) {
 #    include "rgb_matrix_user.inc"
 #endif
         default:
-            return "UNKNOWN";
+            return PSTR("UNKNOWN");
     }
 }
 #endif // defined(RGB_MATRIX_ENABLE)

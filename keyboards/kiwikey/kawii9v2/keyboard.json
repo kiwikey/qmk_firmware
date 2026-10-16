@@ -78,7 +78,7 @@
             { "pin_a": "D3", "pin_b": "D5" },
             { "pin_a": "B2", "pin_b": "B3" }
         ]
-    }
+    },
     "layouts": {
         "LAYOUT": {
             "layout": [

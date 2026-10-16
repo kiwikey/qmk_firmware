@@ -28,11 +28,12 @@ void menu_init(void) {
 }
 
 void menu_exit(void) {
+    uint8_t exit_cursor = menu_cursor; // remember which item was selected before resetting the cursor
     current_menu = NOT_IN_MENU;
     menu_cursor  = MAINMENU_1STLINE_POS;
     eeprom_update_custom(); // update all custom EEPROM values (if necessary)
     /* Special cases handling */
-    if (menu_cursor == 1) { // when exit "Active layer", move to that chosen layer
+    if (exit_cursor == MENU_ACTIVATELAYER) { // when exit "Active layer", move to that chosen layer
         layer_move(eepdata.active_layer);
     }
     /*************************/
@@ -48,12 +49,12 @@ void menu_printlist(void) { // Print the menu list, total MAINMENU_LINESPERPAGE 
     oled_set_cursor(0, MAINMENU_1STLINE_POS);
     if (menu_cursor <= MAINMENU_LINESPERPAGE) {
         for (uint8_t i = 0; i < MAINMENU_LINESPERPAGE; i++) {
-            oled_write_ln(menu_list[i], false);
+            oled_write_ln_P(menu_list[i], false);
         }
     }
     else if (menu_cursor > MAINMENU_LINESPERPAGE) {
         for (uint8_t i = MAINMENU_LINESPERPAGE; i < 9; i++) {
-            oled_write_ln(menu_list[i], false);
+            oled_write_ln_P(menu_list[i], false);
         }
     }
 }
@@ -82,10 +83,10 @@ void menu_quick_view(void) {
             oled_write_char(0x28, false); // '('
             oled_write_char(eepdata.active_layer + 0x30, false);
             oled_write_char(0x29, false); // ')'
-            oled_write(layer_name[eepdata.active_layer], false);
+            oled_write_P(layer_name[eepdata.active_layer], false);
             break;
         case MENU_ANIMATION:
-            oled_write_align(anim_list[eepdata.display_anim], ALIGN_CENTER, false);
+            oled_write_align_P(anim_list[eepdata.display_anim], ALIGN_CENTER, false);
             break;
         case MENU_DISPLAYTIMEOUT:
             if (eepdata.display_timeout == DISPLAY_TIMEOUT_NEVER) {
@@ -98,24 +99,24 @@ void menu_quick_view(void) {
             break;
         case MENU_LIGHTINGLAYERS:
             if (!eepdata.lighting_layers) {
-                oled_write_align("OFF", ALIGN_CENTER, false);
+                oled_write_align_P(PSTR("OFF"), ALIGN_CENTER, false);
             }
             else switch (eepdata.lighting_flags) {
                     case 0:
-                        oled_write_align("ON (Underglow)", ALIGN_CENTER, false);
+                        oled_write_align_P(PSTR("ON (Underglow)"), ALIGN_CENTER, false);
                         break;
                     case 1:
-                        oled_write_align("ON (Backlight)", ALIGN_CENTER, false);
+                        oled_write_align_P(PSTR("ON (Backlight)"), ALIGN_CENTER, false);
                         break;
                     case 2:
-                        oled_write_align("ON (All LEDs)", ALIGN_CENTER, false);
+                        oled_write_align_P(PSTR("ON (All LEDs)"), ALIGN_CENTER, false);
                         break;
                 }
             break;
         case MENU_KNOBFUNCTION:
 			// oled_set_cursor(3,7);
 			// oled_write(encoder_func_name[eepdata.knob_func], false);
-			oled_write_align(encoder_func_name[eepdata.knob_func], ALIGN_CENTER, false);
+			oled_write_align_P(encoder_func_name[eepdata.knob_func], ALIGN_CENTER, false);
             break;
         case MENU_FWVERSION:
             oled_write_align_P(PSTR(FW_VERSION), ALIGN_CENTER, false);
@@ -133,7 +134,7 @@ void menu_quick_view(void) {
             break;
     }
     // Render 2 arrows (left & right) for "changeable" settings
-    if ((current_menu == SUB_MENU) && menu_list_ischangeable[menu_cursor]) {
+    if ((current_menu == SUB_MENU) && menu_is_changeable(menu_cursor)) {
         oled_set_cursor(0,7);
         oled_write_char(0x11, false);
         oled_set_cursor(20,7);
@@ -142,7 +143,7 @@ void menu_quick_view(void) {
 }
 
 void menu_action(void) {
-    if (menu_list_ischangeable[menu_cursor]) {
+    if (menu_is_changeable(menu_cursor)) {
         current_menu = SUB_MENU;
         // Render 2 arrows (left & right) for "changeable" settings (first time)
         oled_set_cursor(0,7);

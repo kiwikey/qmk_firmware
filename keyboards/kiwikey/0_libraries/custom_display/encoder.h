@@ -22,6 +22,26 @@
 #define ENCODER_FN5_CW  KC_BRIU
 #define ENCODER_FN5_CCW KC_BRID
 
+#if defined(OLED_ENABLE)
+// OLED builds (AVR): texts are stored in flash (PROGMEM) to save RAM, print with oled_write_*_P()
+static const char encoder_func_name[ENCODER_FUNC_MAX+1][17] PROGMEM = {
+	"    disabled    ",
+	"    - VOL +     ",
+	"  SCROLL (fast) ",
+	"  SCROLL (slow) ",
+	"  Mouse Scroll  ",
+	" - BRIGHTNESS + "
+};
+
+static const char encoder_func_shortname[ENCODER_FUNC_MAX+1][4] PROGMEM = {
+	"---",
+	"VOL",
+	"SCR",
+	"SCR",
+	"MOU",
+	"BRT"
+};
+#else
 static const char * const encoder_func_name[ENCODER_FUNC_MAX+1] = {
 	"    disabled    ",
 	"    - VOL +     ",
@@ -39,6 +59,7 @@ static const char * const encoder_func_shortname[ENCODER_FUNC_MAX+1] = {
 	"MOU",
 	"BRT"
 };
+#endif // defined(OLED_ENABLE)
 
 bool process_encoder_rotate(uint8_t index, bool clockwise);
 bool process_encoder_tap(void);

@@ -51,7 +51,8 @@ enum menu_list_references {
 	MENU_BOOTTODFU
 };
 
-static const char * const menu_list[MAINMENU_MAXITEMS] = {
+// Texts are stored in flash (PROGMEM) to save RAM, print them with oled_write_*_P()
+static const char menu_list[MAINMENU_MAXITEMS][19] PROGMEM = {
 	" 1.Active layer",
 	" 2.Animation",
 	" 3.OLED timeout",
@@ -63,7 +64,9 @@ static const char * const menu_list[MAINMENU_MAXITEMS] = {
 	" 9.Boot to DFU"
 };
 
-static const bool menu_list_ischangeable[MAINMENU_MAXITEMS+1] = {
+// Read with menu_is_changeable(), the table is in flash
+#define menu_is_changeable(i) pgm_read_byte(&menu_list_ischangeable[i])
+static const bool menu_list_ischangeable[MAINMENU_MAXITEMS+1] PROGMEM = {
 	false, // 0 (never checked, just dump value)
 	/* the list below */
 	true,  // 1
@@ -79,7 +82,7 @@ static const bool menu_list_ischangeable[MAINMENU_MAXITEMS+1] = {
 
 #define DISPLAY_ANIM_QTY    3  // QMK logo, Mario, Bongo Cat
 
-static const char * const anim_list[DISPLAY_ANIM_QTY+1] = {
+static const char anim_list[DISPLAY_ANIM_QTY+1][10] PROGMEM = {
 	"none",
 	"QMK Logo",
 	"Mario",

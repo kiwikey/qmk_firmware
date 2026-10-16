@@ -17,6 +17,11 @@
     #include "print.h"
 #endif // defined(CONSOLE_ENABLE)
 
+#if defined(VIA_ENABLE)
+_Static_assert(sizeof(EEPROM_CUSTOM_DATA) <= VIA_EEPROM_CUSTOM_CONFIG_SIZE,
+               "EEPROM_CUSTOM_DATA is larger than VIA_EEPROM_CUSTOM_CONFIG_SIZE (config.h)");
+#endif // defined(VIA_ENABLE)
+
 EEPROM_CUSTOM_DATA eepdata;
 EEPROM_CUSTOM_DATA eepdata_default = {
 	0,                                // active_layer       : 0

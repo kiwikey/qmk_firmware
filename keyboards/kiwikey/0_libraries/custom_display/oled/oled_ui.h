@@ -19,7 +19,8 @@
     RGB #03  * 55%
 ********************************/
 
-static const char * const layer_name[DYNAMIC_KEYMAP_LAYER_COUNT] = {
+// Stored in flash (PROGMEM) to save RAM, print with oled_write_P()
+static const char layer_name[DYNAMIC_KEYMAP_LAYER_COUNT][8] PROGMEM = {
 	// "Default",
 	// " Media ",
 	// " Mouse ",

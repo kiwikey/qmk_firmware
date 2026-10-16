@@ -69,9 +69,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX       // Encoder 2
     ),
     [_RGB] = LAYOUT(
-        UG_TOGG,   UG_PREV,   UG_NEXT,    // RGB On/Off - Prev mode - Next mode
-        XXXXXXX,   UG_HUED,   UG_HUEU,    //              Change "base" color
-        XXXXXXX,   UG_VALD,   UG_VALU,    //              Change brightness
+        RM_TOGG,   RM_PREV,   RM_NEXT,    // RGB On/Off - Prev mode - Next mode
+        XXXXXXX,   RM_HUED,   RM_HUEU,    //              Change "base" color
+        XXXXXXX,   RM_VALD,   RM_VALU,    //              Change brightness
         TD(_TD_MENU), // Encoder 1
         XXXXXXX       // Encoder 2
     )

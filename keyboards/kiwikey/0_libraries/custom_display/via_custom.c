@@ -84,8 +84,10 @@ void via_config_set_value( uint8_t *data )
 			// data[1] is array index
 			// data[2] is value of HUE
 			// data[3] is value of SAT
-			eepdata.layer_hue[data[1]] = data[2];
-			eepdata.layer_sat[data[1]] = data[3];
+			if (data[1] < DYNAMIC_KEYMAP_LAYER_COUNT) {
+				eepdata.layer_hue[data[1]] = data[2];
+				eepdata.layer_sat[data[1]] = data[3];
+			}
             break;
         }
 
@@ -148,8 +150,13 @@ void via_config_get_value( uint8_t *data )
 			// value_data[1] is value of HUE
 			// value_data[2] is value of SAT
 			value_data[0] = data[1];
-			value_data[1] = eepdata.layer_hue[data[1]];
-			value_data[2] = eepdata.layer_sat[data[1]];
+			if (data[1] < DYNAMIC_KEYMAP_LAYER_COUNT) {
+				value_data[1] = eepdata.layer_hue[data[1]];
+				value_data[2] = eepdata.layer_sat[data[1]];
+			} else {
+				value_data[1] = 0;
+				value_data[2] = 0;
+			}
 			value_data[3] = 0xFF; // not sure if this is needed
             break;
         }

@@ -56,7 +56,7 @@ void render_subui_rgbcontrol(void) {
 #ifdef RGB_MATRIX_ENABLE
     // RGB mode
     oled_set_cursor(0, SUB_UI_DISPLAY_ROW +2);
-	oled_write_ln(rgb_matrix_is_enabled() ? rgb_matrix_name(rgb_matrix_get_mode()) : "RGB_OFF", false);
+	oled_write_ln_P(rgb_matrix_is_enabled() ? rgb_matrix_name(rgb_matrix_get_mode()) : PSTR("RGB_OFF"), false);
 	//oled_write_ln(rgbmode_names[rgb_matrix_get_mode()], false); // Need to enable rgbmode_names[] in 'rgb_matrix_name.c'
 
     // RGB brightness bar
@@ -72,7 +72,7 @@ void render_stats(void) {
     // Current layer
     oled_set_cursor(STATS_DISPLAY_COL +6, STATS_DISPLAY_ROW);
 	// oled_write_char(get_highest_layer(layer_state) + 0x30, true);
-	oled_write(layer_name[get_highest_layer(layer_state)], true);
+	oled_write_P(layer_name[get_highest_layer(layer_state)], true);
 	
 #ifdef WPM_ENABLE
     // Current WPM
@@ -107,7 +107,7 @@ void render_stats(void) {
 	// Knob function
 	oled_set_cursor(19,1); oled_write_char(0x5E, false); // Arrow up
 	oled_set_cursor(19,3); oled_write_char(0xDD, false); // Arrow up
-	oled_set_cursor(18,2); oled_write(encoder_func_shortname[eepdata.knob_func],false);
+	oled_set_cursor(18,2); oled_write_P(encoder_func_shortname[eepdata.knob_func],false);
 	
 	#endif // RGB_MATRIX_ENABLE
 }
