@@ -25,8 +25,10 @@ _Static_assert(DYNAMIC_KEYMAP_LAYER_COUNT <= EEPROM_CUSTOM_MAX_LAYERS, "DYNAMIC_
 // a mismatch resets everything to eepdata_default. Bump it whenever
 // the layout changes (a field added, removed, resized or moved), so a board with
 // the old layout gets one clean reset instead of reading old bytes at new offsets.
-// History: was a fixed "checksum = 7" sentinel, so 7 is the current layout.
-#define EEPROM_CUSTOM_LAYOUT_VERSION 7
+// History: was a fixed "checksum = 7" sentinel, so 7 was the layout before 8.
+// 8 added screensaver_idle_min and dial_hold_100ms; eeprom_custom_load() upgrades a version-7 block
+// in place (keeps the user's settings) instead of resetting it.
+#define EEPROM_CUSTOM_LAYOUT_VERSION 8
 
 typedef struct {
 	uint8_t active_layer;
@@ -43,12 +45,28 @@ typedef struct {
 	uint8_t unbox_tutorial;   // 1 = show the first-boot tutorial (display/widgets/tutorial.c), 0 = already shown/dismissed
 	uint8_t screensaver_effect; // 0 = OFF, 1.. = selected effect; see SCREEN_SAVER_MAXITEMS/screen_saver_effect_list[] (display/widgets/qp_menu.h)
 	uint8_t layer_icon[EEPROM_CUSTOM_MAX_LAYERS]; // pool index into layer_icon_pool_icon() (display/widgets/qp_widget_layer.c) - picked in the "LAYERS CONFIG" menu
+	uint8_t screensaver_idle_min; // minutes of no input before the screensaver starts, SCREENSAVER_IDLE_MIN_MIN..MAX - see screensaver_idle_ms()
+	uint8_t dial_hold_100ms;      // how long Button 1 is held to open "DIAL SETTINGS", in 0.1 s units, DIAL_HOLD_MIN..MAX - see dial_settings_hold_ms()
 	// New fields go here, directly above layout_version - never in the middle (shifts every later field)
 	uint8_t layout_version; // EEPROM_CUSTOM_LAYOUT_VERSION - must stay the last field
 } eeprom_custom_t;
 
 extern eeprom_custom_t       eepdata;          // live settings - read/written directly everywhere
 extern const eeprom_custom_t eepdata_default;  // factory defaults (eeprom_custom.c)
+
+// User-changeable timeouts (VIA custom values id_screensaver_idle / id_dial_hold, see via_custom.h).
+// Valid ranges are enforced by eeprom_custom_validate().
+#define SCREENSAVER_IDLE_MIN_DEFAULT 10 // minutes
+#define SCREENSAVER_IDLE_MIN_MIN     1
+#define SCREENSAVER_IDLE_MIN_MAX     60
+#define DIAL_HOLD_DEFAULT            30 // x 0.1 s = 3 s
+#define DIAL_HOLD_MIN                5  // 0.5 s
+#define DIAL_HOLD_MAX                50 // 5 s
+
+// ms of no input before the screensaver kicks in (see qp_widget_screensaver.c)
+static inline uint32_t screensaver_idle_ms(void) { return (uint32_t)eepdata.screensaver_idle_min * 60000UL; }
+// ms Button 1 must be held on the idle screen to jump to "DIAL SETTINGS" (see qp_graphics.c)
+static inline uint32_t dial_settings_hold_ms(void) { return (uint32_t)eepdata.dial_hold_100ms * 100UL; }
 
 void eeprom_custom_load(void);     // read from EEPROM; reset to defaults on a layout_version mismatch; then validate
 void eeprom_custom_save(void);     // write eepdata back (only changed bytes are actually written)

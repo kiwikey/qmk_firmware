@@ -17,7 +17,20 @@
 
 #if defined(VIA_ENABLE)
 	#define DYNAMIC_KEYMAP_LAYER_COUNT 4
-	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 24 // must match sizeof(eeprom_custom_t) (features/eeprom_custom.h) - enforced by a _Static_assert in eeprom_custom.c
+	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 26 // must match sizeof(eeprom_custom_t) (features/eeprom_custom.h) - enforced by a _Static_assert in eeprom_custom.c
+
+	// via_extra (layer names, features/via_extra.c): a dedicated region at the very end of EEPROM. VIA's macro
+	// buffer normally runs to the last EEPROM byte, so it is ended earlier to leave this tail alone -
+	// it costs the macro buffer VIA_EXTRA_EEPROM_SIZE bytes (3871 -> 3711).
+	// 4096 = this board's EEPROM size (RP2040 flash emulation); via_extra.c _Static_asserts it.
+	#define VIA_EXTRA_EEPROM_SIZE                160
+	#define VIA_EXTRA_EEPROM_ADDR                (4096 - VIA_EXTRA_EEPROM_SIZE)
+	// Macro names (via_extra) get their own region just below the layer-name region (so the layer names stay where
+	// they are), carved out of the macro buffer in the same way: 3709 -> 3529 bytes.
+	// 180 = 4 header bytes + 16 records of 11 bytes (length + 10 characters), see via_extra.c.
+	#define VIA_EXTRA_MACRO_EEPROM_SIZE    180
+	#define VIA_EXTRA_MACRO_EEPROM_ADDR    (VIA_EXTRA_EEPROM_ADDR - VIA_EXTRA_MACRO_EEPROM_SIZE)
+	#define DYNAMIC_KEYMAP_EEPROM_MAX_ADDR 3755 // must be a plain number: QMK's config parser can't read an expression. = VIA_EXTRA_MACRO_EEPROM_ADDR - 1, checked by a _Static_assert in via_extra.c
 #endif // defined(VIA_ENABLE)
 
 #if defined(QUANTUM_PAINTER_ENABLE)
@@ -60,7 +73,7 @@
 	#define QUANTUM_PAINTER_DISPLAY_TIMEOUT        0   // LCD Timeout handles by custom code
 	// #define QUANTUM_PAINTER_SUPPORTS_256_PALETTE   TRUE
 	#define QUANTUM_PAINTER_SUPPORTS_NATIVE_COLORS TRUE
-	#define QUANTUM_PAINTER_NUM_IMAGES             41   // The maximum number of images/animations that can be loaded at any one time - qp_init_load_files() (qp_includes.c) keeps every image it loads resident (currently 33, +1 briefly for the boot animation), so this must stay >= that count - a shortfall is logged at boot.
+	#define QUANTUM_PAINTER_NUM_IMAGES             41   // The maximum number of images/animations that can be loaded at any one time - qp_init_load_files() (qp_includes.c) keeps every image it loads resident (currently 35, +1 briefly for the boot animation), so this must stay >= that count - a shortfall is logged at boot.
 	#define QUANTUM_PAINTER_NUM_FONTS	           13 	// The maximum number of fonts that can be loaded at any one time.
 	#define QUANTUM_PAINTER_CONCURRENT_ANIMATIONS  2 // The maximum number of animations that can be executed at the same time.
 	// #define QUANTUM_PAINTER_DEBUG	               unset  // Prints out significant amounts of debugging information to CONSOLE output. Significant performance degradation, use only for debugging.

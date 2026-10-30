@@ -72,7 +72,7 @@ static void draw_screen_matrix(void) {
 }
 
 static void draw_screen_knob(void) {
-	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, 20, TUTORIAL_TITLE_FONT, "ROTARY KNOB", HSV_WHITE, GLOBAL_BG_COLOR);
+	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, 20, TUTORIAL_TITLE_FONT, "DIAL", HSV_WHITE, GLOBAL_BG_COLOR);
 	qp_drawtext_recolor(bb_display, 20, 30 + TUTORIAL_BODY_LINE_HEIGHT,   TUTORIAL_BODY_FONT, "> Adjust volume", HSV_WHITE, GLOBAL_BG_COLOR);
 	qp_drawtext_recolor(bb_display, 20, 30 + TUTORIAL_BODY_LINE_HEIGHT*2, TUTORIAL_BODY_FONT, "> Scroll up/down", HSV_WHITE, GLOBAL_BG_COLOR);
 	qp_drawtext_recolor(bb_display, 20, 30 + TUTORIAL_BODY_LINE_HEIGHT*3, TUTORIAL_BODY_FONT, "    or left/right", HSV_WHITE, GLOBAL_BG_COLOR);
@@ -135,7 +135,7 @@ static uint8_t menu01_cursor      = 0;   // which example line is currently sele
 static uint8_t menu01_cursor_last = 255; // 255 = nothing drawn yet this screen visit
 static const char * const menu01_line_text[TUTORIAL_MENU01_LINE_COUNT] = {
 	"BRIGHTNESS",
-	"SENSITIVITY",
+	"SLEEP",
 	"RGB MODE",
 };
 
@@ -169,7 +169,7 @@ static void draw_screen_menu_01(void) {
 	bb_drawtext_recolor_center(bb_display, TUTORIAL_BUTTON2_CENTERX, TUTORIAL_BUTTON_LABEL_POSY, TUTORIAL_BUTTON_FONT, "Next", HSV_WHITE, GLOBAL_BG_COLOR);
 }
 
-#define TUTORIAL_MENU02_LINE_COUNT   4 // BRIGHTNESS, SENSITIVITY, RGB MODE, QUIT DEMO
+#define TUTORIAL_MENU02_LINE_COUNT   4 // BRIGHTNESS, SLEEP, RGB MODE, QUIT DEMO
 #define TUTORIAL_MENU02_VALUE_COUNT  3 // each changeable item cycles through 3 example values
 static bool    menu02_selected                                     = false; // true = the item under the cursor is "active" right now
 static bool    menu02_demo_running                                 = true;  // false once QUIT DEMO is selected
@@ -177,18 +177,32 @@ static uint8_t menu02_value_index[TUTORIAL_MENU02_LINE_COUNT - 1]   = { 1, 1, 2 
 
 static const char * const menu02_line_text[TUTORIAL_MENU02_LINE_COUNT] = {
 	"BRIGHTNESS",
-	"SENSITIVITY",
+	"SLEEP",
 	"RGB MODE",
 	"QUIT DEMO",
 };
 static const char * const menu02_value_options[TUTORIAL_MENU02_LINE_COUNT - 1][TUTORIAL_MENU02_VALUE_COUNT] = {
 	{ " 50%"  ,  " 80%" ,  "100%"  },
-	{ "LOW   ", "MEDIUM", "HIGH  " },
+	{ "LOW", "MEDIUM", "HIGH" },
 	{ "MODE 1", "MODE 2", "MODE 3" },
 };
 
 static void draw_menu02_value(uint8_t row, bool active) {
 	const char *value = menu02_value_options[row][menu02_value_index[row]];
+
+	// The font is proportional, so the options of one row have different pixel widths and padding the
+	// shorter ones with spaces can't reliably cover the longer one (left a piece of its last letter).
+	// Clear the widest option's area first, then draw.
+	uint16_t widest = 0;
+	for (uint8_t i = 0; i < TUTORIAL_MENU02_VALUE_COUNT; i++) {
+		uint16_t w = qp_textwidth(TUTORIAL_BODY_FONT, menu02_value_options[row][i]);
+		if (w > widest) widest = w;
+	}
+	qp_rect(bb_display,
+	        TUTORIAL_MENU01_VALUE_POSX, TUTORIAL_MENU01_LINE_POSY(row),
+	        TUTORIAL_MENU01_VALUE_POSX + widest, TUTORIAL_MENU01_LINE_POSY(row + 1) - 1, // exactly this row's slot (the font's line is taller than the 22 px row pitch, so don't use it)
+	        GLOBAL_BG_COLOR, true);
+
 	if (active) {
 		qp_drawtext_recolor(bb_display, TUTORIAL_MENU01_VALUE_POSX, TUTORIAL_MENU01_LINE_POSY(row), TUTORIAL_BODY_FONT, value, GLOBAL_THEME_COLOR, GLOBAL_BG_COLOR);
 	} else {
@@ -227,20 +241,17 @@ static void draw_screen_menu_02(void) {
 	draw_menu02_buttons("Exit", "OK");
 }
 
-// TUTORIAL_SCREEN_QR_VIA/_WEB: a QR code placeholder box - actual QR image to
-// be dropped in later (qp_drawimage() inside the box below). Both screens are
-// otherwise plain title+text+buttons like every other simple screen here.
+// TUTORIAL_SCREEN_QR_VIA/_WEB: a 120x120 QR code image under the title+text. Both
+// screens are otherwise plain title+text+buttons like every other simple screen here.
 #define TUTORIAL_QR_SIZE  120
 #define TUTORIAL_QR_POSX  ((DISPLAY_WIDTH - TUTORIAL_QR_SIZE) / 2)
 #define TUTORIAL_QR_POSY  60
 
 static void draw_screen_qr_via(void) {
 	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, TUTORIAL_TITLE_POSY, TUTORIAL_TITLE_FONT, "KEYMAP APP", HSV_WHITE, GLOBAL_BG_COLOR);
-	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, 40, TUTORIAL_BODY_FONT, "www.usevia.app", HSV_WHITE, GLOBAL_BG_COLOR);
+	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, 40, TUTORIAL_BODY_FONT, "www.keygarden.app", HSV_WHITE, GLOBAL_BG_COLOR);
 
-	// TODO: qp_drawimage(bb_display, TUTORIAL_QR_POSX, TUTORIAL_QR_POSY, <qr image>) once the QR code asset exists
-	qp_rect(bb_display, TUTORIAL_QR_POSX, TUTORIAL_QR_POSY, TUTORIAL_QR_POSX + TUTORIAL_QR_SIZE, TUTORIAL_QR_POSY + TUTORIAL_QR_SIZE, HSV_WHITE, false);
-	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, TUTORIAL_QR_POSY + TUTORIAL_QR_SIZE/2, TUTORIAL_BODY_FONT, "QR CODE", HSV_WHITE, GLOBAL_BG_COLOR);
+	qp_drawimage(bb_display, TUTORIAL_QR_POSX, TUTORIAL_QR_POSY, img_qr_keygarden);
 
 	qp_circle(bb_display, TUTORIAL_BUTTON1_CENTERX, TUTORIAL_BUTTON_CENTERY, TUTORIAL_BUTTON_RADIUS, GLOBAL_THEME_COLOR, true);
 	bb_drawtext_recolor_center(bb_display, TUTORIAL_BUTTON1_CENTERX, TUTORIAL_BUTTON_LABEL_POSY, TUTORIAL_BUTTON_FONT, "Prev", HSV_WHITE, GLOBAL_BG_COLOR);
@@ -250,11 +261,9 @@ static void draw_screen_qr_via(void) {
 
 static void draw_screen_qr_web(void) {
 	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, TUTORIAL_TITLE_POSY, TUTORIAL_TITLE_FONT, "MORE INFO", HSV_WHITE, GLOBAL_BG_COLOR);
-	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, 40, TUTORIAL_BODY_FONT, "www.BuildBox.com", HSV_WHITE, GLOBAL_BG_COLOR);
+	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, 40, TUTORIAL_BODY_FONT, "www.InputZen.com/bb", HSV_WHITE, GLOBAL_BG_COLOR);
 
-	// TODO: qp_drawimage(bb_display, TUTORIAL_QR_POSX, TUTORIAL_QR_POSY, <qr image>) once the QR code asset exists
-	qp_rect(bb_display, TUTORIAL_QR_POSX, TUTORIAL_QR_POSY, TUTORIAL_QR_POSX + TUTORIAL_QR_SIZE, TUTORIAL_QR_POSY + TUTORIAL_QR_SIZE, HSV_WHITE, false);
-	bb_drawtext_recolor_center(bb_display, DISPLAY_WIDTH/2, TUTORIAL_QR_POSY + TUTORIAL_QR_SIZE/2, TUTORIAL_BODY_FONT, "QR CODE", HSV_WHITE, GLOBAL_BG_COLOR);
+	qp_drawimage(bb_display, TUTORIAL_QR_POSX, TUTORIAL_QR_POSY, img_qr_inputzen_bb);
 
 	qp_circle(bb_display, TUTORIAL_BUTTON1_CENTERX, TUTORIAL_BUTTON_CENTERY, TUTORIAL_BUTTON_RADIUS, GLOBAL_THEME_COLOR, true);
 	bb_drawtext_recolor_center(bb_display, TUTORIAL_BUTTON1_CENTERX, TUTORIAL_BUTTON_LABEL_POSY, TUTORIAL_BUTTON_FONT, "Prev", HSV_WHITE, GLOBAL_BG_COLOR);

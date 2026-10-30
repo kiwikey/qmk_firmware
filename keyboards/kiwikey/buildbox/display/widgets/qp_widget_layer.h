@@ -22,8 +22,6 @@
 #define WIDGET_LAYER_FONT      nanoplex32
 #define WIDGET_LAYER_NAV_FONT  font16
 
-const char *layer_name_get(uint8_t layer); // custom name from the "[#LAYERS]" macro slot, else the built-in layer_names[] entry
-
 void widget_layer_init(void);
 void widget_layer_render_layername(uint8_t layer, uint16_t posx, uint16_t posy); // posx/posy let callers (e.g. the "LAYERS CONFIG" menu) stack several of these without colliding
 void widget_layer_render_navigation(uint8_t layer);

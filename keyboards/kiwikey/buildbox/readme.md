@@ -15,7 +15,7 @@ A 16-key macropad by KiwiKey, built around an RP2040, with:
 
 * **Button 1 / Button 2** - previous / next layer.
 * **Button 1 + Button 2 together** - open the Settings Menu (Button 1 = Exit, Button 2 = OK, knob = move/change).
-* **Hold Button 1 for 3 s** - jump straight to Dial Settings.
+* **Hold Button 1 for 3 s** (default, 0.5-5 s in VIA: LCD Display > Dial Settings Hold) - jump straight to Dial Settings.
 * **Knob** - volume, vertical or horizontal scroll (Settings Menu > Dial Settings > Function).
 * First boot shows a short tutorial; it can be replayed from the Settings Menu ("QUICK TUTORIAL").
 

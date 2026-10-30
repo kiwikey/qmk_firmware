@@ -16,7 +16,10 @@ enum via_layer_config_value {
 enum via_lcd_value {
 	id_boot_animation    = 4,
 	id_display_timeout   = 5,
-	id_theme_color       = 11
+	id_theme_color       = 11,
+	id_screensaver_effect = 15, // dropdown index into screen_saver_effect_list[] (qp_menu.c): 0 = OFF, 1.. = effects
+	id_screensaver_idle  = 13, // minutes, SCREENSAVER_IDLE_MIN_MIN..MAX (eeprom_custom.h)
+	id_dial_hold         = 14  // x 0.1 s, DIAL_HOLD_MIN..MAX (eeprom_custom.h)
 };
 
 enum via_system_value {

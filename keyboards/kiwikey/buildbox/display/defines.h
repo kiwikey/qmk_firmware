@@ -20,8 +20,9 @@ typedef struct {
 	const char *name;
 } theme_color_preset_t;
 
-#define DIAL_SETTINGS_HOLD_MS 3000
-#define SCREENSAVER_IDLE_MS   600000 // ms of no input before the screensaver kicks in (10 min) - see qp_widget_screensaver.c
+// The "DIAL SETTINGS" hold time and the screensaver idle time are user settings now:
+// eepdata.dial_hold_100ms / eepdata.screensaver_idle_min (features/eeprom_custom.h), read through
+// dial_settings_hold_ms() / screensaver_idle_ms().
 
 #define THEME_COLOR_PRESET_COUNT 10
 

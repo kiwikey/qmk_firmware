@@ -28,7 +28,7 @@ SRC += \
 	features/knob_custom.c              \
 	features/webhid_stream.c            \
 	features/webhid_shadow.c            \
-	features/macro_label.c              \
+	features/via_extra.c                      \
 	sensor/sensors_handler.c            \
 	sensor/as5600.c
 
@@ -99,7 +99,9 @@ SRC += \
 # IMAGES & ANIMATIONS
 SRC += \
 	display/resources/graphics/gif_bootup01.qgf.c   \
-	display/resources/graphics/knob.qgf.c
+	display/resources/graphics/knob.qgf.c           \
+	display/resources/graphics/qr_inputzen_bb_120px.qgf.c \
+	display/resources/graphics/qr_keygarden_120px.qgf.c
 
 # STRICTER CHECKS - not on by default. Uncomment for an occasional audit build
 # (catches shadowed names and silent narrowing, e.g. a uint16_t stored into a

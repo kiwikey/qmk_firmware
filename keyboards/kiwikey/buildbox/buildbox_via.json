@@ -1,10 +1,11 @@
 {
     "name": "BuildBox v1",
+    "firmwareVersion" : 20261018,
     "vendorId": "0x4B57",
     "productId": "0xBB00",
     "keycodes": ["qmk_rgb_matrix_keycodes"],
 	"customKeycodes": [
-		{"name": "Button 1","title": "BuildBox Button 1 - previous layer / hold 3s: Dial Settings / with Button 2: Menu","shortName": "B1"},
+		{"name": "Button 1","title": "BuildBox Button 1 - previous layer / hold (3s by default): Dial Settings / with Button 2: Menu","shortName": "B1"},
 		{"name": "Button 2","title": "BuildBox Button 2 - next layer / with Button 1: Menu","shortName": "B2"},
 		{"name": "Cut (Win)","title": "Windows CUT (CTRL+X)","shortName": "Cut"},
 		{"name": "Copy (Win)","title": "Windows COPY (CTRL+C)","shortName": "Copy"},
@@ -102,7 +103,7 @@
 					"content": ["id_qmk_backlight_brightness", 1, 1]
                 },
                 {
-                    "label": "Timeout",
+                    "label": "Sleep",
                     "type": "dropdown",
                     "options": [ "2min", "5min", "15min", "30min", "1 Hour", "Always ON" ],
 					"content": ["id_oled_timeout", 0, 5]
@@ -111,6 +112,12 @@
                     "label": "Boot Animation",
                     "type": "toggle",
 					"content": ["id_oled_animation", 0, 4]
+                },
+                {
+                    "label": "Screen-saver Effect",
+                    "type": "dropdown",
+                    "options": [ "OFF", "Rain 1", "Rain 2", "Zzz...", "Starry" ],
+					"content": ["id_screensaver_effect", 0, 15]
                 }
                 ]
             },
@@ -130,47 +137,21 @@
                     "options": [
                         "00. All Off",
                         "01. Solid Color",
-                        "02. Gradient Left Right",
-                        "03. Gradient Up Down",
-                        "04. Breathing",
-                        "05. Cycle All",
-                        "06. Cycle Up Down",
-                        "07. Cycle Left Right",
-                        "08. Rainbow Moving Chevron",
-                        "09. Cycle Out in",
-                        "10. Cycle Out in Dual",
-                        "11. Cycle Pinwheel",
-                        "12. Cycle Spiral",
-                        "13. Dual Beacon",
-                        "14. Rainbow Beacon",
-                        "15. Rainbow Pinwheels",
-                        "16. Flower Blooming",
-                        "17. Raindrops",
-                        "18. Jellybean Raindrops",
-                        "19. Hue Breathing",
-                        "20. Hue Pendulum",
-                        "21. Hue Wave",
-                        "22. Pixel Rain",
-                        "23. Pixel Flow",
-                        "24. Pixel Fractal",
-                        "25. Typing Heatmap",
-                        "26. Digital Rain",
-                        "27. Solid Reactive Simple",
-                        "28. Solid Reactive",
-                        "29. Solid Reactive Wide",
-                        "30. Solid Reactive Multiwide",
-                        "31. Solid Reactive Cross",
-                        "32. Solid Reactive Multicross",
-                        "33. Solid Reactive Nexus",
-                        "34. Solid Reactive Multinexus",
-                        "35. Splash",
-                        "36. Multisplash",
-                        "37. Solid Splash",
-                        "38. Solid Multisplash",
-                        "39. Starlight",
-                        "40. Starlight Dual Sat",
-                        "41. Starlight Dual Hue",
-                        "42. Riverflow"
+                        "02. Gradient Up Down",
+                        "03. Cycle Left Right",
+                        "04. Cycle Up Down",
+                        "05. Rainbow Moving Chevron",
+                        "06. Cycle Out in",
+                        "07. Flower Blooming",
+                        "08. Raindrops",
+                        "09. Jellybean Raindrops",
+                        "10. Pixel Fractal",
+                        "11. Typing Heatmap",
+                        "12. Digital Rain",
+                        "13. Solid Reactive",
+                        "14. Solid Reactive Cross",
+                        "15. Starlight Dual Hue",
+                        "16. Riverflow"
                     ]
                 },
                 {
@@ -181,7 +162,7 @@
                     "content": ["id_qmk_rgb_matrix_effect_speed", 3, 3]
                 },
                 {
-                    "showIf": "{id_qmk_rgb_matrix_effect} != 0 && {id_qmk_rgb_matrix_effect} != 24 && {id_qmk_rgb_matrix_effect} != 28 && {id_qmk_rgb_matrix_effect} != 29 && {id_qmk_rgb_matrix_effect} != 32",
+                    "showIf": "{id_qmk_rgb_matrix_effect} != 0 && {id_qmk_rgb_matrix_effect} != 10 && {id_qmk_rgb_matrix_effect} != 13",
                     "label": "Color",
                     "type": "color",
                     "content": ["id_qmk_rgb_matrix_color", 3, 4]

@@ -2,7 +2,7 @@
 #include "raw_hid.h"
 #include "eeprom_custom.h"
 #include "display/qp_graphics.h"
-#include "macro_label.h"
+#include "via_extra.h"
 #include "webhid_stream.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
@@ -107,6 +107,16 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
 	uint8_t *command_id   = &(data[0]);
 	uint8_t *command_data = &(data[1]); // aka via_channel_id
 
+	// via_extra (layer names/icons for the web app, see via_extra.h): its own command byte. via_extra_handle() turns
+	// the request into the reply in place, so just send it back. VIA itself never sends VIA_EXTRA_CMD.
+	if (*command_id == VIA_EXTRA_CMD) {
+		if (via_extra_handle(data, length)) {
+			via_mark_user_activity(); // a SET changes what the LCD shows, like any other change from VIA
+		}
+		raw_hid_send(data, length);
+		return true;
+	}
+
 /* DEBUG: printout full rawHID packet */
 	// NOTE: a packet of setting keycode in VIA: [0x05 - layer - row - col - ??? - keycode]
 	//       that ??? is unsure, for setting basic keycodes it is 0x00, for macro it is 0x77, for RGB it is 0x78
@@ -130,11 +140,6 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
 	} else if (*command_id == id_dynamic_keymap_set_buffer || *command_id == id_dynamic_keymap_reset || *command_id == id_eeprom_reset) {
 		// Many keys at once (VIA "Load saved layout", keymap reset) - redraw the whole grid
 		flag_display_keymap_reload = true;
-	}
-
-	// Macro buffer changed - re-read the "[Name]" labels shown on the LCD (debounced, see features/macro_label.c)
-	if (*command_id == id_dynamic_keymap_macro_set_buffer || *command_id == id_dynamic_keymap_macro_reset || *command_id == id_eeprom_reset) {
-		macro_label_invalidate();
 	}
 
 	// Only commands that *change* something count as activity - VIA's periodic
@@ -245,6 +250,18 @@ void via_config_set_value( uint8_t *data ) {
 			eepdata.display_bootanim = *value_data;
 			break;
 		}
+		case id_screensaver_effect: {
+			eepdata.screensaver_effect = *value_data; // out of range -> eeprom_custom_validate() below puts the default back
+			break;
+		}
+		case id_screensaver_idle: {
+			eepdata.screensaver_idle_min = *value_data; // out of range -> eeprom_custom_validate() below puts the default back
+			break;
+		}
+		case id_dial_hold: {
+			eepdata.dial_hold_100ms = *value_data;
+			break;
+		}
 		case id_display_timeout: {
 			// eepdata.display_timeout is an index into display_timeout_seconds[]/
 			// display_timeout_text[] (qp_graphics.h) - VIA's dropdown sends that
@@ -331,6 +348,18 @@ void via_config_get_value( uint8_t *data ) {
 		}
 		case id_display_timeout: {
 			value_data[0] = eepdata.display_timeout;
+			break;
+		}
+		case id_screensaver_effect: {
+			value_data[0] = eepdata.screensaver_effect;
+			break;
+		}
+		case id_screensaver_idle: {
+			value_data[0] = eepdata.screensaver_idle_min;
+			break;
+		}
+		case id_dial_hold: {
+			value_data[0] = eepdata.dial_hold_100ms;
 			break;
 		}
 		case id_theme_color: {

@@ -70,7 +70,7 @@ void housekeeping_task_screensaver(void) {
 		if (eepdata.screensaver_effect == SCREENSAVER_OFF_INDEX) return; // user turned it off
 		if (eepdata.display_timeout < DISPLAY_TIMEOUT_1HOUR_INDEX) return; // only a screensaver on "1 Hour"/NEVER, where the backlight otherwise never (or rarely) sleeps on its own
 		if (ui_get_mode() != UI_MODE_IDLE) return; // only ever replaces the idle screen - never another full-screen mode
-		if (last_input_activity_elapsed() < SCREENSAVER_IDLE_MS) return;
+		if (last_input_activity_elapsed() < screensaver_idle_ms()) return;
 		screensaver_start();
 		return;
 	}

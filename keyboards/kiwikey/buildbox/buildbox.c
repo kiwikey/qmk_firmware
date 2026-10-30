@@ -6,7 +6,7 @@
 #include "sensor/sensors_handler.h"
 #include "features/eeprom_custom.h"
 #include "features/knob_custom.h"
-#include "features/macro_label.h"
+#include "features/via_extra.h"
 #include "features/webhid_stream.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
@@ -26,6 +26,7 @@
 void keyboard_post_init_kb(void) {
 
 	eeprom_custom_load(); // BuildBox's own settings (eepdata) - refer to 'eeprom_custom.h' for detail
+	via_extra_init();           // layer names - before the display is drawn (keyboard_post_init_display() below)
 
 	// Runs before the display exists - layer_state_set_kb() skips drawing until
 	// display_ready, and ui_refresh() later draws this layer from the start.
@@ -63,15 +64,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 		return false;
 	}
 	if (!process_record_user(keycode, record)) {
-		return false;
-	}
-
-	// VIA macros: play them ourselves so the "[Name]" prefix is not typed (QMK's own playback,
-	// process_record_via(), runs after this - returning false here stops it)
-	if (keycode >= QK_MACRO && keycode <= QK_MACRO_MAX) {
-		if (record->event.pressed) {
-			macro_label_send(keycode - QK_MACRO);
-		}
 		return false;
 	}
 

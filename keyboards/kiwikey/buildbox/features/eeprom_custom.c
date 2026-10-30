@@ -12,6 +12,7 @@
 _Static_assert(sizeof(eeprom_custom_t) == VIA_EEPROM_CUSTOM_CONFIG_SIZE, "VIA_EEPROM_CUSTOM_CONFIG_SIZE (config.h) must equal sizeof(eeprom_custom_t)");
 
 #define EEPROM_CUSTOM_ADDR ((void *)(VIA_EEPROM_CUSTOM_CONFIG_ADDR))
+#define EEPROM_CUSTOM_V7_SIZE 24 // size of the previous layout (version 7), see eeprom_custom_load()
 
 eeprom_custom_t eepdata;
 
@@ -30,6 +31,8 @@ const eeprom_custom_t eepdata_default = {
 	1,                        // Unbox tutorial: undone (show it on next boot)
 	1,                        // Screensaver effect: "Rain 1" (matrix_rain_1) - index 0 is "OFF"
 	{  13,   1,   22,   10 }, // Layer icons: Earth - Application - Boss - Calculator (layer_icon_pool_icon() indices, qp_widget_layer.c)
+	SCREENSAVER_IDLE_MIN_DEFAULT, // Screensaver starts after 10 min idle
+	DIAL_HOLD_DEFAULT,        // Hold Button 1 for 3 s to open DIAL SETTINGS
 	EEPROM_CUSTOM_LAYOUT_VERSION // Layout version - see eeprom_custom.h
 };
 
@@ -47,7 +50,18 @@ void eeprom_custom_load(void) {
 
 	// Blank/corrupt EEPROM, right after a factory/bootmagic reset, or a layout change
 	if (eepdata.layout_version != EEPROM_CUSTOM_LAYOUT_VERSION) {
-		eeprom_custom_reset();
+		// Layout 7 was 24 bytes with its version byte last; layout 8 only appended two fields before it.
+		// So a version-7 block still holds every setting in the same place: keep them and fill in just
+		// the new fields (the bytes just read for them belong to the keymap that follows the block).
+		uint8_t old_version = eeprom_read_byte((const uint8_t *)(VIA_EEPROM_CUSTOM_CONFIG_ADDR) + EEPROM_CUSTOM_V7_SIZE - 1);
+		if (old_version == 7) {
+			eepdata.screensaver_idle_min = eepdata_default.screensaver_idle_min;
+			eepdata.dial_hold_100ms      = eepdata_default.dial_hold_100ms;
+			eepdata.layout_version       = EEPROM_CUSTOM_LAYOUT_VERSION;
+			eeprom_custom_save();
+		} else {
+			eeprom_custom_reset();
+		}
 	}
 
 	if (eeprom_custom_validate()) {
@@ -72,6 +86,8 @@ bool eeprom_custom_validate(void) {
 	CLAMP_TO_DEFAULT(knob_sensitivity,   eepdata.knob_sensitivity < KNOB_SENSITIVITY_COUNT);
 	CLAMP_TO_DEFAULT(unbox_tutorial,     eepdata.unbox_tutorial <= 1);
 	CLAMP_TO_DEFAULT(screensaver_effect, eepdata.screensaver_effect < SCREEN_SAVER_MAXITEMS);
+	CLAMP_TO_DEFAULT(screensaver_idle_min, eepdata.screensaver_idle_min >= SCREENSAVER_IDLE_MIN_MIN && eepdata.screensaver_idle_min <= SCREENSAVER_IDLE_MIN_MAX);
+	CLAMP_TO_DEFAULT(dial_hold_100ms,    eepdata.dial_hold_100ms >= DIAL_HOLD_MIN && eepdata.dial_hold_100ms <= DIAL_HOLD_MAX);
 	for (uint8_t i = 0; i < EEPROM_CUSTOM_MAX_LAYERS; i++) {
 		CLAMP_TO_DEFAULT(layer_icon[i],  eepdata.layer_icon[i] < LAYER_ICON_POOL_COUNT);
 	}

@@ -4,7 +4,7 @@
 #include "qp_widget_layer.h"
 
 #include "features/eeprom_custom.h"
-#include "features/macro_label.h"
+#include "features/via_extra.h"
 #include "display/qp_graphics.h"
 #include "display/qp_includes.h"
 #include "display/qp_custom_api.h"
@@ -17,13 +17,6 @@ const char * const layer_names[] = {
 	"RGB LED"
 };
 _Static_assert(sizeof(layer_names) / sizeof(layer_names[0]) == (DYNAMIC_KEYMAP_LAYER_COUNT), "layer_names must have exactly DYNAMIC_KEYMAP_LAYER_COUNT entries");
-
-// The name to show for a layer: the user's own ("[#LAYERS]..." macro slot, see
-// features/macro_label.c) if they set one, otherwise the built-in layer_names[] entry
-const char *layer_name_get(uint8_t layer) {
-	const char *custom = macro_layer_name_get(layer);
-	return custom ? custom : layer_names[layer % DYNAMIC_KEYMAP_LAYER_COUNT];
-}
 
 
 void widget_layer_init(void) {
@@ -57,7 +50,7 @@ void widget_layer_render_layername(uint8_t layer, uint16_t posx, uint16_t posy) 
 				WIDGET_LAYER_CORNER, true, true
 				);
 	char layer_name_upper[16];
-	to_uppercase(layer_name_get(layer), layer_name_upper, sizeof(layer_name_upper));
+	to_uppercase(via_extra_layer_name(layer), layer_name_upper, sizeof(layer_name_upper));
 	bb_drawtext_recolor_center(bb_display,
 							   posx + WIDGET_LAYER_WIDTH/2,
 							   posy + WIDGET_LAYER_HEIGHT/2 +2,
@@ -105,6 +98,18 @@ void layer_icon_set_choice(uint8_t layer, uint8_t pool_index) {
 	eepdata.layer_icon[layer % DYNAMIC_KEYMAP_LAYER_COUNT] = pool_index % LAYER_ICON_POOL_COUNT;
 }
 
+// The previous/next-layer names sit in the narrow strip right of the big box. A custom name can be wider
+// than it, so draw only as many of its first characters as fit in 'max_width' pixels (the stored name is untouched).
+static const char *layer_name_clipped(const char *name, uint16_t max_width, char *out, size_t out_size) {
+	size_t len = strnlen(name, out_size - 1);
+	memcpy(out, name, len);
+	out[len] = '\0';
+	while (len > 0 && qp_textwidth(WIDGET_LAYER_NAV_FONT, out) > max_width) {
+		out[--len] = '\0';
+	}
+	return out;
+}
+
 void widget_layer_render_navigation(uint8_t layer) {
 	uint8_t prev_layer;
 	uint8_t next_layer;
@@ -121,7 +126,11 @@ void widget_layer_render_navigation(uint8_t layer) {
 	else next_layer = layer + 1;
 
 	uint16_t textnav1_posx = WIDGET_LAYER_NAV_POSX1 + ico12_arrow_left->width + 5;
-	uint16_t textnav2_posx = WIDGET_LAYER_NAV_POSX2 - qp_textwidth(WIDGET_LAYER_NAV_FONT, layer_name_get(next_layer)) - 5;
+	char     prev_name[17]; // longest custom name (16-byte field) + NUL
+	char     next_name[17];
+	layer_name_clipped(via_extra_layer_name(prev_layer), DISPLAY_WIDTH - textnav1_posx,                  prev_name, sizeof(prev_name));
+	layer_name_clipped(via_extra_layer_name(next_layer), WIDGET_LAYER_NAV_POSX2 - 5 - textnav1_posx,     next_name, sizeof(next_name));
+	uint16_t textnav2_posx = WIDGET_LAYER_NAV_POSX2 - qp_textwidth(WIDGET_LAYER_NAV_FONT, next_name) - 5;
 
 	qp_rect(bb_display,
 			textnav1_posx,
@@ -142,14 +151,14 @@ void widget_layer_render_navigation(uint8_t layer) {
 						textnav1_posx,
 						WIDGET_LAYER_NAV_POSY1 -2, // Better alignment
 						WIDGET_LAYER_NAV_FONT,
-						layer_name_get(prev_layer),
+						prev_name,
 						HSV_CYAN,
 						GLOBAL_BG_COLOR);
 	qp_drawtext_recolor(bb_display,
 						textnav2_posx,
 						WIDGET_LAYER_NAV_POSY2 -2, // Better alignment
 						WIDGET_LAYER_NAV_FONT,
-						layer_name_get(next_layer),
+						next_name,
 						HSV_CYAN,
 						GLOBAL_BG_COLOR);
 }

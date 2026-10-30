@@ -42,5 +42,5 @@ typedef struct {
 
 bool    screensaver_is_active(void);
 void    screensaver_exit(void);              // any input while active: close it, back to the idle screen
-void    housekeeping_task_screensaver(void); // arms it after SCREENSAVER_IDLE_MS idle, ticks the active effect while active
+void    housekeeping_task_screensaver(void); // arms it after screensaver_idle_ms() idle, ticks the active effect while active
 uint8_t screensaver_effect_count(void);      // number of registered effects - see effects[] in qp_widget_screensaver.c

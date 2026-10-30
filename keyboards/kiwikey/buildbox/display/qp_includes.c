@@ -87,8 +87,12 @@
 
 /* IMAGES & ANIMATIONS */
 	#include "resources/graphics/knob.qgf.h"
+	#include "resources/graphics/qr_inputzen_bb_120px.qgf.h"
+	#include "resources/graphics/qr_keygarden_120px.qgf.h"
 	painter_image_handle_t gif_bootup01;
 	painter_image_handle_t img_knob;
+	painter_image_handle_t img_qr_inputzen_bb;
+	painter_image_handle_t img_qr_keygarden;
 	deferred_token         bb_boot_anim;
 
 // Every font/image is loaded once here and kept resident. qp_load_*_mem() returns
@@ -159,6 +163,8 @@ void qp_init_load_files(void) {
 	/* IMAGES & ANIMATIONS */
 		// gif_bootup01 is NOT loaded here - keyboard_post_init_display() (qp_graphics.c) loads it on demand and closes it after the boot animation
 		QP_LOAD_IMAGE(img_knob,          gfx_knob);
+		QP_LOAD_IMAGE(img_qr_inputzen_bb, gfx_qr_inputzen_bb_120px);
+		QP_LOAD_IMAGE(img_qr_keygarden,   gfx_qr_keygarden_120px);
 }
 
 #endif // defined(QUANTUM_PAINTER_ENABLE)

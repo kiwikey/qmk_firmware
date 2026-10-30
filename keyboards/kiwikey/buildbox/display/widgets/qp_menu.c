@@ -132,7 +132,12 @@ static void value_rgb_mode(char *buf, size_t len) {
 	if (!rgb_matrix_is_enabled()) {
 		snprintf(buf, len, "RGB OFF");
 	} else {
-		snprintf(buf, len, "MODE #%d", rgb_matrix_get_mode());
+		uint8_t mode = rgb_matrix_get_mode();
+		if (mode < sizeof(rgb_effect_names) / sizeof(rgb_effect_names[0])) {
+			snprintf(buf, len, "%s", rgb_effect_names[mode]);
+		} else {
+			snprintf(buf, len, "MODE #%d", mode);
+		}
 	}
 }
 static void rotate_rgb_mode(bool cw) { cw ? rgb_matrix_step_noeeprom() : rgb_matrix_step_reverse_noeeprom(); }
@@ -157,17 +162,18 @@ typedef struct {
 	void    (*on_rotate)(bool clockwise);
 	void    (*on_edit_done)(void);
 	void    (*on_select)(void);
+	bool    scroll_value;                        // true = a value wider than the sidebar scrolls as a marquee while selected (menu_marquee_task())
 } menu_item_t;
 
 static const menu_item_t menu_items[] = {
 	{ .label = "LCD BRIGHTNESS", .get_value = value_lcd_brightness, .on_rotate = rotate_lcd_brightness },
-	{ .label = "SENSITIVITY",    .get_value = value_sleep,          .on_rotate = rotate_sleep },
+	{ .label = "SLEEP",          .get_value = value_sleep,          .on_rotate = rotate_sleep },
 	{ .label = "SCREEN SAVER",   .get_value = value_screensaver,    .on_rotate = rotate_screensaver },
 	{ .label = "DIAL SETTINGS",  .on_select = open_dial_settings },
 	{ .label = "THEME COLOR",    .get_value = value_theme_color, .value_hue = hue_theme_color, .on_rotate = rotate_theme_color },
 
+	{ .label = "RGB MODE",       .get_value = value_rgb_mode,       .on_rotate = rotate_rgb_mode,       .on_edit_done = commit_rgb_settings, .scroll_value = true },
 	{ .label = "RGB BRIGHTNESS", .get_value = value_rgb_brightness, .on_rotate = rotate_rgb_brightness, .on_edit_done = commit_rgb_settings },
-	{ .label = "RGB MODE",       .get_value = value_rgb_mode,       .on_rotate = rotate_rgb_mode,       .on_edit_done = commit_rgb_settings },
 	{ .label = "LAYERS CONFIG",  .on_select = layers_menu_open },
 	{ .label = "BUILDBOX INTRO", .get_value = value_intro,          .on_rotate = rotate_intro },
 	{ .label = "   ------" }, // divider line
@@ -684,6 +690,27 @@ static void menu_truncate_to_width(char *str, painter_font_handle_t font, uint16
 	}
 }
 
+// Marquee state (see menu_marquee_task()): which main-list item is being watched, how many characters
+// its text has moved left (0 = not started: the start of the text is shown), when it last moved, and the
+// text it was scrolling - a different text (the knob changed the value) restarts it.
+#define MENU_VALUE_BUFFER_SIZE 32 // longest sidebar value + NUL - rgb_effect_names[] (qp_menu.h) must fit
+static uint8_t  marquee_item = 0;  // 1-based, 0 = none
+static uint8_t  marquee_pos  = 0;
+static uint32_t marquee_last = 0;
+static char     marquee_text[MENU_VALUE_BUFFER_SIZE] = "";
+
+// Fills 'out' with the part of 'value' showing after it has moved left 'pos' characters; the text
+// wraps around after MENU_MARQUEE_GAP spaces. Chopped to the sidebar's width by the caller.
+static void menu_marquee_window(char *out, const char *value, uint8_t pos) {
+	uint8_t len    = strlen(value);
+	uint8_t period = len + MENU_MARQUEE_GAP;
+	for (uint8_t i = 0; i < len; i++) { // 'len' characters are always enough to fill the column
+		uint8_t idx = (pos + i) % period;
+		out[i] = idx < len ? value[idx] : ' ';
+	}
+	out[len] = '\0';
+}
+
 // Render the value of menu item 'item_pos' (1-based) on page-relative 'row' (0-based), in the sidebar
 void menu_render_sidebar(uint8_t item_pos, uint8_t row) {
 	// Clear the cell first: a shorter string (or the swatch below, narrower
@@ -696,8 +723,13 @@ void menu_render_sidebar(uint8_t item_pos, uint8_t row) {
 	const menu_item_t *item = &menu_items[item_pos - 1];
 	if (!item->get_value) return; // e.g. sub-page openers - no in-place value
 
-	char value_str[16];
+	char value_str[MENU_VALUE_BUFFER_SIZE];
 	item->get_value(value_str, sizeof(value_str));
+	if (item->scroll_value && item_pos == menu_cursor && marquee_pos > 0) {
+		char window[MENU_VALUE_BUFFER_SIZE];
+		menu_marquee_window(window, value_str, marquee_pos);
+		memcpy(value_str, window, sizeof(window));
+	}
 	menu_truncate_to_width(value_str, MENU_FONT, MENU_SIDEBAR_MAX_TEXTWIDTH);
 
 	if (value_str[0] != '\0') {
@@ -725,6 +757,50 @@ void menu_render_sidebar(uint8_t item_pos, uint8_t row) {
 			                    HSV_WHITE, MENU_BACKGROUND);
 		}
 	}
+}
+
+// Moves the selected row's too-wide value (.scroll_value) one character to the left every
+// MENU_MARQUEE_STEP_MS, after a pause at the start. The selected row only; every other row,
+// and a value that fits the column, is drawn still and truncated as before.
+void menu_marquee_task(void) {
+	uint8_t mode = ui_get_mode();
+	if (mode != UI_MODE_MENU_LIST && mode != UI_MODE_MENU_EDIT) {
+		marquee_item = 0; // left the main list (or the menu): start fresh when it is shown again
+		return;
+	}
+
+	if (marquee_item != menu_cursor) { // the cursor moved: put the old row back to its still, truncated text
+		uint8_t old_item = marquee_item;
+		marquee_item = menu_cursor;
+		marquee_pos  = 0;
+		marquee_last = timer_read32();
+		marquee_text[0] = '\0';
+		if (old_item != 0 && menu_items[old_item - 1].scroll_value &&
+		    (old_item - 1) / MENU_LINESPERPAGE == (menu_cursor - 1) / MENU_LINESPERPAGE) {
+			menu_render_sidebar(old_item, (old_item - 1) % MENU_LINESPERPAGE);
+			qp_flush(bb_display);
+		}
+		return;
+	}
+
+	const menu_item_t *item = &menu_items[menu_cursor - 1];
+	if (!item->scroll_value || !item->get_value) return;
+
+	char value_str[MENU_VALUE_BUFFER_SIZE];
+	item->get_value(value_str, sizeof(value_str));
+	if (strcmp(value_str, marquee_text) != 0) { // first look at this text, or the knob changed it: restart
+		snprintf(marquee_text, sizeof(marquee_text), "%s", value_str);
+		marquee_pos  = 0;
+		marquee_last = timer_read32();
+		return;
+	}
+	if (qp_textwidth(MENU_FONT, value_str) <= MENU_SIDEBAR_MAX_TEXTWIDTH) return; // fits: nothing to scroll
+
+	if (timer_elapsed32(marquee_last) < (marquee_pos == 0 ? MENU_MARQUEE_START_MS : MENU_MARQUEE_STEP_MS)) return;
+	marquee_last = timer_read32();
+	marquee_pos  = (marquee_pos + 1) % (strlen(value_str) + MENU_MARQUEE_GAP); // wraps back to 0 = the start again
+	menu_render_sidebar(menu_cursor, (menu_cursor - 1) % MENU_LINESPERPAGE);
+	qp_flush(bb_display);
 }
 
 void menu_action(void) {
@@ -846,6 +922,7 @@ void menu_process_rotation(bool clockwise) {
 			// both ends and skipping every non-selectable row (divider lines) - works
 			// for any item count, page count, and divider position (incl. first/last).
 			uint8_t old_cursor = menu_cursor;
+			marquee_pos = 0; // a row that was scrolling is drawn from its start again (menu_marquee_task() restores its row)
 			do {
 				if (clockwise) {
 					menu_cursor = (menu_cursor >= MENU_MAXITEMS) ? 1 : menu_cursor + 1;
@@ -863,6 +940,8 @@ void menu_process_rotation(bool clockwise) {
 		}
 		case UI_MODE_MENU_EDIT: // knob changes the value live
 			menu_items[menu_cursor - 1].on_rotate(clockwise);
+			marquee_pos  = 0; // a new value starts again from its beginning
+			marquee_last = timer_read32();
 			menu_render_sidebar(menu_cursor, (menu_cursor - 1) % MENU_LINESPERPAGE);
 			qp_flush(bb_display);
 			break;

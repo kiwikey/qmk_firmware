@@ -72,7 +72,7 @@ static uint8_t rgb_status_last_val     = 0;
 // tap action. Checked in housekeeping_task_display(), so it fires the moment
 // the threshold is reached instead of waiting for release; tracked (and the
 // tap action suppressed once it fires) in process_record_display().
-// DIAL_SETTINGS_HOLD_MS lives in display/defines.h.
+// The hold time is a user setting: dial_settings_hold_ms() (features/eeprom_custom.h).
 static bool     button1_held       = false;
 static uint32_t button1_press_time = 0;
 
@@ -211,11 +211,13 @@ void housekeeping_task_display(void) { // Check all flags
 		}
 
 		// "DIAL SETTINGS" shortcut: Button 1 held this long jumps straight to the sub-page
-		if (idle_visible && button1_held && timer_elapsed32(button1_press_time) >= DIAL_SETTINGS_HOLD_MS) {
+		if (idle_visible && button1_held && timer_elapsed32(button1_press_time) >= dial_settings_hold_ms()) {
 			button1_held = false;
 			dial_menu_open(true); // via the shortcut, not the main list
 		}
 	}
+
+	menu_marquee_task(); // scrolls a too-wide value on the selected SETTINGS row (RGB MODE); does nothing otherwise
 
 	// LCD Timeout: cut the backlight after N seconds of no matrix/encoder activity.
 	// (Using the backlight rather than qp_power(): DISPOFF stops the panel from

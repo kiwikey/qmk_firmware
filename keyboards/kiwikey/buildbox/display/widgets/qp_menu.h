@@ -91,6 +91,42 @@
 // 1..4 map to effects[0..3] in qp_widget_screensaver.c (see SCREENSAVER_OFF_INDEX there).
 #define SCREEN_SAVER_MAXITEMS 5
 
+// Names of the RGB Matrix effects, indexed by rgb_matrix_get_mode(). QMK numbers the effects enabled in
+// keyboard.json ("rgb_matrix" -> "animations") 1, 2, 3... in its own fixed order (quantum/rgb_matrix/animations/
+// rgb_matrix_effects.inc), NOT in keyboard.json's order; 0 is RGB_MATRIX_NONE. Keep this table in step with
+// keyboard.json: enabling/disabling an effect there shifts every number after it (the _Static_assert catches
+// a wrong count, not a wrong order). Full names: the menu's value column is only MENU_SIDEBAR_MAX_TEXTWIDTH wide,
+// so a longer name scrolls like a marquee while its row is selected (menu_marquee_task(), qp_menu.c).
+// Longest must stay under MENU_VALUE_BUFFER_SIZE (qp_menu.c).
+static const char * const rgb_effect_names[] = {
+	"00. OFF",                    // RGB_MATRIX_NONE
+	"01. SOLID COLOR",            // solid_color
+	"02. GRADIENT UP DOWN",       // gradient_up_down
+	"03. CYCLE LEFT RIGHT",       // cycle_left_right
+	"04. CYCLE UP DOWN",          // cycle_up_down
+	"05. RAINBOW MOVING CHEVRON", // rainbow_moving_chevron
+	"06. CYCLE OUT IN",           // cycle_out_in
+	"07. FLOWER BLOOMING",        // flower_blooming
+	"08. RAINDROPS",              // raindrops
+	"09. JELLYBEAN RAINDROPS",    // jellybean_raindrops
+	"10. PIXEL FRACTAL",          // pixel_fractal
+	"11. TYPING HEATMAP",         // typing_heatmap
+	"12. DIGITAL RAIN",           // digital_rain
+	"13. SOLID REACTIVE",         // solid_reactive
+	"14. SOLID REACTIVE CROSS",   // solid_reactive_cross
+	"15. STARLIGHT DUAL HUE",     // starlight_dual_hue
+	"16. RIVERFLOW",              // riverflow
+};
+_Static_assert(sizeof(rgb_effect_names) / sizeof(rgb_effect_names[0]) == RGB_MATRIX_EFFECT_MAX, "rgb_effect_names[] (qp_menu.h) must have one entry per enabled RGB Matrix effect + the NONE entry - keep it in step with keyboard.json");
+
+// Marquee for a value too wide for the menu's value column (items with .scroll_value in qp_menu.c's
+// menu_items[]): while its row is selected, the text waits MENU_MARQUEE_START_MS, then moves left one
+// character every MENU_MARQUEE_STEP_MS, with MENU_MARQUEE_GAP spaces between the end and the restart.
+#define MENU_MARQUEE_START_MS  1000
+#define MENU_MARQUEE_STEP_MS   150
+#define MENU_MARQUEE_GAP       2
+void menu_marquee_task(void); // call from housekeeping_task_display(); does nothing outside the main SETTINGS list
+
 void action_aboutbuildbox(void);
 void action_resettodfu(void);
 void action_debug(void);

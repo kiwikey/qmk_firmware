@@ -50,6 +50,8 @@
 /* IMAGES & ANIMATIONS */
 	extern painter_image_handle_t gif_bootup01; // only loaded while the boot animation plays (qp_graphics.c) - NULL otherwise
 	extern painter_image_handle_t img_knob;
+	extern painter_image_handle_t img_qr_inputzen_bb; // 120x120 QR code
+	extern painter_image_handle_t img_qr_keygarden;   // 120x120 QR code
 	extern deferred_token         bb_boot_anim;
 
 void qp_init_load_files(void);
