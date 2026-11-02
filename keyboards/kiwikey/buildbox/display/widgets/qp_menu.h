@@ -85,7 +85,10 @@
 
 // "LAYERS CONFIG" sub-page: one line per layer, labeled with its real name
 // (layer_names[], qp_widget_layer.c).
-#define LAYERS_MENU_MAXITEMS DYNAMIC_KEYMAP_LAYER_COUNT
+// Only the first LAYERS_MENU_VISIBLE layers are listed: that is how many boxes fit above the icon picker. Icons of
+// further layers (see features/via_extra.c: layers can be added, up to DYNAMIC_KEYMAP_LAYER_COUNT) are set in the VIA app.
+#define LAYERS_MENU_VISIBLE  4
+#define LAYERS_MENU_MAXITEMS ((layer_active_count() < LAYERS_MENU_VISIBLE) ? layer_active_count() : LAYERS_MENU_VISIBLE)
 
 // Index 0 is "OFF" (no screensaver at all, regardless of LCD Timeout); indices
 // 1..4 map to effects[0..3] in qp_widget_screensaver.c (see SCREENSAVER_OFF_INDEX there).

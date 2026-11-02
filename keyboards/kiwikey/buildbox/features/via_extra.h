@@ -30,9 +30,13 @@
 #define VIA_EXTRA_OP_GET_LAYER_ICON   0x20
 #define VIA_EXTRA_OP_SET_LAYER_ICON   0x21
 #define VIA_EXTRA_OP_SAVE             0x30
+#define VIA_EXTRA_OP_CANCEL           0x31
 #define VIA_EXTRA_OP_GET_STATE        0x41
 #define VIA_EXTRA_OP_GET_MACRO_NAME   0x60
 #define VIA_EXTRA_OP_SET_MACRO_NAME   0x61
+#define VIA_EXTRA_OP_GET_LAYER_COUNT  0x70
+#define VIA_EXTRA_OP_ADD_LAYER        0x71
+#define VIA_EXTRA_OP_REMOVE_LAYER     0x72
 #define VIA_EXTRA_OP_GET_SETTING      0x50
 #define VIA_EXTRA_OP_SET_SETTING      0x51
 
@@ -54,6 +58,7 @@
 #define VIA_EXTRA_FEATURE_GET_STATE   (1 << 2)
 #define VIA_EXTRA_FEATURE_SETTINGS    (1 << 4) // bit 3 is reserved (layer-changed events), always 0
 #define VIA_EXTRA_FEATURE_MACRO_NAMES (1 << 5)
+#define VIA_EXTRA_FEATURE_LAYER_EDIT  (1 << 6) // add/remove layers (GET_LAYER_COUNT, ADD_LAYER, REMOVE_LAYER, CANCEL)
 
 #define VIA_EXTRA_NAME_FIELD          16  // the name field is always 16 bytes on the wire
 #define VIA_EXTRA_NAME_MAX            11  // characters accepted (what fits in the layer box next to its icon)
@@ -67,8 +72,29 @@
 // Name the user gave macro 'macro' through the protocol, or NULL if it has none (or macro is out of range)
 const char *via_extra_macro_name(uint8_t macro);
 
+// One-time conversion of an EEPROM written by firmware with 4 layers (keymap, macros and settings block at their
+// old addresses) to the 8-layer layout. Call from via_init_kb() (buildbox.c): it must run before QMK's via_init()
+// checks its EEPROM magic, which may reset the keymap and macros. Does nothing on a board that is already converted
+// or on a blank EEPROM.
+void via_extra_storage_migrate(void);
+
 // Initialise from EEPROM: call once at boot, after eeprom_custom_load() and before the display is drawn
 void via_extra_init(void);
+
+/*** Adding/removing layers (the customized VIA app) is staged: ADD_LAYER / REMOVE_LAYER change a RAM copy of every
+	per-layer item (keymap, names, icons, colors) and nothing reaches EEPROM until SAVE; CANCEL throws the copy away.
+	While a copy exists the host sees it (layer count, keymap commands, names, icons, colors) and the keyboard itself
+	keeps using the saved layers.
+***/
+bool    via_extra_layer_edit_pending(void);
+uint8_t via_extra_layer_count(void);             // layers the HOST sees: the staged count while editing, else layer_active_count()
+// VIA keymap commands the layer count affects (id_dynamic_keymap_get_layer_count / get_/set_keycode / get_/set_buffer),
+// answered from the staged copy while one exists. 'data' is rewritten into the reply. Returns true if handled
+// (the caller sends the reply); false = leave it to VIA/QMK (also cancels a staged copy on a keymap reset).
+bool    via_extra_keymap_command(uint8_t *data);
+// Per-layer lighting color (VIA custom value id_rgb_layers_hue): staged copy while editing, else eepdata
+void    via_extra_layer_color_get(uint8_t layer, uint8_t *hue, uint8_t *sat);
+void    via_extra_layer_color_set(uint8_t layer, uint8_t hue, uint8_t sat);
 
 // Name to show for 'layer': the custom name if one is set, otherwise the built-in layer_names[] entry
 const char *via_extra_layer_name(uint8_t layer);

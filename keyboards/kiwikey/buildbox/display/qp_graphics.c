@@ -161,7 +161,7 @@ void housekeeping_task_display(void) { // Check all flags
 	uint8_t current_layer = get_highest_layer(layer_state);
 
 	if (flag_display_keymap_reload) { // bulk keymap change (layout load/reset) - redraw the whole grid
-		if (idle_visible && current_layer < DYNAMIC_KEYMAP_LAYER_COUNT) {
+		if (idle_visible && current_layer < layer_active_count()) {
 			widget_matrix_keymap_render(current_layer);
 		}
 		flag_display_keymap_reload   = false;
@@ -235,7 +235,7 @@ void housekeeping_task_display(void) { // Check all flags
 			rgb_was_enabled_before_sleep = rgb_matrix_is_enabled();
 			rgb_matrix_disable_noeeprom();
 			display_asleep = true;
-		} else if (display_asleep && last_input_activity_elapsed() < timeout_ms) {
+		} else if (display_asleep && (timeout_idx == DISPLAY_TIMEOUT_NEVER_INDEX || last_input_activity_elapsed() < timeout_ms)) { // NEVER (e.g. set from VIA while asleep) has no timeout_ms to compare against
 			backlight_level_noeeprom(eepdata.display_brightness);
 			if (rgb_was_enabled_before_sleep) rgb_matrix_enable_noeeprom();
 			display_asleep = false;
@@ -359,7 +359,7 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 				button1_press_time = timer_read32();
 				return false;
 			case KC_BUTTON_2:
-				if (get_highest_layer(layer_state) >= DYNAMIC_KEYMAP_LAYER_COUNT-1)
+				if (get_highest_layer(layer_state) >= layer_active_count()-1)
 					layer_move(0);
 				else
 					layer_move(get_highest_layer(layer_state)+1);
@@ -371,7 +371,7 @@ bool process_record_display(uint16_t keycode, keyrecord_t *record) {
 		if (button1_held) { // false if the hold already fired dial_menu_open() and left the idle screen
 			button1_held = false;
 			if (get_highest_layer(layer_state) <= 0)
-				layer_move(DYNAMIC_KEYMAP_LAYER_COUNT-1);
+				layer_move(layer_active_count()-1);
 			else
 				layer_move(get_highest_layer(layer_state)-1);
 		}

@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "FW V260927"
+#define FW_VERSION "FW V261101"
 
 #define MATRIX_COLS 4
 #define MATRIX_ROWS 5
@@ -16,8 +16,11 @@
 #endif // defined(COMBO_ENABLE)
 
 #if defined(VIA_ENABLE)
-	#define DYNAMIC_KEYMAP_LAYER_COUNT 4
-	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 26 // must match sizeof(eeprom_custom_t) (features/eeprom_custom.h) - enforced by a _Static_assert in eeprom_custom.c
+	// The MAXIMUM number of layers: EEPROM room is reserved for all of them (keymap 8 x 40 bytes), which costs the macro buffer
+	// 160 bytes. How many layers exist right now is eepdata.layer_count (default 4, layer_active_count() in features/eeprom_custom.h):
+	// the customized VIA app adds/removes layers (features/via_extra.c) and VIA is told only that count.
+	#define DYNAMIC_KEYMAP_LAYER_COUNT 8
+	#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 39 // must match sizeof(eeprom_custom_t) (features/eeprom_custom.h) - enforced by a _Static_assert in eeprom_custom.c
 
 	// via_extra (layer names, features/via_extra.c): a dedicated region at the very end of EEPROM. VIA's macro
 	// buffer normally runs to the last EEPROM byte, so it is ended earlier to leave this tail alone -
@@ -26,7 +29,8 @@
 	#define VIA_EXTRA_EEPROM_SIZE                160
 	#define VIA_EXTRA_EEPROM_ADDR                (4096 - VIA_EXTRA_EEPROM_SIZE)
 	// Macro names (via_extra) get their own region just below the layer-name region (so the layer names stay where
-	// they are), carved out of the macro buffer in the same way: 3709 -> 3529 bytes.
+	// they are), carved out of the macro buffer in the same way: 3709 -> 3529 bytes. (8 layers: keymap +160 bytes, settings block +13 bytes
+	// -> the macro buffer is 3356 bytes.)
 	// 180 = 4 header bytes + 16 records of 11 bytes (length + 10 characters), see via_extra.c.
 	#define VIA_EXTRA_MACRO_EEPROM_SIZE    180
 	#define VIA_EXTRA_MACRO_EEPROM_ADDR    (VIA_EXTRA_EEPROM_ADDR - VIA_EXTRA_MACRO_EEPROM_SIZE)

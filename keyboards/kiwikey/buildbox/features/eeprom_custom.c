@@ -12,7 +12,6 @@
 _Static_assert(sizeof(eeprom_custom_t) == VIA_EEPROM_CUSTOM_CONFIG_SIZE, "VIA_EEPROM_CUSTOM_CONFIG_SIZE (config.h) must equal sizeof(eeprom_custom_t)");
 
 #define EEPROM_CUSTOM_ADDR ((void *)(VIA_EEPROM_CUSTOM_CONFIG_ADDR))
-#define EEPROM_CUSTOM_V7_SIZE 24 // size of the previous layout (version 7), see eeprom_custom_load()
 
 eeprom_custom_t eepdata;
 
@@ -22,17 +21,18 @@ const eeprom_custom_t eepdata_default = {
 	0,                        // LCD Timeout: 2min (shortest option, index 0 of display_timeout_seconds[])
 	BACKLIGHT_DEFAULT_LEVEL,  // LCD Brightness default (10 = max)
 	0,                        // Lighting Layers OFF
-	{ 126, 210,  42,  84 },   // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green
-	{ 255, 255, 255, 255 },   // Lighting Layers' SATs: maximum (255)
+	{ 126, 210,  42,  84,  21, 170,   0, 191 }, // Lighting Layers' HUEs: Cyan - Magenta - Yellow - Green (layers 0-3), then Orange - Blue - Red - Purple
+	{ 255, 255, 255, 255, 255, 255, 255, 255 }, // Lighting Layers' SATs: maximum (255)
 	1,                        // Knob special effect enabled
 	KNOB_FUNC_VOLUME,         // Knob: Volume
 	213,                      // Theme HUE default
 	KNOB_SENSITIVITY_MEDIUM,  // Knob-function activation sensitivity default
 	1,                        // Unbox tutorial: undone (show it on next boot)
 	1,                        // Screensaver effect: "Rain 1" (matrix_rain_1) - index 0 is "OFF"
-	{  13,   1,   22,   10 }, // Layer icons: Earth - Application - Boss - Calculator (layer_icon_pool_icon() indices, qp_widget_layer.c)
+	{  13,   1,   22,   10,  17,  14,  16,  19 }, // Layer icons (layer_icon_pool_icon() indices, qp_widget_layer.c); layers 4-7 are for added layers
 	SCREENSAVER_IDLE_MIN_DEFAULT, // Screensaver starts after 10 min idle
 	DIAL_HOLD_DEFAULT,        // Hold Button 1 for 3 s to open DIAL SETTINGS
+	LAYER_COUNT_DEFAULT,      // Layers: 4
 	EEPROM_CUSTOM_LAYOUT_VERSION // Layout version - see eeprom_custom.h
 };
 
@@ -49,19 +49,9 @@ void eeprom_custom_load(void) {
 	eeprom_read_block(&eepdata, EEPROM_CUSTOM_ADDR, sizeof(eeprom_custom_t));
 
 	// Blank/corrupt EEPROM, right after a factory/bootmagic reset, or a layout change
+	// (A version-8 block was already converted in place, before this runs, by via_extra_storage_migrate().)
 	if (eepdata.layout_version != EEPROM_CUSTOM_LAYOUT_VERSION) {
-		// Layout 7 was 24 bytes with its version byte last; layout 8 only appended two fields before it.
-		// So a version-7 block still holds every setting in the same place: keep them and fill in just
-		// the new fields (the bytes just read for them belong to the keymap that follows the block).
-		uint8_t old_version = eeprom_read_byte((const uint8_t *)(VIA_EEPROM_CUSTOM_CONFIG_ADDR) + EEPROM_CUSTOM_V7_SIZE - 1);
-		if (old_version == 7) {
-			eepdata.screensaver_idle_min = eepdata_default.screensaver_idle_min;
-			eepdata.dial_hold_100ms      = eepdata_default.dial_hold_100ms;
-			eepdata.layout_version       = EEPROM_CUSTOM_LAYOUT_VERSION;
-			eeprom_custom_save();
-		} else {
-			eeprom_custom_reset();
-		}
+		eeprom_custom_reset();
 	}
 
 	if (eeprom_custom_validate()) {
@@ -76,7 +66,8 @@ void eeprom_custom_load(void) {
 bool eeprom_custom_validate(void) {
 	bool changed = false;
 
-	CLAMP_TO_DEFAULT(active_layer,       eepdata.active_layer < DYNAMIC_KEYMAP_LAYER_COUNT);
+	CLAMP_TO_DEFAULT(layer_count,        eepdata.layer_count >= LAYER_COUNT_MIN && eepdata.layer_count <= DYNAMIC_KEYMAP_LAYER_COUNT);
+	CLAMP_TO_DEFAULT(active_layer,       eepdata.active_layer < eepdata.layer_count);
 	CLAMP_TO_DEFAULT(display_bootanim,   eepdata.display_bootanim <= 1);
 	CLAMP_TO_DEFAULT(display_timeout,    eepdata.display_timeout < DISPLAY_TIMEOUT_COUNT);
 	CLAMP_TO_DEFAULT(display_brightness, eepdata.display_brightness >= 1 && eepdata.display_brightness <= BACKLIGHT_LEVELS);

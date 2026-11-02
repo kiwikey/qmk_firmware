@@ -117,6 +117,13 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
 		return true;
 	}
 
+	// The layer count is not QMK's fixed one, and while layers are being added/removed (not saved yet) the keymap VIA
+	// sees is a staged copy: via_extra_keymap_command() answers those commands itself (see via_extra.h).
+	if (via_extra_keymap_command(data)) {
+		raw_hid_send(data, length);
+		return true;
+	}
+
 /* DEBUG: printout full rawHID packet */
 	// NOTE: a packet of setting keycode in VIA: [0x05 - layer - row - col - ??? - keycode]
 	//       that ??? is unsure, for setting basic keycodes it is 0x00, for macro it is 0x77, for RGB it is 0x78
@@ -204,7 +211,7 @@ void via_config_set_value( uint8_t *data ) {
 	switch ( *value_id ) {
 		// LAYER-RELATED CONFIGS
 		case id_layer_setactive: {
-			if (*value_data >= DYNAMIC_KEYMAP_LAYER_COUNT) break; // out of range - ignore, every per-layer array is sized by this
+			if (*value_data >= layer_active_count()) break; // not an existing layer - ignore
 			eepdata.active_layer = *value_data;
 			layer_move(eepdata.active_layer); // This triggers layer_state_set_kb()
 			break;
@@ -224,10 +231,11 @@ void via_config_set_value( uint8_t *data ) {
 		//      [3] = value of SAT
 		// (without this you can never understand my code lol, appreciate this, folk!)
 		case id_rgb_layers_hue: {
-			if (data[1] >= DYNAMIC_KEYMAP_LAYER_COUNT) break; // out of range - would write past layer_hue[]/layer_sat[]
-			eepdata.layer_hue[data[1]] = data[2];
-			eepdata.layer_sat[data[1]] = data[3];
-			flag_widget_layer_changed = data[1] + 1; // flag need to +1, see 'flag_widget_layer_changed' definition in qp_graphics.c
+			if (data[1] >= via_extra_layer_count()) break; // not a layer the host knows (also keeps it inside layer_hue[]/layer_sat[])
+			via_extra_layer_color_set(data[1], data[2], data[3]); // the staged copy while layers are being added/removed, else eepdata
+			if (!via_extra_layer_edit_pending()) {
+				flag_widget_layer_changed = data[1] + 1; // flag need to +1, see 'flag_widget_layer_changed' definition in qp_graphics.c
+			}
 			break;
 		}
 
@@ -317,13 +325,7 @@ void via_config_get_value( uint8_t *data ) {
 			// value_data[1] is value of HUE
 			// value_data[2] is value of SAT
 			value_data[0] = data[1];
-			if (data[1] >= DYNAMIC_KEYMAP_LAYER_COUNT) { // out of range - reply 0/0 instead of reading past the arrays
-				value_data[1] = 0;
-				value_data[2] = 0;
-				break;
-			}
-			value_data[1] = eepdata.layer_hue[data[1]];
-			value_data[2] = eepdata.layer_sat[data[1]];
+			via_extra_layer_color_get(data[1], &value_data[1], &value_data[2]); // 0/0 for a layer that does not exist
 			break;
 		}
 

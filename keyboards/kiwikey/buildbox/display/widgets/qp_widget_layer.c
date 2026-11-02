@@ -10,11 +10,16 @@
 #include "display/qp_custom_api.h"
 #include "display/defines.h"
 
+// Built-in names by position. Layers 4-7 only exist once added in the customized VIA app, where they can be renamed.
 const char * const layer_names[] = {
 	"Default",
 	"Media",
 	"Mouse",
-	"RGB LED"
+	"RGB LED",
+	"Layer 4",
+	"Layer 5",
+	"Layer 6",
+	"Layer 7"
 };
 _Static_assert(sizeof(layer_names) / sizeof(layer_names[0]) == (DYNAMIC_KEYMAP_LAYER_COUNT), "layer_names must have exactly DYNAMIC_KEYMAP_LAYER_COUNT entries");
 
@@ -114,14 +119,14 @@ void widget_layer_render_navigation(uint8_t layer) {
 	uint8_t prev_layer;
 	uint8_t next_layer;
 
-	if (layer >= DYNAMIC_KEYMAP_LAYER_COUNT) return; // prev_layer below would index past layer_names[]
+	if (layer >= layer_active_count()) return; // not an existing layer
 	if (!ico12_arrow_left || !ico12_arrow_right) return; // their ->width is read below - NULL if they failed to load (qp_includes.c)
 
 	if (layer <= 0) // layer 0
-		prev_layer = DYNAMIC_KEYMAP_LAYER_COUNT-1;
+		prev_layer = layer_active_count()-1;
 	else prev_layer = layer - 1;
 
-	if (layer >= DYNAMIC_KEYMAP_LAYER_COUNT-1) // last layer
+	if (layer >= layer_active_count()-1) // last layer
 		next_layer = 0;
 	else next_layer = layer + 1;
 

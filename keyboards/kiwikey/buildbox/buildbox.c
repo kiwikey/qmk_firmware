@@ -2,6 +2,7 @@
 
 #include <qp.h>
 #include "via.h"
+#include "keymap_introspection.h" // keycode_at_keymap_location()
 #include "print.h"
 #include "sensor/sensors_handler.h"
 #include "features/eeprom_custom.h"
@@ -22,6 +23,12 @@
 	#include "display/widgets/qp_widget_screensaver.h"
 	#include "display/widgets/tutorial.h"
 #endif // defined(QUANTUM_PAINTER_ENABLE)
+
+// QMK calls this first thing in via_init() (keyboard_init(), long before keyboard_post_init_kb()), before it checks
+// its own EEPROM magic and maybe resets the keymap and macros.
+void via_init_kb(void) {
+	via_extra_storage_migrate(); // a board last flashed with 4 layers has its keymap/macros/settings moved to the 8-layer layout (one time)
+}
 
 void keyboard_post_init_kb(void) {
 
@@ -86,8 +93,27 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 	return false;
 }
 
+// The 2 buttons below the screen (the last matrix row, columns 0 and 1) change layers and open the menu, so they must work
+// on EVERY layer. A layer added in the customized VIA app starts out blank, and a blank (KC_NO) button there would leave
+// the keyboard stuck on that layer. So a KC_NO on a button position means its own function. (KC_TRNS needs no help: it falls
+// through to a lower layer, and layers 0-3 of the default keymap have the buttons.) Otherwise this is QMK's own lookup.
+uint16_t keymap_key_to_keycode(uint8_t layer, keypos_t key) {
+	uint16_t keycode = KC_NO;
+	if (key.row < MATRIX_ROWS && key.col < MATRIX_COLS) {
+		keycode = keycode_at_keymap_location(layer, key.row, key.col);
+	}
+	if (keycode == KC_NO && key.row == MATRIX_ROWS - 1 && key.col < 2) {
+		keycode = KC_BUTTON_1 + key.col; // KC_BUTTON_2 follows KC_BUTTON_1 (buildbox.h)
+	}
+	return keycode;
+}
+
 layer_state_t layer_state_set_kb(layer_state_t state) {
 	state = layer_state_set_user(state);
+
+	// Only the layers that exist can be active: a key that goes to a removed (or never added) layer, e.g. MO(6) with 4 layers,
+	// does nothing instead of switching to a layer whose keys are all blank
+	state &= ((layer_state_t)1 << layer_active_count()) - 1;
 
 	// Only redraw the layer/matrix widgets while the idle screen is actually
 	// showing (see ui_idle_screen_visible(), qp_graphics.c) - e.g. VIA's "Active
@@ -95,7 +121,7 @@ layer_state_t layer_state_set_kb(layer_state_t state) {
 	// screensaver is up, and must not draw over it. Also false before the display
 	// exists (keyboard_post_init_kb()'s layer_move() runs before display init).
 	uint8_t layer = get_highest_layer(state);
-	if (ui_idle_screen_visible() && layer < DYNAMIC_KEYMAP_LAYER_COUNT) {
+	if (ui_idle_screen_visible() && layer < layer_active_count()) {
 		widget_layer_render_layername(layer, WIDGET_LAYER_POSX, WIDGET_LAYER_POSY);
 		widget_layer_render_navigation(layer);
 		widget_matrix_keymap_render(layer);
@@ -109,7 +135,7 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) { // Li
 	}
 
 	uint8_t layer = get_highest_layer(layer_state|default_layer_state); // same layer pick as knob_effect() (knob_custom.c)
-	if (eepdata.lighting_layers != 0 && layer < DYNAMIC_KEYMAP_LAYER_COUNT) { // If Lighting Layers is off, there's nothing to do here
+	if (eepdata.lighting_layers != 0 && layer < layer_active_count()) { // If Lighting Layers is off, there's nothing to do here
 		HSV hsv = {
 			eepdata.layer_hue[layer],
 			eepdata.layer_sat[layer],

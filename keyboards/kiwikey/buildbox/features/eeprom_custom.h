@@ -18,8 +18,11 @@
 // DYNAMIC_KEYMAP_LAYER_COUNT: tying them to the layer count would shift every
 // later field's EEPROM offset the moment the layer count changes. Raising this
 // is a layout change (see EEPROM_CUSTOM_LAYOUT_VERSION).
-#define EEPROM_CUSTOM_MAX_LAYERS 4
+#define EEPROM_CUSTOM_MAX_LAYERS 8
 _Static_assert(DYNAMIC_KEYMAP_LAYER_COUNT <= EEPROM_CUSTOM_MAX_LAYERS, "DYNAMIC_KEYMAP_LAYER_COUNT exceeds EEPROM_CUSTOM_MAX_LAYERS - raise it (layout change)");
+
+#define LAYER_COUNT_DEFAULT 4 // layers a new/reset keyboard has (the default keymap has this many)
+#define LAYER_COUNT_MIN     1
 
 // Stored in the struct's last byte and compared at boot (eeprom_custom_load()):
 // a mismatch resets everything to eepdata_default. Bump it whenever
@@ -28,7 +31,10 @@ _Static_assert(DYNAMIC_KEYMAP_LAYER_COUNT <= EEPROM_CUSTOM_MAX_LAYERS, "DYNAMIC_
 // History: was a fixed "checksum = 7" sentinel, so 7 was the layout before 8.
 // 8 added screensaver_idle_min and dial_hold_100ms; eeprom_custom_load() upgrades a version-7 block
 // in place (keeps the user's settings) instead of resetting it.
-#define EEPROM_CUSTOM_LAYOUT_VERSION 8
+// 9: the per-layer arrays grew from 4 to 8 entries and layer_count was added. This moved the keymap and the macro
+// buffer too, so version 8 is upgraded by via_extra_storage_migrate() (features/via_extra.c), which runs before this
+// block is read; a version-7 block is no longer upgraded (the board is reset to defaults).
+#define EEPROM_CUSTOM_LAYOUT_VERSION 9
 
 typedef struct {
 	uint8_t active_layer;
@@ -47,12 +53,18 @@ typedef struct {
 	uint8_t layer_icon[EEPROM_CUSTOM_MAX_LAYERS]; // pool index into layer_icon_pool_icon() (display/widgets/qp_widget_layer.c) - picked in the "LAYERS CONFIG" menu
 	uint8_t screensaver_idle_min; // minutes of no input before the screensaver starts, SCREENSAVER_IDLE_MIN_MIN..MAX - see screensaver_idle_ms()
 	uint8_t dial_hold_100ms;      // how long Button 1 is held to open "DIAL SETTINGS", in 0.1 s units, DIAL_HOLD_MIN..MAX - see dial_settings_hold_ms()
+	uint8_t layer_count;          // layers that exist right now, LAYER_COUNT_MIN..EEPROM_CUSTOM_MAX_LAYERS - see layer_active_count(); changed only by via_extra's SAVE
 	// New fields go here, directly above layout_version - never in the middle (shifts every later field)
 	uint8_t layout_version; // EEPROM_CUSTOM_LAYOUT_VERSION - must stay the last field
 } eeprom_custom_t;
 
 extern eeprom_custom_t       eepdata;          // live settings - read/written directly everywhere
 extern const eeprom_custom_t eepdata_default;  // factory defaults (eeprom_custom.c)
+
+// How many layers exist (the committed count - an add/remove the web app has not saved yet is not counted, see via_extra.c).
+// Anything that wraps around the layers or checks "does this layer exist" uses this; arrays stay sized by
+// DYNAMIC_KEYMAP_LAYER_COUNT / EEPROM_CUSTOM_MAX_LAYERS (the maximum).
+static inline uint8_t layer_active_count(void) { return eepdata.layer_count; }
 
 // User-changeable timeouts (VIA custom values id_screensaver_idle / id_dial_hold, see via_custom.h).
 // Valid ranges are enforced by eeprom_custom_validate().

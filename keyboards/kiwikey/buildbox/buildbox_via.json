@@ -1,6 +1,6 @@
 {
     "name": "BuildBox v1",
-    "firmwareVersion" : 20261018,
+    "firmwareVersion" : 20261101,
     "vendorId": "0x4B57",
     "productId": "0xBB00",
     "keycodes": ["qmk_rgb_matrix_keycodes"],
